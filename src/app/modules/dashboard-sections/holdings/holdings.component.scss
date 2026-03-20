@@ -1,0 +1,13 @@
+::ng-deep {
+    .mat-mdc-button.mat-mdc-button-base,
+    .mat-mdc-raised-button.mat-mdc-button-base,
+    .mat-mdc-unelevated-button.mat-mdc-button-base,
+    .mat-mdc-outlined-button.mat-mdc-button-base {
+        height: auto;
+    }
+}
+
+.mat-mdc-unelevated-button.mat-accent {
+    --mdc-filled-button-container-color: #3ab426;
+    --mdc-filled-button-label-text-color: #0a0707;
+}

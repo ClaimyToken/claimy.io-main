@@ -1,0 +1,29 @@
+.c-home-header {
+    margin-top: -2rem;
+    height: 460px;
+    max-height: 520px;
+
+    h1 {
+        font-size: 4rem;
+    }
+
+    @media only screen and (max-width: 600px) {
+        h1 {
+            font-size: 3rem;
+        }
+    }
+    @media only screen and (max-width: 480px) {
+        h1 {
+            font-size: 2.5rem;
+        }
+    }
+}
+.c-home-header__clip {
+    mix-blend-mode: screen;
+    height: 100%;
+    width: 100%;
+}
+.c-home-header__clip-container {
+    max-height: max-content;
+    max-width: 700px;
+}

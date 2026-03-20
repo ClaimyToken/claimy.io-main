@@ -1,0 +1,15 @@
+.navbar {
+    --bs-navbar-nav-link-padding-x: 1rem;
+    --bs-navbar-color: rgba(var(--bs-emphasis-color-rgb), 0.5);
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--bs-active-text);
+    text-shadow: 0px 0px 10px rgba(255, 46, 0, 0.75);
+    text-decoration: underline;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    color: var(--bs-nav-link-hover-color);
+}

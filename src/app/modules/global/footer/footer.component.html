@@ -1,0 +1,46 @@
+<hr class="my-3">
+<footer class="py-3 py-lg-5">
+    <p class="h1 text-primary text-uppercase mb-4 mb-lg-5 text-center fw-bold c-text-glow">{{ configService.siteName }}
+    </p>
+
+    <div class="row justify-content-center gy-4 gy-lg-0 my-3 my-lg-5">
+        <div class="col-6 col-lg-3 col-xl-2">
+            <div class="d-flex flex-column justify-content-center text-center">
+                <p class="text-primary fw-bold">Navigation</p>
+                <a routerLink="/" class="mb-1">Home</a>
+                <a routerLink="/dashboard" class="mb-1">Dashboard</a>
+                <a href="https://github.com/ClaimyToken/Claimy-Project" target="_blank" class="mb-1">Documentation</a>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3 col-xl-2">
+            <div class="d-flex flex-column justify-content-center text-center">
+                <p class="text-primary fw-bold">SOCIALS</p>
+                <a href="{{ configService.twitterLink }}" target="_blank" class="mb-1">X/Twitter</a>
+                <a href="{{ configService.telegramLink }}" target="_blank" class="mb-1">Telegram</a>
+                <a href="{{ configService.githubLink}}" target="_blank" class="mb-1">Github</a>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3 col-xl-2">
+            <div class="d-flex flex-column justify-content-center text-center">
+                <p class="text-primary fw-bold">Token</p>
+                <a href="{{ configService.coinmarketcapLink }}" target="_blank" class="mb-1">CoinMarketCap</a>
+                <a href="{{ configService.coingeckoLink }}" target="_blank" class="mb-1">CoinGecko</a>
+                <a href="https://etherscan.io/address/{{ configService.TokenContractAddress }}" target="_blank"
+                    class="mb-1">Etherscan</a>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3 col-xl-2">
+            <div class="d-flex flex-column justify-content-center text-center">
+                <p class="text-primary fw-bold">Charts</p>
+                <a href="https://app.uniswap.org/tokens/ethereum/{{ configService.TokenContractAddress }}"
+                    target="_blank" class="mb-1">Uniswap</a>
+                <a href="https://www.dextools.io/app/en/ether/pair-explorer/{{ configService.TokenContractAddress }}"
+                    target="_blank" class="mb-1">DexTools</a>
+                <a href="https://dexscreener.com/solana/{{ configService.TokenContractAddress }}" target="_blank"
+                    class="mb-1">DexScreener</a>
+            </div>
+        </div>
+    </div>
+    <p class="text-muted opacity-50 text-center">{{ configService.siteLink }} (c) {{ currentYear }} - All rights
+        reserved.</p>
+</footer>

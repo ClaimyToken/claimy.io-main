@@ -1,0 +1,15 @@
+<div class="card">
+    <div class="card-body p-3 p-lg-4">
+
+        <div
+            class="d-flex flex-column flex-sm-row justify-content-center justify-content-sm-between align-items-center mb-3 mb-lg-4">
+            <p class="fs-2 mb-1 mb-sm-0 fw-bold">$CLAIMY CHART</p>
+            <p class="mb-0 text-uppercase text-muted opacity-50">Total Value Stored & Price</p>
+        </div>
+
+        <canvas baseChart class="chart" [type]="'line'" [legend]="false" [data]="lineChartData"
+            [options]="lineChartOptions" [type]="lineChartType">
+        </canvas>
+    </div>
+
+</div>

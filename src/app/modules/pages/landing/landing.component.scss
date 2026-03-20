@@ -1,0 +1,9 @@
+.c-video__clip {
+    mix-blend-mode: screen;
+    height: 100%;
+    width: 100%;
+}
+.c-video__clip-container {
+    max-height: max-content;
+    max-width: 700px;
+}

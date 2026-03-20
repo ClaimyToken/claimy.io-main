@@ -1,0 +1,15 @@
+<div class="mw-100 position-relative">
+    <app-navigation></app-navigation>
+    <div class="d-flex justify-content-center align-content-center">
+        <div class="c-claimy-logo d-inline-flex align-items-center justify-content-center px-5 py-3 position-relative">
+            <h1 class="fw-bold text-primary">{{ configService.siteName }}</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <main>
+            <router-outlet></router-outlet>
+        </main>
+        <app-footer></app-footer>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+::ng-deep {
+    .mat-mdc-button.mat-mdc-button-base,
+    .mat-mdc-raised-button.mat-mdc-button-base,
+    .mat-mdc-unelevated-button.mat-mdc-button-base,
+    .mat-mdc-outlined-button.mat-mdc-button-base {
+        height: auto;
+    }
+
+    .mat-mdc-unelevated-button.mat-accent {
+        --mdc-filled-button-container-color: #342d2d;
+        --mdc-filled-button-label-text-color: #fff;
+    }
+
+    .mat-mdc-unelevated-button[disabled][disabled] {
+        --mdc-filled-button-disabled-container-color: rgba(255, 255, 255, 0.05);
+        --mdc-filled-button-disabled-label-text-color: rgba(255, 255, 255, 0.5);
+        --mdc-filled-button-container-color: rgba(255, 255, 255, 0.12);
+        --mdc-filled-button-label-text-color: rgba(255, 255, 255, 0.4);
+        opacity: 0.5;
+    }
+}
