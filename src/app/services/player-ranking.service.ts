@@ -21,7 +21,10 @@ export type PlayerRankingSnapshot = {
 })
 export class PlayerRankingService {
   readonly snapshot$ = new BehaviorSubject<PlayerRankingSnapshot | null>(null);
+  /** True only on the first fetch when no snapshot exists yet (shows skeleton line; avoids layout jump on refresh). */
   loading = false;
+  /** True during any in-flight fetch (initial or refresh). Use to disable the Refresh button. */
+  refreshInProgress = false;
   error: string | null = null;
 
   constructor(
@@ -47,6 +50,7 @@ export class PlayerRankingService {
     this.snapshot$.next(null);
     this.error = null;
     this.loading = false;
+    this.refreshInProgress = false;
   }
 
   async refresh(): Promise<void> {
@@ -55,8 +59,12 @@ export class PlayerRankingService {
       this.snapshot$.next(null);
       return;
     }
-    this.loading = true;
+    const hadSnapshot = this.snapshot$.value !== null;
     this.error = null;
+    if (!hadSnapshot) {
+      this.loading = true;
+    }
+    this.refreshInProgress = true;
     try {
       const rows = await this.fetchAllSettledWalletBets(w);
       const agg = this.aggregate(rows);
@@ -81,6 +89,7 @@ export class PlayerRankingService {
       this.snapshot$.next(null);
     } finally {
       this.loading = false;
+      this.refreshInProgress = false;
     }
   }
 

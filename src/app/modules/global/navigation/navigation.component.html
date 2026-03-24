@@ -193,7 +193,7 @@
                                     [{{
                                         rankSnap
                                             ? (rankSnap.currentTier.tierLabel | uppercase)
-                                            : playerRanking.loading
+                                            : playerRanking.loading && !rankSnap
                                               ? '…'
                                               : 'BRONZE III'
                                     }}]

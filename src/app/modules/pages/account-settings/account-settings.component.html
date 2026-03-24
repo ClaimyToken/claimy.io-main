@@ -218,6 +218,10 @@
         <p *ngIf="playerRanking.error" class="text-danger small mb-3">{{ playerRanking.error }}</p>
 
         <ng-container *ngIf="playerRanking.snapshot$ | async as snap">
+          <div
+            class="account-settings-ranking-body"
+            [class.account-settings-ranking-body--refreshing]="playerRanking.refreshInProgress"
+          >
           <div class="account-settings-rank-hero mb-3">
             <span class="account-settings-label d-block mb-1">Current rank</span>
             <span
@@ -277,11 +281,17 @@
           <div *ngIf="!snap.nextTier" class="account-settings-max-rank text-primary small mb-0">
             You’re at the highest published tier. Outstanding volume — thank you for playing.
           </div>
+          </div>
         </ng-container>
 
         <p class="account-settings-foot mb-0 mt-3">
-          <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="playerRanking.refresh()">
-            Refresh stats
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary me-2"
+            [disabled]="playerRanking.refreshInProgress"
+            (click)="playerRanking.refresh()"
+          >
+            {{ playerRanking.refreshInProgress ? 'Refreshing…' : 'Refresh stats' }}
           </button>
           <a routerLink="/home" class="account-settings-back">← Back to home</a>
         </p>

@@ -287,6 +287,15 @@
   letter-spacing: 0.02em;
 }
 
+.account-settings-ranking-body {
+  transition: opacity 0.15s ease;
+}
+
+.account-settings-ranking-body--refreshing {
+  opacity: 0.72;
+  pointer-events: none;
+}
+
 .account-settings-max-rank {
   border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
   border-radius: 0.35rem;
