@@ -10,7 +10,14 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 - **`DEVELOPERWORK/CLAIMY_VAULT.md`** — vault architecture (credits, custodial deposits, PDA vault, `withdraw-spl`).
 - **`DEVELOPERWORK/TESTING_DEPOSITS.md`** — test Claimy SPL deposits / credits (wallet + `npm run check-deposit`).
 - **`DEVELOPERWORK/PLAYABLE_CREDITS.md`** — database playable balance + `claimy-credits` Edge Function.
-- **`supabase/functions/README.md`** — slugs for repo Edge functions (e.g. `playhouse-feed`: `list_bets`, `player_ranking_stats`) and which SQL migrations to run.
+- **`supabase/functions/README.md`** — slugs for repo Edge functions (including `blackjack-game` and `playhouse-feed`) and which SQL migrations to run.
+
+## Current shipped highlights
+
+- **Flowerpoker (live):** bet lifecycle, rerolls, resume flow, and browser-side provably fair verification.
+- **Blackjack (live):** bet/hit/stand/double/insurance, animated dealing, static table UI, and verify-round checks.
+- **Playhouse feed:** paginated settled bets + ranking stats RPC; now supports Flowerpoker and Blackjack sessions.
+- **Landing token metrics:** live PumpPortal-derived **Current Marketcap** and rolling **24h Volume** cards.
 
 ## On-chain vault (Claimy SPL)
 

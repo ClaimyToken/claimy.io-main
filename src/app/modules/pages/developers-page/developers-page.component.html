@@ -33,7 +33,7 @@
             >Playhouse feed troubleshooting</a
           >
         </li>
-        <li><a href="#flows" (click)="scrollToSection('flows', $event)">Registration, login, credits, withdrawals</a></li>
+        <li><a href="#flows" (click)="scrollToSection('flows', $event)">Registration, login, credits, games, withdrawals</a></li>
         <li><a href="#own-token" (click)="scrollToSection('own-token', $event)">Your own SPL mint</a></li>
         <li><a href="#scripts" (click)="scrollToSection('scripts', $event)">npm scripts</a></li>
         <li><a href="#docs" (click)="scrollToSection('docs', $event)">Further reading</a></li>
@@ -79,8 +79,8 @@
           <td>Users, nonces, referral data, playable credit ledger — applied via SQL migrations in <code>DEVELOPERWORK/migrations/</code>.</td>
         </tr>
         <tr>
-          <td>Edge Functions</td>
-          <td>Register (custodial deposit keypair encrypted server-side), login lookup, credits sync, withdrawals, referrals, etc.</td>
+      <td>Edge Functions</td>
+      <td>Register/login, credits sync, game sessions (Flowerpoker + Blackjack), Playhouse feed/ranking stats, withdrawals, referrals.</td>
         </tr>
         <tr>
           <td>Solana RPC</td>
@@ -155,7 +155,8 @@ npx ng serve
   <p class="mt-3 mb-0">
     Slugs include <code>check-username</code>, <code>register-phantom</code>, <code>wallet-login</code>,
     <code>account-linked-wallet</code>, <code>claimy-credits</code>, <code>claimy-profile</code>,
-    <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, <code>playhouse-feed</code>,
+    <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, <code>blackjack-game</code>,
+    <code>playhouse-feed</code>,
     and others listed in <code>supabase/functions/README.md</code> and <code>DEVELOPERWORK/README.md</code>.
   </p>
 
@@ -169,7 +170,8 @@ npx ng serve
       and optional <code>walletAddress</code> for the
       filtered view. The function calls RPC <code>playhouse_list_settled_bets</code> with the service role — run
       <code>DEVELOPERWORK/migrations/claimy_playhouse_feed.sql</code> and
-      <code>claimy_playhouse_player_ranking_stats.sql</code> (RPC <code>playhouse_player_ranking_stats</code> for action
+      <code>claimy_playhouse_player_ranking_stats.sql</code> +
+      <code>claimy_playhouse_include_blackjack.sql</code> (RPC <code>playhouse_player_ranking_stats</code> for action
       <code>player_ranking_stats</code>) before deploying. In <code>supabase/config.toml</code>, set
       <code>verify_jwt = false</code> under <code>[functions.playhouse-feed]</code> so the browser can call it with anon
       headers only (same pattern as other public Edge endpoints).
@@ -256,6 +258,13 @@ npx ng serve
     Withdrawals are initiated from the app but executed by <strong>withdraw-spl</strong> using server-side signing keys.
     That can be a hot wallet (“simple vault”) or a PDA program path, depending on your deployment and
     <code>DEVELOPERWORK/CLAIMY_VAULT.md</code>. Fund the vault / relayer with SOL for fees and SPL tokens as needed.
+  </p>
+  <h3>Games and provably fair checks</h3>
+  <p>
+    Claimy game pages use Edge game handlers that lock stake, persist session metadata in
+    <code>claimy_game_sessions</code>, and settle through <code>claimy_apply_credit_delta</code>.
+    <strong>Flowerpoker</strong> and <strong>Blackjack</strong> are both wired this way. The UI also includes browser-side
+    verification utilities so users can compare committed seed/hash values against revealed settlement data.
   </p>
 
   <h2 id="own-token">Using your own SPL token</h2>

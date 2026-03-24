@@ -34,6 +34,19 @@ export class DevUpdatesComponent {
     {
       dateLabel: '24 March 2026',
       isoDate: '2026-03-24',
+      subtitle: 'Blackjack launch + fairness polish + live token metrics',
+      bullets: [
+        'Blackjack is now live end-to-end: Edge function (`blackjack-game`), stake lock/settle via credits ledger, and full round/session persistence in `claimy_game_sessions`.',
+        'Added full Blackjack table flow in the app: bet, hit, stand, double, insurance, round log, and refresh-safe resume.',
+        'Provably fair extended for Blackjack with browser-side verification checks (commit hash, shuffle digest, and deal-order comparison when cards are available).',
+        'Major UI pass on Blackjack: larger centered cards, staged 1-second deal animation, face-down dealer hole card, static table sizing, and controls that stay mounted to avoid layout jumps.',
+        'Landing page metrics now consume PumpPortal real-time stream for Claimy token: current market cap (SOL) and rolling 24h volume (SOL) cards.',
+        'Playhouse and ranking docs updated to include Blackjack sessions and latest migration path (`claimy_playhouse_include_blackjack.sql`).'
+      ]
+    },
+    {
+      dateLabel: '24 March 2026',
+      isoDate: '2026-03-24',
       subtitle: 'Playhouse feed recovery + auth UX pass',
       bullets: [
         'Fixed Playhouse feed fetch path and deployment workflow: the core issue was Edge slug/deploy mismatch (`OPTIONS .../playhouse-feed` returned 404 until function was deployed under the exact slug).',

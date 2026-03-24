@@ -33,6 +33,7 @@ This folder is the **single place** for whoever finishes backend, on-chain, and 
 | **PLAYABLE_CREDITS.md** | DB ledger + `claimy-credits` Edge (playable balance, deposits, games). |
 | **migrations/claimy_playable_credits.sql** | Run in Supabase to add tables + RPCs. |
 | **migrations/claimy_playhouse_player_ranking_stats.sql** | RPC `playhouse_player_ranking_stats` — aggregates for Ranking progress (used by `playhouse-feed` action `player_ranking_stats`). Apply after `claimy_playhouse_feed.sql`. |
+| **migrations/claimy_playhouse_include_blackjack.sql** | Extends Playhouse feed + ranking aggregates to include Blackjack sessions alongside Flowerpoker. |
 | **FRONTEND_AND_ENV.md** | `env.template`, production env, what the SPA exposes. |
 
 ---
@@ -80,6 +81,7 @@ CI/deploy job names may differ, but the deployed function slug must still be exa
 In addition to the table above, current game pages also call:
 
 - `flowerpoker-game`
+- `blackjack-game`
 - `claimy-credits`
 - `claimy-referrals`
 - `claimy-profile`

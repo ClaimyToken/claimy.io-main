@@ -165,8 +165,9 @@
                 <section class="c-home-content-block">
                     <h3 class="c-home-block-subheading text-primary fw-semibold">What is shipping next</h3>
                     <p class="c-home-block-text mb-0">
-                        More table games share the same Edge + Postgres pattern as Flowerpoker; blackjack, dice, and hi-low
-                        are staged in the app with the same wallet session and credits plumbing. Follow the
+                        More table games share the same Edge + Postgres pattern as Flowerpoker; blackjack is now live with
+                        a full table flow while dice and hi-low remain staged on the same wallet session and credits plumbing.
+                        Follow the
                         <a routerLink="/updates" class="c-home-inline-link">dev blog</a> for concrete milestones.
                     </p>
                 </section>
@@ -184,8 +185,8 @@
                 </h2>
                 <p class="c-home-block-text c-home-games-intro mb-4">
                     Four titles share one credit model: Edge Functions and Postgres record bets, sessions, and settlements so
-                    outcomes stay auditable. <strong>Flowerpoker</strong> is live end-to-end; the others are on the roadmap
-                    with the same ledger discipline.
+                    outcomes stay auditable. <strong>Flowerpoker</strong> and <strong>Blackjack</strong> are live
+                    end-to-end; dice and hi-low are on the roadmap with the same ledger discipline.
                 </p>
 
                 <div class="row g-3 g-lg-4">
@@ -219,16 +220,24 @@
                         <article class="c-home-game-tile h-100">
                             <h3 class="c-home-game-tile__title mb-2">
                                 <a routerLink="/blackjack" class="c-home-game-tile__link">Blackjack</a>
-                                <span class="c-home-game-tile__badge c-home-game-tile__badge--soon">Coming</span>
+                                <span class="c-home-game-tile__badge">Live</span>
                             </h3>
                             <p class="c-home-game-tile__lede small mb-3">
-                                Classic 21 against the house — hit, stand, settle.
+                                Classic 21 against the house with a fresh deck each hand.
                             </p>
                             <div class="c-home-game-tile__pair">
-                                <span class="c-home-game-tile__label">Plan</span>
+                                <span class="c-home-game-tile__label">In the app</span>
                                 <p class="c-home-game-tile__body mb-0">
-                                    Table UI, shoe visuals, and hand outcomes on the same wallet session — mirroring the
-                                    Flowerpoker Edge + session pattern.
+                                    Bet, hit, stand, double, insurance, round log, and browser-side verify flow with animated
+                                    dealing and refresh-safe session resume.
+                                </p>
+                            </div>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">On the server</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Edge <code>blackjack-game</code> writes <code>claimy_game_sessions</code>, locks stakes,
+                                    settles payouts through <code>claimy_apply_credit_delta</code>, and stores fairness
+                                    metadata.
                                 </p>
                             </div>
                         </article>
