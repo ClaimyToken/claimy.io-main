@@ -15,6 +15,7 @@ import { AccountSettingsComponent } from './modules/pages/account-settings/accou
 import { ReferralRankingComponent } from './modules/pages/referral-ranking/referral-ranking.component';
 import { ClaimyTokenComponent } from './modules/pages/claimy-token/claimy-token.component';
 import { DevelopersPageComponent } from './modules/pages/developers-page/developers-page.component';
+import { DevUpdatesComponent } from './modules/pages/dev-updates/dev-updates.component';
 import { PlayhouseComponent } from './modules/pages/playhouse/playhouse.component';
 import { FlowerpokerComponent } from './modules/pages/flowerpoker/flowerpoker.component';
 import { BlackjackComponent } from './modules/pages/blackjack/blackjack.component';
@@ -52,6 +53,12 @@ const otherLayoutRoutes: Routes = [
     path: 'developers',
     component: DevelopersPageComponent,
     title: "CLAIMY | For developers"
+  },
+  {
+    path: 'updates',
+    canActivate: [SiteStatusGuard],
+    component: DevUpdatesComponent,
+    title: "CLAIMY | Product updates"
   },
   {
     path: 'playhouse',

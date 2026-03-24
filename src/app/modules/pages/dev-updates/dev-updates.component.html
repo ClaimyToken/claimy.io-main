@@ -1,0 +1,32 @@
+<div class="c-updates-page">
+  <header class="updates-header border-primary border rounded-3 my-3 my-lg-4 px-3 px-md-4 py-3">
+    <h1 class="updates-title text-primary text-uppercase fw-bold c-text-glow mb-2">Product updates</h1>
+    <p class="updates-lead mb-0">
+      A running log of what we ship and fix. We keep this page so players and builders can see how Claimy is evolving —
+      transparency beats silence. New entries are added at the top when we deploy meaningful changes.
+    </p>
+  </header>
+
+  <div class="updates-stack">
+    <article class="updates-entry" *ngFor="let e of entries">
+      <div class="updates-entry__meta">
+        <time class="updates-entry__date" [attr.datetime]="e.isoDate ?? null">{{ e.dateLabel }}</time>
+        <h2 class="updates-entry__subtitle text-primary mb-0" *ngIf="e.subtitle">{{ e.subtitle }}</h2>
+      </div>
+      <ul class="updates-entry__list mb-0">
+        <li *ngFor="let line of e.bullets">{{ line }}</li>
+      </ul>
+    </article>
+  </div>
+
+  <p class="updates-footnote text-secondary small mt-4 mb-0">
+    Something missing or wrong? Reach out on
+    <a href="{{ config.githubLink }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+    or socials in the footer.
+  </p>
+  <p class="updates-maintainer text-secondary small mt-2 mb-5 opacity-75">
+    <strong class="text-secondary">Maintainers:</strong> new posts are added in
+    <code class="updates-code">src/app/modules/pages/dev-updates/dev-updates.component.ts</code>
+    — push a new object to the top of <code class="updates-code">entries</code>, then build and deploy.
+  </p>
+</div>
