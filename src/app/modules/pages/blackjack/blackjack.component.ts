@@ -1,6 +1,72 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ClaimyEdgeService, BlackjackPublicGame } from 'src/app/services/claimy-edge.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
+import type { VerificationResult } from '../flowerpoker/flowerpoker-provably-fair';
+import { verifyBlackjackRound, type BlackjackFairSnapshot } from './blackjack-provably-fair';
+
+const CARD_DEAL_MS = 1000;
+
+function buildRevealQueue(
+  prev: { player: string[]; dealer: string[] },
+  next: BlackjackPublicGame
+): { side: 'p' | 'd'; idx: number; code: string }[] {
+  const q: { side: 'p' | 'd'; idx: number; code: string }[] = [];
+  const pc = prev.player;
+  const dc = prev.dealer;
+  const np = next.playerCards;
+  const nd = next.dealerCards;
+
+  if (pc.length === 0 && dc.length === 0 && np.length >= 2 && nd.length >= 2) {
+    q.push({ side: 'p', idx: 0, code: np[0]! });
+    q.push({ side: 'd', idx: 0, code: nd[0]! });
+    q.push({ side: 'p', idx: 1, code: np[1]! });
+    q.push({ side: 'd', idx: 1, code: nd[1]! });
+    for (let i = 2; i < np.length; i++) q.push({ side: 'p', idx: i, code: np[i]! });
+    for (let i = 2; i < nd.length; i++) q.push({ side: 'd', idx: i, code: nd[i]! });
+    return q;
+  }
+
+  for (let i = 0; i < np.length; i++) {
+    if (i >= pc.length || pc[i] !== np[i]) {
+      q.push({ side: 'p', idx: i, code: np[i]! });
+    }
+  }
+  for (let i = 0; i < nd.length; i++) {
+    if (i >= dc.length || dc[i] !== nd[i]) {
+      q.push({ side: 'd', idx: i, code: nd[i]! });
+    }
+  }
+  return q;
+}
+
+function rankOf(card: string): string {
+  if (!card || card === '??') return '?';
+  return card.slice(1);
+}
+
+function scoreVisibleHand(cards: string[]): string {
+  const usable = cards.filter((c) => c && c !== '??');
+  if (usable.length === 0) return '—';
+  let total = 0;
+  let aces = 0;
+  for (const c of usable) {
+    const r = rankOf(c);
+    if (r === 'A') {
+      aces++;
+      total += 11;
+    } else if (r === 'J' || r === 'Q' || r === 'K' || r === '10') {
+      total += 10;
+    } else {
+      total += parseInt(r, 10) || 0;
+    }
+  }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+  if (total > 21) return 'Bust';
+  return String(total);
+}
 
 @Component({
   selector: 'app-blackjack',
@@ -14,11 +80,14 @@ export class BlackjackComponent implements OnInit, OnDestroy {
 
   activeGameId: string | null = null;
   game: BlackjackPublicGame | null = null;
-  /** Set when the hand ends without a full `game` payload (instant peek / natural from start). */
+  /** Animated deal view (may lag `game` while dealing). */
+  displayPlayerCards: string[] = [];
+  displayDealerCards: string[] = [];
+  dealingAnimating = false;
+  revealingSlot: { side: 'p' | 'd'; idx: number } | null = null;
+
   lastHandLabels: { player: string; house: string } | null = null;
-  /** True after stand / bust / settle; keeps cards visible until the next bet. */
   handFinished = false;
-  /** Shown after settlement (including instant naturals / dealer peek). */
   fairSnapshot: Record<string, unknown> | null = null;
 
   message = 'Enter a bet in CLAIMY credits and start a hand.';
@@ -31,13 +100,40 @@ export class BlackjackComponent implements OnInit, OnDestroy {
 
   showBjDetailsModal = false;
 
+  verifyingRound = false;
+  verificationReport: VerificationResult | null = null;
+
   constructor(
     private readonly walletAuth: WalletAuthService,
     private readonly claimyEdge: ClaimyEdgeService
   ) {}
 
   get gameSessionActive(): boolean {
-    return !!this.activeGameId && !!this.game && !this.handFinished;
+    return (
+      !!this.activeGameId &&
+      !!this.game &&
+      !this.handFinished &&
+      !this.dealingAnimating
+    );
+  }
+
+  get playerTotalShown(): string {
+    if (this.showTotalsFromGame) {
+      return this.game?.playerTotal ?? '—';
+    }
+    return scoreVisibleHand(this.displayPlayerCards);
+  }
+
+  get dealerTotalShown(): string {
+    if (this.showTotalsFromGame) {
+      return this.game?.dealerTotal ?? '—';
+    }
+    return scoreVisibleHand(this.displayDealerCards);
+  }
+
+  /** After animation completes, show server totals; during deal show partial from visible cards. */
+  private get showTotalsFromGame(): boolean {
+    return !this.dealingAnimating && !!this.game;
   }
 
   ngOnInit(): void {
@@ -81,6 +177,8 @@ export class BlackjackComponent implements OnInit, OnDestroy {
         this.walletAuth.claimyCreditsBalance = res.playableBalance;
       }
       this.activeGameId = res.gameId;
+      this.displayPlayerCards = [];
+      this.displayDealerCards = [];
       this.game = res.game;
       this.handFinished = false;
       this.lastHandLabels = null;
@@ -88,6 +186,8 @@ export class BlackjackComponent implements OnInit, OnDestroy {
       this.clearResult();
       this.message = 'Resumed your in-progress hand.';
       this.flashToast('Resumed your in-progress hand.', 3600, 'success');
+      this.verificationReport = null;
+      await this.runDealAnimation(null, res.game);
     } finally {
       this.resumingSession = false;
     }
@@ -98,7 +198,17 @@ export class BlackjackComponent implements OnInit, OnDestroy {
   }
 
   private resolveWallet(): string | null {
-    return this.walletAuth.walletAddress?.trim() || null;
+    let w = this.walletAuth.walletAddress?.trim() ?? '';
+    if (!w) w = this.walletAuth.getPersistedSessionWallet()?.trim() ?? '';
+    if (!w) {
+      try {
+        const win = window as Window & { phantom?: { solana?: { publicKey?: { toString?: () => string } } } };
+        w = win.phantom?.solana?.publicKey?.toString?.()?.trim?.() ?? '';
+      } catch {
+        /* ignore */
+      }
+    }
+    return w || null;
   }
 
   private flashToast(message: string, ms: number, type: 'success' | 'error'): void {
@@ -159,6 +269,60 @@ export class BlackjackComponent implements OnInit, OnDestroy {
     return `${sym[suit] ?? suit}${rank}`;
   }
 
+  isRevealLoading(side: 'p' | 'd', idx: number): boolean {
+    return (
+      this.dealingAnimating &&
+      this.revealingSlot !== null &&
+      this.revealingSlot.side === side &&
+      this.revealingSlot.idx === idx
+    );
+  }
+
+  slotHasCard(side: 'p' | 'd', idx: number): boolean {
+    const arr = side === 'p' ? this.displayPlayerCards : this.displayDealerCards;
+    return !!arr[idx];
+  }
+
+  private async runDealAnimation(
+    beforeGame: BlackjackPublicGame | null,
+    after: BlackjackPublicGame
+  ): Promise<void> {
+    const prev = beforeGame
+      ? { player: [...beforeGame.playerCards], dealer: [...beforeGame.dealerCards] }
+      : { player: [], dealer: [] };
+    const queue = buildRevealQueue(prev, after);
+    if (queue.length === 0) {
+      this.displayPlayerCards = [...after.playerCards];
+      this.displayDealerCards = [...after.dealerCards];
+      return;
+    }
+
+    this.dealingAnimating = true;
+    this.revealingSlot = null;
+    if (prev.player.length === 0 && prev.dealer.length === 0) {
+      this.displayPlayerCards = [];
+      this.displayDealerCards = [];
+    } else {
+      this.displayPlayerCards = [...prev.player];
+      this.displayDealerCards = [...prev.dealer];
+    }
+
+    for (const step of queue) {
+      this.revealingSlot = { side: step.side, idx: step.idx };
+      await this.delay(CARD_DEAL_MS);
+      if (step.side === 'p') {
+        this.displayPlayerCards[step.idx] = step.code;
+      } else {
+        this.displayDealerCards[step.idx] = step.code;
+      }
+      this.revealingSlot = null;
+    }
+    this.displayPlayerCards = [...after.playerCards];
+    this.displayDealerCards = [...after.dealerCards];
+    this.dealingAnimating = false;
+    this.revealingSlot = null;
+  }
+
   async placeBetAndStart(): Promise<void> {
     const wallet = this.resolveWallet();
     if (!wallet) {
@@ -172,7 +336,7 @@ export class BlackjackComponent implements OnInit, OnDestroy {
     }
     this.placingBet = true;
     this.clearResult();
-    this.game = null;
+    this.verificationReport = null;
     this.lastHandLabels = null;
     this.handFinished = false;
     try {
@@ -189,6 +353,8 @@ export class BlackjackComponent implements OnInit, OnDestroy {
       if (res.settled) {
         this.activeGameId = null;
         this.game = null;
+        this.displayPlayerCards = [];
+        this.displayDealerCards = [];
         this.handFinished = true;
         this.lastHandLabels = {
           player: res.playerHand ?? '—',
@@ -208,8 +374,13 @@ export class BlackjackComponent implements OnInit, OnDestroy {
       }
 
       this.activeGameId = res.gameId ?? null;
+      this.displayPlayerCards = [];
+      this.displayDealerCards = [];
       this.game = res.game ?? null;
       this.fairSnapshot = this.game?.fairSnapshot ?? null;
+      if (this.game) {
+        await this.runDealAnimation(null, this.game);
+      }
       this.message = 'Your move — hit, stand, double, or resolve insurance if offered.';
     } finally {
       this.placingBet = false;
@@ -220,6 +391,7 @@ export class BlackjackComponent implements OnInit, OnDestroy {
     const wallet = this.resolveWallet();
     if (!wallet || !this.activeGameId) return;
     this.busy = true;
+    const beforeGame = this.game;
     try {
       const res = await this.claimyEdge.blackjackPlayerAction({
         walletAddress: wallet,
@@ -254,13 +426,34 @@ export class BlackjackComponent implements OnInit, OnDestroy {
         this.activeGameId = null;
         this.lastHandLabels = null;
         if (res.game) {
-          this.game = res.game;
+          await this.runDealAnimation(beforeGame, res.game);
         }
-      } else {
+        this.verificationReport = null;
+      } else if (res.game) {
+        await this.runDealAnimation(beforeGame, res.game);
         this.message = 'Continue your hand or stand.';
       }
     } finally {
       this.busy = false;
+    }
+  }
+
+  async verifyProvablyFair(): Promise<void> {
+    const fs = this.fairSnapshot as BlackjackFairSnapshot | null;
+    if (!fs?.serverSeedReveal?.trim()) return;
+    this.verifyingRound = true;
+    this.verificationReport = null;
+    try {
+      this.verificationReport = await verifyBlackjackRound({
+        fairSnapshot: fs,
+        playerCards: this.game?.playerCards,
+        dealerCards: this.game?.dealerCards
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Verification failed.';
+      this.verificationReport = { ok: false, summary: msg, comparisons: [] };
+    } finally {
+      this.verifyingRound = false;
     }
   }
 

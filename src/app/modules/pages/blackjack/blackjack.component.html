@@ -40,7 +40,7 @@
                 autocomplete="off"
                 placeholder="10"
                 [(ngModel)]="betAmountInput"
-                [disabled]="placingBet || busy || gameSessionActive || resumingSession"
+                [disabled]="placingBet || busy || gameSessionActive || resumingSession || dealingAnimating"
               />
               <span class="fp-betbar__meta">Standard 3:2 blackjack; 2:1 insurance when dealer has blackjack.</span>
             </div>
@@ -48,7 +48,7 @@
               type="button"
               class="btn btn-primary btn-sm"
               (click)="placeBetAndStart()"
-              [disabled]="placingBet || busy || gameSessionActive || resumingSession"
+              [disabled]="placingBet || busy || gameSessionActive || resumingSession || dealingAnimating"
             >
               {{ placingBet ? 'Starting…' : 'Place bet & deal' }}
             </button>
@@ -65,31 +65,54 @@
             <strong>Result:</strong> {{ winnerName }}
           </div>
 
-          <div class="bj-table mt-3" *ngIf="game || lastHandLabels">
+          <div class="bj-board-wrap mt-3">
             <ng-container *ngIf="game">
-              <h3 class="fp-row-title">Dealer</h3>
-              <div class="bj-cards">
-                <span class="bj-card" *ngFor="let c of game.dealerCards">{{ formatCard(c) }}</span>
+              <div class="bj-hand bj-hand--centered">
+                <h3 class="fp-row-title bj-hand-title">Dealer</h3>
+                <div class="bj-cards bj-cards--centered">
+                  <div
+                    class="bj-card-slot"
+                    *ngFor="let _ of game.dealerCards; let i = index"
+                    [class.bj-card-slot--loading]="isRevealLoading('d', i)"
+                  >
+                    <span class="bj-card-inner" *ngIf="slotHasCard('d', i)">{{ formatCard(displayDealerCards[i]!) }}</span>
+                    <span class="bj-card-loading" *ngIf="!slotHasCard('d', i) && isRevealLoading('d', i)"></span>
+                  </div>
+                </div>
+                <p class="bj-total text-secondary mb-0">Total: {{ dealerTotalShown }}</p>
               </div>
-              <p class="bj-total small text-secondary mb-0">Total: {{ game.dealerTotal }}</p>
 
-              <h3 class="fp-row-title mt-3">You</h3>
-              <div class="bj-cards">
-                <span class="bj-card" *ngFor="let c of game.playerCards">{{ formatCard(c) }}</span>
+              <div class="bj-hand bj-hand--centered mt-4">
+                <h3 class="fp-row-title bj-hand-title">You</h3>
+                <div class="bj-cards bj-cards--centered">
+                  <div
+                    class="bj-card-slot"
+                    *ngFor="let _ of game.playerCards; let i = index"
+                    [class.bj-card-slot--loading]="isRevealLoading('p', i)"
+                  >
+                    <span class="bj-card-inner" *ngIf="slotHasCard('p', i)">{{ formatCard(displayPlayerCards[i]!) }}</span>
+                    <span class="bj-card-loading" *ngIf="!slotHasCard('p', i) && isRevealLoading('p', i)"></span>
+                  </div>
+                </div>
+                <p class="bj-total text-secondary mb-0">Total: {{ playerTotalShown }}</p>
               </div>
-              <p class="bj-total small text-secondary mb-0">Total: {{ game.playerTotal }}</p>
             </ng-container>
-            <p class="mb-0" *ngIf="!game && lastHandLabels">
+
+            <p class="mb-0 text-center" *ngIf="!game && lastHandLabels">
               <strong>Final:</strong> You {{ lastHandLabels.player }} vs dealer {{ lastHandLabels.house }}.
             </p>
 
+            <p class="mb-0 bj-board-placeholder text-center text-secondary" *ngIf="!game && !lastHandLabels && !placingBet">
+              Place a bet to deal. The table keeps its size between hands.
+            </p>
+
             <ng-container *ngIf="game as g">
-              <div class="bj-actions d-flex flex-wrap gap-2 mt-3" *ngIf="gameSessionActive">
+              <div class="bj-actions d-flex flex-wrap justify-content-center gap-2 mt-4" *ngIf="gameSessionActive">
                 <button
                   type="button"
                   class="btn btn-outline-light btn-sm"
                   (click)="insuranceYes()"
-                  [disabled]="busy || !g.canInsurance"
+                  [disabled]="busy || dealingAnimating || !g.canInsurance"
                 >
                   Insurance (pay ½ bet)
                 </button>
@@ -97,17 +120,27 @@
                   type="button"
                   class="btn btn-outline-secondary btn-sm"
                   (click)="insuranceNo()"
-                  [disabled]="busy || !g.canInsurance"
+                  [disabled]="busy || dealingAnimating || !g.canInsurance"
                 >
                   No insurance
                 </button>
-                <button type="button" class="btn btn-primary btn-sm" (click)="hit()" [disabled]="busy || !g.canHit">
+                <button type="button" class="btn btn-primary btn-sm" (click)="hit()" [disabled]="busy || dealingAnimating || !g.canHit">
                   Hit
                 </button>
-                <button type="button" class="btn btn-outline-primary btn-sm" (click)="stand()" [disabled]="busy || !g.canStand">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="stand()"
+                  [disabled]="busy || dealingAnimating || !g.canStand"
+                >
                   Stand
                 </button>
-                <button type="button" class="btn btn-warning btn-sm text-dark" (click)="double()" [disabled]="busy || !g.canDouble">
+                <button
+                  type="button"
+                  class="btn btn-warning btn-sm text-dark"
+                  (click)="double()"
+                  [disabled]="busy || dealingAnimating || !g.canDouble"
+                >
                   Double
                 </button>
               </div>
@@ -133,7 +166,7 @@
       <div class="card fp-card">
         <div class="card-body p-3 p-lg-4">
           <h2 class="fp-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Round details</h2>
-            <div class="fp-grid">
+          <div class="fp-grid">
             <div class="fp-cell">
               <span class="fp-k">Player hand</span>
               <span class="fp-v">{{ game?.playerTotal || lastHandLabels?.player || '—' }}</span>
@@ -173,9 +206,49 @@
               }}</span>
             </div>
           </div>
+
+          <div class="fp-verify-actions text-center mt-3">
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              (click)="verifyProvablyFair()"
+              [disabled]="verifyingRound || !fairSnapshot?.['serverSeedReveal']"
+            >
+              {{ verifyingRound ? 'Verifying…' : 'Verify round' }}
+            </button>
+            <p class="fp-note mb-0 mt-2 small" *ngIf="!fairSnapshot?.['serverSeedReveal']">
+              Verification needs the revealed server seed (shown after settlement).
+            </p>
+          </div>
+
+          <div class="fp-verify-report mt-3" *ngIf="verificationReport as rep">
+            <p class="fp-verify-summary mb-2" [class.text-success]="rep.ok" [class.text-danger]="!rep.ok">
+              {{ rep.summary }}
+            </p>
+            <div class="fp-verify-block" *ngFor="let c of rep.comparisons">
+              <div class="fp-verify-block-head">
+                <span class="fp-verify-block-title">{{ c.title }}</span>
+                <span class="fp-verify-badge" [class.fp-verify-badge--ok]="c.match" [class.fp-verify-badge--bad]="!c.match">
+                  {{ c.match ? 'Match' : 'Mismatch' }}
+                </span>
+              </div>
+              <div class="fp-verify-compare">
+                <div class="fp-verify-col">
+                  <span class="fp-verify-cap">{{ c.leftCaption }}</span>
+                  <pre class="fp-verify-pre">{{ c.leftValue }}</pre>
+                </div>
+                <div class="fp-verify-col">
+                  <span class="fp-verify-cap">{{ c.rightCaption }}</span>
+                  <pre class="fp-verify-pre">{{ c.rightValue }}</pre>
+                </div>
+              </div>
+              <p class="fp-verify-detail mb-0" *ngIf="c.detail">{{ c.detail }}</p>
+            </div>
+          </div>
+
           <p class="fp-note mb-0 mt-3 small">
-            After settlement, the revealed server seed must match the committed hash. The full deck order is derived deterministically
-            from the server secret and your client seed (see Detailed information).
+            After settlement, <strong>Verify round</strong> recomputes the shuffle and digest in your browser — same idea as
+            Flowerpoker.
           </p>
         </div>
       </div>
