@@ -38,6 +38,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   adminBusy = false;
   adminResultText = '';
   adminSummaryBusy = false;
+  adminSummaryLastAt: Date | null = null;
+  adminSummaryCacheTtlMs = 60_000;
+  private adminSummaryCache: {
+    key: string;
+    text: string;
+    at: number;
+  } | null = null;
 
   constructor(
     public walletAuth: WalletAuthService,
@@ -226,6 +233,23 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   async runAdminSummaryOnly() {
     const w = this.walletAuth.walletAddress?.trim();
     if (!w || !this.isAdmin || this.adminSummaryBusy || this.adminBusy) return;
+    const cacheKey = JSON.stringify({
+      wallet: w,
+      maxWallets: this.adminMaxWallets,
+      scanAll: this.adminScanAll,
+      destinationWallet: this.adminDestinationWallet.trim() || ''
+    });
+    const now = Date.now();
+    if (
+      this.adminSummaryCache &&
+      this.adminSummaryCache.key === cacheKey &&
+      now - this.adminSummaryCache.at < this.adminSummaryCacheTtlMs
+    ) {
+      this.adminResultText = this.adminSummaryCache.text;
+      this.adminSummaryLastAt = new Date(this.adminSummaryCache.at);
+      this.flashToast('Loaded cached summary.');
+      return;
+    }
     this.adminSummaryBusy = true;
     this.adminResultText = '';
     try {
@@ -240,12 +264,19 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         this.adminResultText = `Failed: ${res.error ?? 'unknown error'}`;
         return;
       }
-      this.adminResultText = [
+      const out = [
         'Summary only (no logs, no transfers)',
         `Scanned: ${res.walletsScanned ?? 0}${res.scanAll ? ' (all)' : ''}`,
         `Wallets with balance: ${res.walletsWithBalance ?? 0}`,
         `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
       ].join('\n');
+      this.adminResultText = out;
+      this.adminSummaryLastAt = new Date();
+      this.adminSummaryCache = {
+        key: cacheKey,
+        text: out,
+        at: Date.now()
+      };
       this.flashToast('Summary scan finished.');
     } finally {
       this.adminSummaryBusy = false;

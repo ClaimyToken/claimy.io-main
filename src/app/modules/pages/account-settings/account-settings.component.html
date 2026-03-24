@@ -400,6 +400,9 @@
               <p class="account-settings-note mb-0 mt-2">
                 Summary only = no logs, no transfers. Dry run = logs + totals only. Execute = transfers + logs.
               </p>
+              <p class="account-settings-note mb-0 mt-1" *ngIf="adminSummaryLastAt">
+                Last summary: {{ adminSummaryLastAt | date:'shortTime' }} (cached for ~60s if inputs are unchanged).
+              </p>
             </div>
           </div>
         </div>
