@@ -7,6 +7,8 @@
  *
  * `supabaseAnonKey` is the public anon key (Dashboard → Settings → API).
  * `claimySplMintAddress` is public on-chain (required for nav credits + SPL reads).
+ * `solanaRpcUrl` is **public** mainnet RPC only — never put a Shyft key here; provider URLs belong in Supabase
+ * Edge secrets (`SOLANA_RPC_URL` on claimy-credits / withdraw-spl).
  */
 export const environment = {
   production: true,

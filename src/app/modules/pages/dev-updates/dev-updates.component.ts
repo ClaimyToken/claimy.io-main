@@ -49,7 +49,8 @@ export class DevUpdatesComponent {
         'Added `netlify.toml`: build `npm run build`, publish `dist/claimy` (matches `angular.json` output), `NODE_VERSION = 18`.',
         'SPA redirect: `/*` → `/index.html` with status 200 so routes like `/home`, `/updates`, `/playhouse` work on refresh and direct links (fixes Netlify “Page not found”).',
         'Local secrets live in `.env` (gitignored); `node scripts/sync-env.cjs` writes `env.overrides.ts` for dev. Production bundles use `environment.prod.ts` — Netlify does not read `.env` unless you wire a custom build step.',
-        'Public Supabase anon key is baked into `environment.prod.ts` for browser → Edge calls; no Netlify env vars required for that setup.'
+        'Public Supabase anon key is baked into `environment.prod.ts` for browser → Edge calls; no Netlify env vars required for that setup.',
+        'Solana: the browser bundle uses public mainnet RPC only. Shyft (or any keyed RPC) is configured as `SOLANA_RPC_URL` on Supabase Edge functions — not in Netlify or the frontend bundle.'
       ]
     },
     {

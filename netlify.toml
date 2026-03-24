@@ -1,23 +1,17 @@
 # Netlify: Angular app (output is dist/claimy per angular.json)
 #
-# Build injects `src/environments/environment.prod.ts` from env when NETLIFY=true (see scripts/inject-env-prod.cjs).
-# Set in Netlify: Site settings → Environment variables (Production + Preview as needed):
-#   CLAIMY_SOLANA_RPC_URL = https://rpc.shyft.to/?api_key=YOUR_KEY   (or your RPC; required for best SPL reads)
-# Optional overrides: CLAIMY_SPL_MINT, CLAIMY_SUPABASE_URL, CLAIMY_SUPABASE_ANON_KEY
+# Build runs scripts/inject-env-prod.cjs before ng build when NETLIFY=true (see scripts/inject-env-prod.cjs).
+# Do NOT put private Solana RPC URLs (e.g. Shyft api_key) in Netlify env for the frontend — they would ship in
+# main.*.js. Use public mainnet in the browser; set Shyft only as Supabase Edge secret SOLANA_RPC_URL.
+# Optional Netlify overrides: CLAIMY_SPL_MINT, CLAIMY_SUPABASE_URL, CLAIMY_SUPABASE_ANON_KEY
 #
 [build]
   command = "npm run build"
   publish = "dist/claimy"
 
 # Use a supported Node for Angular 16 (Netlify defaults vary)
-#
-# CLAIMY_SOLANA_RPC_URL is injected into the client bundle at build time (Angular). Netlify’s secrets scanner
-# would otherwise fail the build when that env var is marked “Secret”. Omitting the key tells the scanner this
-# is expected — it is still not a server-only secret (anyone can read it from main.*.js).
-# See: https://ntl.fyi/configure-secrets-scanning
 [build.environment]
   NODE_VERSION = "18"
-  SECRETS_SCAN_OMIT_KEYS = "CLAIMY_SOLANA_RPC_URL"
 
 # Angular SPA: direct visits / refreshes to /home, /playhouse, etc. must serve index.html
 # (Netlify serves real files first; this only applies when no matching file exists.)
