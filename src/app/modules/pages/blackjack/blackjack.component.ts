@@ -296,6 +296,26 @@ export class BlackjackComponent implements OnInit, OnDestroy {
     return Array.from({ length: count }, (_, i) => i);
   }
 
+  get currentRoundLog(): { t: string; detail?: string }[] {
+    return this.game?.roundLog ?? [];
+  }
+
+  get canInsuranceAction(): boolean {
+    return this.gameSessionActive && !!this.game?.canInsurance;
+  }
+
+  get canHitAction(): boolean {
+    return this.gameSessionActive && !!this.game?.canHit;
+  }
+
+  get canStandAction(): boolean {
+    return this.gameSessionActive && !!this.game?.canStand;
+  }
+
+  get canDoubleAction(): boolean {
+    return this.gameSessionActive && !!this.game?.canDouble;
+  }
+
   private async runDealAnimation(
     beforeGame: BlackjackPublicGame | null,
     after: BlackjackPublicGame

@@ -53,7 +53,7 @@
               {{ placingBet ? 'Starting…' : 'Place bet & deal' }}
             </button>
           </div>
-          <p class="fp-note mb-2 small" *ngIf="resumingSession">Checking for an in-progress session…</p>
+          <p class="fp-note mb-2 small">{{ resumingSession ? 'Checking for an in-progress session…' : ' ' }}</p>
           <div class="fp-status" aria-live="polite">{{ message || ' ' }}</div>
           <div
             class="bj-resultline mt-2 mb-2"
@@ -65,43 +65,41 @@
           </div>
 
           <div class="bj-board-wrap mt-3">
-            <ng-container *ngIf="game">
-              <div class="bj-hand bj-hand--centered">
-                <h3 class="fp-row-title bj-hand-title">Dealer</h3>
-                <div class="bj-cards bj-cards--centered">
-                  <div
-                    class="bj-card-slot"
-                    *ngFor="let i of dealerSlotIndices"
-                    [class.bj-card-slot--loading]="isRevealLoading('d', i)"
+            <div class="bj-hand bj-hand--centered">
+              <h3 class="fp-row-title bj-hand-title">Dealer</h3>
+              <div class="bj-cards bj-cards--centered">
+                <div
+                  class="bj-card-slot"
+                  *ngFor="let i of dealerSlotIndices"
+                  [class.bj-card-slot--loading]="isRevealLoading('d', i)"
+                >
+                  <span
+                    class="bj-card-inner"
+                    *ngIf="slotHasCard('d', i)"
+                    [class.bj-card-inner--back]="displayDealerCards[i] === '??'"
                   >
-                    <span
-                      class="bj-card-inner"
-                      *ngIf="slotHasCard('d', i)"
-                      [class.bj-card-inner--back]="displayDealerCards[i] === '??'"
-                    >
-                      {{ displayDealerCards[i] === '??' ? '' : formatCard(displayDealerCards[i]!) }}
-                    </span>
-                    <span class="bj-card-loading" *ngIf="!slotHasCard('d', i) && isRevealLoading('d', i)"></span>
-                  </div>
+                    {{ displayDealerCards[i] === '??' ? '' : formatCard(displayDealerCards[i]!) }}
+                  </span>
+                  <span class="bj-card-loading" *ngIf="!slotHasCard('d', i) && isRevealLoading('d', i)"></span>
                 </div>
-                <p class="bj-total text-secondary mb-0">Total: {{ dealerTotalShown }}</p>
               </div>
+              <p class="bj-total text-secondary mb-0">Total: {{ dealerTotalShown }}</p>
+            </div>
 
-              <div class="bj-hand bj-hand--centered mt-4">
-                <h3 class="fp-row-title bj-hand-title">You</h3>
-                <div class="bj-cards bj-cards--centered">
-                  <div
-                    class="bj-card-slot"
-                    *ngFor="let i of playerSlotIndices"
-                    [class.bj-card-slot--loading]="isRevealLoading('p', i)"
-                  >
-                    <span class="bj-card-inner" *ngIf="slotHasCard('p', i)">{{ formatCard(displayPlayerCards[i]!) }}</span>
-                    <span class="bj-card-loading" *ngIf="!slotHasCard('p', i) && isRevealLoading('p', i)"></span>
-                  </div>
+            <div class="bj-hand bj-hand--centered mt-4">
+              <h3 class="fp-row-title bj-hand-title">You</h3>
+              <div class="bj-cards bj-cards--centered">
+                <div
+                  class="bj-card-slot"
+                  *ngFor="let i of playerSlotIndices"
+                  [class.bj-card-slot--loading]="isRevealLoading('p', i)"
+                >
+                  <span class="bj-card-inner" *ngIf="slotHasCard('p', i)">{{ formatCard(displayPlayerCards[i]!) }}</span>
+                  <span class="bj-card-loading" *ngIf="!slotHasCard('p', i) && isRevealLoading('p', i)"></span>
                 </div>
-                <p class="bj-total text-secondary mb-0">Total: {{ playerTotalShown }}</p>
               </div>
-            </ng-container>
+              <p class="bj-total text-secondary mb-0">Total: {{ playerTotalShown }}</p>
+            </div>
 
             <p class="mb-0 text-center" *ngIf="!game && lastHandLabels">
               <strong>Final:</strong> You {{ lastHandLabels.player }} vs dealer {{ lastHandLabels.house }}.
@@ -111,60 +109,61 @@
               Place a bet to deal. The table keeps its size between hands.
             </p>
 
-            <ng-container *ngIf="game as g">
-              <div class="bj-actions-grid mt-4" *ngIf="gameSessionActive">
-                <button
-                  type="button"
-                  class="btn btn-outline-light btn-lg bj-action-btn"
-                  (click)="insuranceYes()"
-                  [disabled]="busy || dealingAnimating || !g.canInsurance"
-                >
-                  Insurance (pay ½ bet)
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary btn-lg bj-action-btn"
-                  (click)="insuranceNo()"
-                  [disabled]="busy || dealingAnimating || !g.canInsurance"
-                >
-                  No insurance
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-lg bj-action-btn"
-                  (click)="hit()"
-                  [disabled]="busy || dealingAnimating || !g.canHit"
-                >
-                  Hit
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-primary btn-lg bj-action-btn"
-                  (click)="stand()"
-                  [disabled]="busy || dealingAnimating || !g.canStand"
-                >
-                  Stand
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-warning btn-lg text-dark bj-action-btn"
-                  (click)="double()"
-                  [disabled]="busy || dealingAnimating || !g.canDouble"
-                >
-                  Double
-                </button>
-              </div>
+            <div class="bj-actions-grid mt-4">
+              <button
+                type="button"
+                class="btn btn-outline-light btn-lg bj-action-btn"
+                (click)="insuranceYes()"
+                [disabled]="busy || dealingAnimating || !canInsuranceAction"
+              >
+                Insurance (pay ½ bet)
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-lg bj-action-btn"
+                (click)="insuranceNo()"
+                [disabled]="busy || dealingAnimating || !canInsuranceAction"
+              >
+                No insurance
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary btn-lg bj-action-btn"
+                (click)="hit()"
+                [disabled]="busy || dealingAnimating || !canHitAction"
+              >
+                Hit
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-primary btn-lg bj-action-btn"
+                (click)="stand()"
+                [disabled]="busy || dealingAnimating || !canStandAction"
+              >
+                Stand
+              </button>
+              <button
+                type="button"
+                class="btn btn-warning btn-lg text-dark bj-action-btn"
+                (click)="double()"
+                [disabled]="busy || dealingAnimating || !canDoubleAction"
+              >
+                Double
+              </button>
+            </div>
 
-              <div class="mt-3" *ngIf="g.roundLog?.length">
-                <h4 class="fp-section-title text-primary mb-2 text-uppercase">Round log</h4>
-                <ul class="bj-log mb-0">
-                  <li *ngFor="let e of g.roundLog">
-                    <span class="bj-log-t">{{ e.t }}</span>
-                    <span *ngIf="e.detail"> — {{ e.detail }}</span>
-                  </li>
-                </ul>
-              </div>
-            </ng-container>
+            <div class="bj-log-wrap mt-3">
+              <h4 class="fp-section-title text-primary mb-2 text-uppercase">Round log</h4>
+              <ul class="bj-log mb-0" *ngIf="currentRoundLog.length > 0; else noRoundLog">
+                <li *ngFor="let e of currentRoundLog">
+                  <span class="bj-log-t">{{ e.t }}</span>
+                  <span *ngIf="e.detail"> — {{ e.detail }}</span>
+                </li>
+              </ul>
+              <ng-template #noRoundLog>
+                <p class="bj-log-empty mb-0">Round events will appear here.</p>
+              </ng-template>
+            </div>
           </div>
         </div>
       </div>

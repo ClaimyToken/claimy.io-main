@@ -186,6 +186,7 @@
 
 .bj-hand--centered {
   text-align: center;
+  min-height: 10rem;
 }
 
 .bj-hand-title {
@@ -199,7 +200,7 @@
   margin: 0.5rem 0 0.65rem;
   justify-content: center;
   align-items: stretch;
-  min-height: 7.5rem;
+  min-height: 7.75rem;
 }
 
 .bj-card-slot {
@@ -269,6 +270,7 @@
   grid-template-columns: repeat(3, minmax(11rem, 1fr));
   gap: 0.65rem;
   align-items: stretch;
+  min-height: 6.8rem;
 }
 
 .bj-action-btn {
@@ -276,6 +278,18 @@
   min-height: 3rem;
   font-size: 1rem;
   font-weight: 700;
+}
+
+.bj-log-wrap {
+  min-height: 6.75rem;
+}
+
+.bj-log-empty {
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  color: var(--bs-secondary-color);
+  font-size: 0.82rem;
 }
 
 /* Verify block (matches Flowerpoker) */
