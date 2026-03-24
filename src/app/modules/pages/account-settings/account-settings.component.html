@@ -314,6 +314,10 @@
         <p class="account-settings-lead mb-3">
           Consolidate CLAIMY SPL from custodial deposit wallets into the configured treasury destination.
         </p>
+        <p class="account-settings-note mb-3">
+          <strong>Dry run</strong> scans balances and reports totals only (no transfers). <strong>Execute</strong> does the same
+          scan and then sends on-chain transfers for each wallet with CLAIMY.
+        </p>
 
         <div class="account-settings-panel">
           <div class="account-settings-row">
@@ -353,6 +357,21 @@
             />
           </div>
           <div class="account-settings-row">
+            <span class="account-settings-label">Scope</span>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="adminScanAll"
+                [(ngModel)]="adminScanAll"
+                [disabled]="adminBusy"
+              />
+              <label class="form-check-label account-settings-note mt-0" for="adminScanAll">
+                Scan all users (ignores Max wallets)
+              </label>
+            </div>
+          </div>
+          <div class="account-settings-row">
             <span class="account-settings-label">Destination (optional)</span>
             <input
               type="text"
@@ -367,11 +386,19 @@
           <div class="account-settings-row account-settings-row--last">
             <span class="account-settings-label">Run</span>
             <div>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary account-settings-btn me-2"
+                (click)="runAdminSummaryOnly()"
+                [disabled]="adminSummaryBusy || adminBusy"
+              >
+                {{ adminSummaryBusy ? 'Scanning…' : 'Summary only' }}
+              </button>
               <button type="button" class="btn btn-sm btn-outline-primary account-settings-btn" (click)="runAdminSweep()" [disabled]="adminBusy">
                 {{ adminBusy ? 'Running…' : (adminMode === 'execute' ? 'Execute sweep' : 'Run dry-run') }}
               </button>
               <p class="account-settings-note mb-0 mt-2">
-                Safety note: execute mode sends on-chain transfers and logs every wallet attempt.
+                Summary only = no logs, no transfers. Dry run = logs + totals only. Execute = transfers + logs.
               </p>
             </div>
           </div>

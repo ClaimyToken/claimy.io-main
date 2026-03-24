@@ -33,9 +33,11 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   adminChecking = false;
   adminMode: 'dry_run' | 'execute' = 'dry_run';
   adminMaxWallets = 150;
+  adminScanAll = true;
   adminDestinationWallet = '';
   adminBusy = false;
   adminResultText = '';
+  adminSummaryBusy = false;
 
   constructor(
     public walletAuth: WalletAuthService,
@@ -197,7 +199,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         walletAddress: w,
         mode: this.adminMode,
         maxWallets: this.adminMaxWallets,
-        destinationWallet: this.adminDestinationWallet.trim() || undefined
+        destinationWallet: this.adminDestinationWallet.trim() || undefined,
+        scanAll: this.adminScanAll
       });
       if (!res.ok) {
         this.adminResultText = `Failed: ${res.error ?? 'unknown error'}`;
@@ -205,9 +208,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       }
       const lines = [
         `Run: ${res.runId ?? 'n/a'}`,
-        `Scanned: ${res.walletsScanned ?? 0}`,
+        `Scanned: ${res.walletsScanned ?? 0}${res.scanAll ? ' (all)' : ''}`,
         `Wallets with balance: ${res.walletsWithBalance ?? 0}`,
-        `Total UI amount: ${res.totalUiAmount ?? 0}`
+        `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
       ];
       if (this.adminMode === 'execute') {
         lines.push(`Swept: ${res.swept ?? 0}`);
@@ -217,6 +220,35 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       this.flashToast(this.adminMode === 'execute' ? 'Sweep finished.' : 'Dry-run finished.');
     } finally {
       this.adminBusy = false;
+    }
+  }
+
+  async runAdminSummaryOnly() {
+    const w = this.walletAuth.walletAddress?.trim();
+    if (!w || !this.isAdmin || this.adminSummaryBusy || this.adminBusy) return;
+    this.adminSummaryBusy = true;
+    this.adminResultText = '';
+    try {
+      const res = await this.claimyEdge.adminSweepWallets({
+        walletAddress: w,
+        mode: 'summary_only',
+        maxWallets: this.adminMaxWallets,
+        destinationWallet: this.adminDestinationWallet.trim() || undefined,
+        scanAll: this.adminScanAll
+      });
+      if (!res.ok) {
+        this.adminResultText = `Failed: ${res.error ?? 'unknown error'}`;
+        return;
+      }
+      this.adminResultText = [
+        'Summary only (no logs, no transfers)',
+        `Scanned: ${res.walletsScanned ?? 0}${res.scanAll ? ' (all)' : ''}`,
+        `Wallets with balance: ${res.walletsWithBalance ?? 0}`,
+        `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
+      ].join('\n');
+      this.flashToast('Summary scan finished.');
+    } finally {
+      this.adminSummaryBusy = false;
     }
   }
 }

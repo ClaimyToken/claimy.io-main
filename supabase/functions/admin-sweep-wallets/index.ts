@@ -27,8 +27,8 @@ function json(data: unknown, status = 200): Response {
 function parseAdminWallets(): string[] {
   return (Deno.env.get("CLAIMY_ADMIN_WALLETS") ?? "")
     .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+    .map((s: string) => s.trim())
+    .filter((s: string) => s.length > 0);
 }
 
 function loadKeypair(raw: string): Keypair {
@@ -56,7 +56,7 @@ async function decryptSecretKey(encryptedB64: string, aesKey32: Uint8Array): Pro
   const combined = b64ToBytes(encryptedB64);
   const iv = combined.slice(0, 12);
   const cipher = combined.slice(12);
-  const key = await crypto.subtle.importKey("raw", aesKey32, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  const key = await crypto.subtle.importKey("raw", aesKey32 as BufferSource, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
   const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
   return new Uint8Array(plain);
 }
@@ -89,8 +89,8 @@ serve(async (req) => {
   const isAdmin = parseAdminWallets().some((w) => w === walletAddress);
   if (!isAdmin) return json({ ok: false, error: "Not authorized." }, 403);
   if (action === "admin_whoami") return json({ ok: true, isAdmin: true });
-  if (action !== "dry_run" && action !== "execute") {
-    return json({ ok: false, error: "Unknown action. Use: admin_whoami | dry_run | execute" }, 400);
+  if (action !== "dry_run" && action !== "execute" && action !== "summary_only") {
+    return json({ ok: false, error: "Unknown action. Use: admin_whoami | summary_only | dry_run | execute" }, 400);
   }
 
   const mintStr = (Deno.env.get("CLAIMY_SPL_MINT") ?? "").trim();
@@ -101,9 +101,13 @@ serve(async (req) => {
     (Deno.env.get("CLAIMY_SWEEP_DESTINATION_WALLET") ?? "").trim() || walletAddress;
   const maxWalletsRaw = parseInt(String(body.maxWallets ?? "150"), 10);
   const maxWallets = Number.isFinite(maxWalletsRaw) ? Math.min(500, Math.max(1, maxWalletsRaw)) : 150;
+  const scanAll = body.scanAll === true;
 
-  if (!mintStr || !rpcUrl || !encKeyHex) {
-    return json({ ok: false, error: "Missing CLAIMY_SPL_MINT, SOLANA_RPC_URL, or DEPOSIT_WALLET_ENCRYPTION_KEY." }, 500);
+  if (!mintStr || !rpcUrl) {
+    return json({ ok: false, error: "Missing CLAIMY_SPL_MINT or SOLANA_RPC_URL." }, 500);
+  }
+  if (action !== "summary_only" && !encKeyHex) {
+    return json({ ok: false, error: "Missing DEPOSIT_WALLET_ENCRYPTION_KEY." }, 500);
   }
   if (action === "execute" && !feePayerSecret) {
     return json({ ok: false, error: "Missing CLAIMY_SWEEP_FEE_PAYER_PRIVATE_KEY." }, 500);
@@ -119,30 +123,44 @@ serve(async (req) => {
   const decimals = mintMeta.decimals;
   const destinationAta = getAssociatedTokenAddressSync(mintPk, destinationPk, false, tokenProgramId).toBase58();
 
-  const { data: runRow, error: runErr } = await supabase.from("claimy_admin_sweep_runs").insert({
-    requested_by_wallet: walletAddress,
-    mode: action === "execute" ? "execute" : "dry_run",
-    destination_wallet: destinationWallet,
-    status: "started",
-  }).select("id").single();
-  if (runErr || !runRow?.id) return json({ ok: false, error: runErr?.message ?? "Failed to create run." }, 500);
-  const runId = runRow.id as string;
+  let runId: string | null = null;
+  if (action !== "summary_only") {
+    const { data: runRow, error: runErr } = await supabase.from("claimy_admin_sweep_runs").insert({
+      requested_by_wallet: walletAddress,
+      mode: action === "execute" ? "execute" : "dry_run",
+      destination_wallet: destinationWallet,
+      status: "started",
+    }).select("id").single();
+    if (runErr || !runRow?.id) return json({ ok: false, error: runErr?.message ?? "Failed to create run." }, 500);
+    runId = runRow.id as string;
+  }
 
   try {
-    const { data: users, error: usersErr } = await supabase
-      .from("claimy_users")
-      .select("id, wallet_address, deposit_wallet_public_key, deposit_wallet_private_key_encrypted")
-      .not("deposit_wallet_public_key", "is", null)
-      .not("deposit_wallet_private_key_encrypted", "is", null)
-      .limit(maxWallets);
-    if (usersErr) throw new Error(usersErr.message ?? String(usersErr));
+    const users: Record<string, unknown>[] = [];
+    const pageSize = 500;
+    let from = 0;
+    while (true) {
+      const to = scanAll ? from + pageSize - 1 : Math.min(from + pageSize - 1, maxWallets - 1);
+      if (!scanAll && from >= maxWallets) break;
+      const { data: pageRows, error: usersErr } = await supabase
+        .from("claimy_users")
+        .select("id, wallet_address, deposit_wallet_public_key, deposit_wallet_private_key_encrypted")
+        .not("deposit_wallet_public_key", "is", null)
+        .not("deposit_wallet_private_key_encrypted", "is", null)
+        .range(from, to);
+      if (usersErr) throw new Error(usersErr.message ?? String(usersErr));
+      const rows = (pageRows ?? []) as Record<string, unknown>[];
+      users.push(...rows);
+      if (rows.length < pageSize) break;
+      from += pageSize;
+    }
 
     const candidates: Candidate[] = [];
-    for (const row of users ?? []) {
-      const userId = String((row as Record<string, unknown>).id ?? "").trim();
-      const userWallet = String((row as Record<string, unknown>).wallet_address ?? "").trim();
-      const depWallet = String((row as Record<string, unknown>).deposit_wallet_public_key ?? "").trim();
-      const enc = String((row as Record<string, unknown>).deposit_wallet_private_key_encrypted ?? "").trim();
+    for (const row of users) {
+      const userId = String((row as Record<string, unknown>)["id"] ?? "").trim();
+      const userWallet = String((row as Record<string, unknown>)["wallet_address"] ?? "").trim();
+      const depWallet = String((row as Record<string, unknown>)["deposit_wallet_public_key"] ?? "").trim();
+      const enc = String((row as Record<string, unknown>)["deposit_wallet_private_key_encrypted"] ?? "").trim();
       if (!userId || !userWallet || !depWallet || !enc) continue;
       let depPk: PublicKey;
       try {
@@ -170,7 +188,7 @@ serve(async (req) => {
       }
     }
 
-    if (candidates.length > 0) {
+    if (action !== "summary_only" && candidates.length > 0 && runId) {
       await supabase.from("claimy_admin_sweep_items").insert(candidates.map((c) => ({
         run_id: runId,
         user_id: c.userId,
@@ -186,7 +204,7 @@ serve(async (req) => {
 
     let swept = 0;
     let failed = 0;
-    if (action === "execute" && candidates.length > 0) {
+    if (action === "execute" && candidates.length > 0 && runId) {
       const aesKey = hexToBytes(encKeyHex);
       const feePayer = loadKeypair(feePayerSecret);
       for (const c of candidates) {
@@ -227,15 +245,17 @@ serve(async (req) => {
 
     const totalRaw = candidates.reduce((n, c) => n + c.rawAmount, 0n);
     const totalUi = candidates.reduce((n, c) => n + c.uiAmount, 0);
-    await supabase.from("claimy_admin_sweep_runs").update({
-      status: "completed",
-      wallets_scanned: users?.length ?? 0,
-      wallets_with_balance: candidates.length,
-      total_raw_amount: totalRaw.toString(),
-      total_ui_amount: totalUi,
-      notes: action === "execute" ? `swept=${swept}, failed=${failed}` : "dry run complete",
-      completed_at: new Date().toISOString(),
-    }).eq("id", runId);
+    if (runId) {
+      await supabase.from("claimy_admin_sweep_runs").update({
+        status: "completed",
+        wallets_scanned: users.length,
+        wallets_with_balance: candidates.length,
+        total_raw_amount: totalRaw.toString(),
+        total_ui_amount: totalUi,
+        notes: action === "execute" ? `swept=${swept}, failed=${failed}` : "dry run complete",
+        completed_at: new Date().toISOString(),
+      }).eq("id", runId);
+    }
 
     return json({
       ok: true,
@@ -243,13 +263,14 @@ serve(async (req) => {
       runId,
       destinationWallet,
       destinationAta,
-      walletsScanned: users?.length ?? 0,
+      walletsScanned: users.length,
       walletsWithBalance: candidates.length,
       totalRawAmount: totalRaw.toString(),
       totalUiAmount: totalUi,
+      scanAll,
       swept,
       failed,
-      items: candidates.map((c) => ({
+      items: action === "summary_only" ? [] : candidates.map((c) => ({
         depositWalletAddress: c.depositWalletAddress,
         sourceAta: c.sourceAta,
         rawAmount: c.rawAmount.toString(),
@@ -258,11 +279,13 @@ serve(async (req) => {
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    await supabase.from("claimy_admin_sweep_runs").update({
-      status: "failed",
-      notes: msg.slice(0, 1000),
-      completed_at: new Date().toISOString(),
-    }).eq("id", runId);
+    if (runId) {
+      await supabase.from("claimy_admin_sweep_runs").update({
+        status: "failed",
+        notes: msg.slice(0, 1000),
+        completed_at: new Date().toISOString(),
+      }).eq("id", runId);
+    }
     return json({ ok: false, error: msg, runId }, 500);
   }
 });

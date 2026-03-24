@@ -539,15 +539,17 @@ export class ClaimyEdgeService {
 
   async adminSweepWallets(body: {
     walletAddress: string;
-    mode: 'dry_run' | 'execute';
+    mode: 'summary_only' | 'dry_run' | 'execute';
     maxWallets?: number;
     destinationWallet?: string;
+    scanAll?: boolean;
   }): Promise<{
     ok: boolean;
     runId?: string;
     walletsScanned?: number;
     walletsWithBalance?: number;
     totalUiAmount?: number;
+    scanAll?: boolean;
     swept?: number;
     failed?: number;
     items?: AdminSweepItem[];
@@ -563,7 +565,8 @@ export class ClaimyEdgeService {
           action: body.mode,
           walletAddress: w,
           maxWallets: body.maxWallets ?? 150,
-          destinationWallet: body.destinationWallet?.trim() || undefined
+          destinationWallet: body.destinationWallet?.trim() || undefined,
+          scanAll: body.scanAll === true
         })
       });
       const data = this.parseEdgeJson(await res.text());
@@ -574,6 +577,7 @@ export class ClaimyEdgeService {
         walletsScanned: this.readNum(data['walletsScanned']),
         walletsWithBalance: this.readNum(data['walletsWithBalance']),
         totalUiAmount: this.readNum(data['totalUiAmount']),
+        scanAll: data['scanAll'] === true,
         swept: this.readNum(data['swept']),
         failed: this.readNum(data['failed']),
         items: Array.isArray(data['items']) ? (data['items'] as AdminSweepItem[]) : undefined,
