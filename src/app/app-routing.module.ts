@@ -21,6 +21,7 @@ import { FlowerpokerComponent } from './modules/pages/flowerpoker/flowerpoker.co
 import { BlackjackComponent } from './modules/pages/blackjack/blackjack.component';
 import { DiceComponent } from './modules/pages/dice/dice.component';
 import { HiLowComponent } from './modules/pages/hi-low/hi-low.component';
+import { LeaderboardsRankingComponent } from './modules/pages/leaderboards-ranking/leaderboards-ranking.component';
 
 const rootLayoutRoutes: Routes = [
   {
@@ -42,6 +43,12 @@ const otherLayoutRoutes: Routes = [
     canActivate: [SiteStatusGuard],
     component: ReferralRankingComponent,
     title: "CLAIMY | Referrals"
+  },
+  {
+    path: 'leaderboards',
+    canActivate: [SiteStatusGuard],
+    component: LeaderboardsRankingComponent,
+    title: "CLAIMY | Leaderboards & Ranking"
   },
   {
     path: 'claimy-token',

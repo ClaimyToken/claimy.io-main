@@ -42,6 +42,7 @@ import { FlowerpokerComponent } from './modules/pages/flowerpoker/flowerpoker.co
 import { BlackjackComponent } from './modules/pages/blackjack/blackjack.component';
 import { DiceComponent } from './modules/pages/dice/dice.component';
 import { HiLowComponent } from './modules/pages/hi-low/hi-low.component';
+import { LeaderboardsRankingComponent } from './modules/pages/leaderboards-ranking/leaderboards-ranking.component';
 import { WalletDepositModalComponent } from './modules/global/wallet-deposit-modal/wallet-deposit-modal.component';
 import { BlankLayoutRouterComponent } from './modules/layouts/blank-layout-router/blank-layout-router.component';
 import { MainLayoutRouterComponent } from './modules/layouts/main-layout-router/main-layout-router.component';
@@ -72,6 +73,7 @@ import { MainLayoutRouterComponent } from './modules/layouts/main-layout-router/
     BlackjackComponent,
     DiceComponent,
     HiLowComponent,
+    LeaderboardsRankingComponent,
     WalletDepositModalComponent,
     BlankLayoutRouterComponent,
     MainLayoutRouterComponent
