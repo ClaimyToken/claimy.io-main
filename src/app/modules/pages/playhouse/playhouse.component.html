@@ -79,9 +79,15 @@
           </div>
 
           <p class="playhouse-console-subtext mb-3">
-            Settled Flowerpoker rounds from the database (all players). Only rounds you <strong>finish and settle</strong>
-            in Flowerpoker appear here (in-progress games do not). Open <strong>Provably Fair</strong> for seeds, hands,
-            and browser verification.
+            <ng-container *ngIf="!myBetsOnly">
+              Public feed: <strong>settled</strong> Flowerpoker hands only. A row is created when you start a bet; it
+              only shows here after <strong>settlement</strong> completes in Flowerpoker.
+            </ng-container>
+            <ng-container *ngIf="myBetsOnly">
+              <strong>My bets</strong> includes settled hands and any <strong>in progress</strong> session for your
+              wallet (stake locked until you finish or resume).
+            </ng-container>
+            Open <strong>Provably Fair</strong> after settlement for seeds and verification.
           </p>
 
           <div class="alert alert-warning py-2 px-3 small mb-3" *ngIf="betsError">{{ betsError }}</div>
@@ -107,7 +113,8 @@
                 <tbody>
                   <tr *ngIf="!betsLoading && bets.length === 0 && !betsError">
                     <td colspan="7" class="text-center text-secondary py-4 small">
-                      No settled Flowerpoker bets yet — be the first to finish a round.
+                      <ng-container *ngIf="!myBetsOnly">No settled hands to show yet.</ng-container>
+                      <ng-container *ngIf="myBetsOnly">No rows for this wallet — start Flowerpoker while logged in.</ng-container>
                     </td>
                   </tr>
                   <tr *ngFor="let bet of bets">
@@ -117,18 +124,24 @@
                       [class.playhouse-console-table__result--win]="resultLabel(bet) === 'Win'"
                       [class.playhouse-console-table__result--loss]="resultLabel(bet) === 'Loss'"
                       [class.playhouse-console-table__result--tie]="resultLabel(bet) === 'Tie'"
+                      [class.playhouse-console-table__result--pending]="resultLabel(bet) === 'Pending'"
                     >
                       {{ resultLabel(bet) }}
                     </td>
                     <td>{{ formatClaimy(bet.stakeAmount) }}</td>
                     <td>{{ formatClaimy(bet.payoutAmount) }}</td>
-                    <td class="text-nowrap small">{{ bet.settledAt | date : 'medium' }}</td>
+                    <td class="text-nowrap small">
+                      <ng-container *ngIf="bet.settledAt">{{ bet.settledAt | date : 'medium' }}</ng-container>
+                      <ng-container *ngIf="!bet.settledAt">—</ng-container>
+                    </td>
                     <td>
                       <button
                         type="button"
                         class="playhouse-console-table__fair-btn"
                         data-bs-toggle="modal"
                         data-bs-target="#playhouseProvablyFairModal"
+                        [disabled]="isPendingBet(bet)"
+                        [attr.title]="isPendingBet(bet) ? 'Available after the hand settles' : null"
                         (click)="openProvablyFair(bet)"
                       >
                         Provably Fair

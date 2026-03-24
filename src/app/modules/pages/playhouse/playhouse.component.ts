@@ -59,12 +59,19 @@ export class PlayhouseComponent implements OnInit {
     return key || '—';
   }
 
-  /** Outcome from the player’s perspective. */
-  resultLabel(bet: PlayhouseBetRow): 'Win' | 'Loss' | 'Tie' {
+  /** Outcome from the player’s perspective (or pending until settlement). */
+  resultLabel(bet: PlayhouseBetRow): 'Win' | 'Loss' | 'Tie' | 'Pending' {
+    const s = (bet.sessionStatus ?? '').trim();
+    if (s === 'in_progress') return 'Pending';
     const w = (bet.winner ?? '').trim();
+    if (!w) return 'Pending';
     if (w === 'Player') return 'Win';
     if (w === 'House') return 'Loss';
     return 'Tie';
+  }
+
+  isPendingBet(bet: PlayhouseBetRow): boolean {
+    return this.resultLabel(bet) === 'Pending';
   }
 
   formatClaimy(n: number | null | undefined): string {

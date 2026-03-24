@@ -35,14 +35,16 @@ export type FlowerpokerServerRound = {
   currentRoundProofs?: FlowerpokerRoundProof[];
 };
 
-/** Settled game row from `playhouse-feed` / `playhouse_list_settled_bets`. */
+/** Row from `playhouse-feed` / `playhouse_list_settled_bets` (settled; optional in_progress when filtered by wallet). */
 export type PlayhouseBetRow = {
   id: string;
   gameKey: string;
-  settledAt: string;
+  /** `settled` | `in_progress` from DB metadata. */
+  sessionStatus?: string;
+  settledAt: string | null;
   stakeAmount: number | null;
   payoutAmount: number | null;
-  winner: string;
+  winner: string | null;
   playerHand: string | null;
   houseHand: string | null;
   username: string | null;
@@ -695,12 +697,14 @@ export class ClaimyEdgeService {
       };
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message.trim() : '';
-      return {
-        ok: false,
-        error:
-          msg ||
-          'Network error. If this persists: deploy playhouse-feed, set JWT verify off for it, and run migration claimy_playhouse_feed.sql.'
-      };
+      const base =
+        msg ||
+        'Network error. Deploy playhouse-feed, set JWT verify off, and apply migration claimy_playhouse_feed.sql.';
+      const fetchHint =
+        /failed to fetch/i.test(msg) || !msg
+          ? ' Also try disabling ad blockers for this site, or check that the app’s Supabase URL matches your project.'
+          : '';
+      return { ok: false, error: base + fetchHint };
     }
   }
 }
