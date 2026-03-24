@@ -1,13 +1,242 @@
-<header class="game-header border-primary border rounded-3 my-3 my-lg-4">
-  <h1 class="game-title text-center mb-0">BLACKJACK</h1>
+<header class="fp-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="fp-title text-center mb-0">BLACKJACK</h1>
 </header>
 
-<div class="game-page">
-  <div class="card game-card">
-    <div class="card-body p-3 p-lg-4">
-      <p class="mb-0">
-        Blackjack game page is reserved for logged-in users. Table mechanics and wager flow will be added next.
-      </p>
+<div class="fp-page pb-4">
+  <div class="row justify-content-center mb-3">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <div class="fp-how-card-head d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+            <h2 class="fp-section-title text-primary mb-0 text-uppercase fw-semibold c-text-glow">How this round works</h2>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" (click)="openBjDetailsModal()">
+              Detailed information
+            </button>
+          </div>
+          <ul class="fp-list mb-2">
+            <li>Each hand uses one <strong>fresh 52-card deck</strong> (shuffled once per game).</li>
+            <li>Dealer stands on <strong>17+</strong>. Natural blackjack pays <strong>3:2</strong> on your main stake.</li>
+            <li>When the dealer shows an <strong>Ace</strong>, you may take <strong>insurance</strong> (half your main bet).</li>
+            <li><strong>Double down</strong> doubles your main bet and draws exactly one more card.</li>
+          </ul>
+          <p class="mb-0 fp-note">Credits lock and settle the same way as Flowerpoker (Edge + claimy_game_sessions).</p>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div class="row justify-content-center mb-3">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <div class="fp-betbar mb-3">
+            <div class="fp-betbar__left">
+              <label for="bjBetAmount" class="fp-betbar__label">Bet (CLAIMY)</label>
+              <input
+                id="bjBetAmount"
+                class="fp-betbar__input"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="10"
+                [(ngModel)]="betAmountInput"
+                [disabled]="placingBet || busy || gameSessionActive || resumingSession"
+              />
+              <span class="fp-betbar__meta">Standard 3:2 blackjack; 2:1 insurance when dealer has blackjack.</span>
+            </div>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="placeBetAndStart()"
+              [disabled]="placingBet || busy || gameSessionActive || resumingSession"
+            >
+              {{ placingBet ? 'Starting…' : 'Place bet & deal' }}
+            </button>
+          </div>
+          <p class="fp-note mb-2 small" *ngIf="resumingSession">Checking for an in-progress session…</p>
+          <div class="fp-status" aria-live="polite">{{ message }}</div>
+          <div
+            class="mt-2 mb-2"
+            *ngIf="winnerName"
+            [class.text-success]="resultTone === 'win'"
+            [class.text-danger]="resultTone === 'loss'"
+            [class.text-warning]="resultTone === 'tie'"
+          >
+            <strong>Result:</strong> {{ winnerName }}
+          </div>
+
+          <div class="bj-table mt-3" *ngIf="game || lastHandLabels">
+            <ng-container *ngIf="game">
+              <h3 class="fp-row-title">Dealer</h3>
+              <div class="bj-cards">
+                <span class="bj-card" *ngFor="let c of game.dealerCards">{{ formatCard(c) }}</span>
+              </div>
+              <p class="bj-total small text-secondary mb-0">Total: {{ game.dealerTotal }}</p>
+
+              <h3 class="fp-row-title mt-3">You</h3>
+              <div class="bj-cards">
+                <span class="bj-card" *ngFor="let c of game.playerCards">{{ formatCard(c) }}</span>
+              </div>
+              <p class="bj-total small text-secondary mb-0">Total: {{ game.playerTotal }}</p>
+            </ng-container>
+            <p class="mb-0" *ngIf="!game && lastHandLabels">
+              <strong>Final:</strong> You {{ lastHandLabels.player }} vs dealer {{ lastHandLabels.house }}.
+            </p>
+
+            <ng-container *ngIf="game as g">
+              <div class="bj-actions d-flex flex-wrap gap-2 mt-3" *ngIf="gameSessionActive">
+                <button
+                  type="button"
+                  class="btn btn-outline-light btn-sm"
+                  (click)="insuranceYes()"
+                  [disabled]="busy || !g.canInsurance"
+                >
+                  Insurance (pay ½ bet)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="insuranceNo()"
+                  [disabled]="busy || !g.canInsurance"
+                >
+                  No insurance
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" (click)="hit()" [disabled]="busy || !g.canHit">
+                  Hit
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="stand()" [disabled]="busy || !g.canStand">
+                  Stand
+                </button>
+                <button type="button" class="btn btn-warning btn-sm text-dark" (click)="double()" [disabled]="busy || !g.canDouble">
+                  Double
+                </button>
+              </div>
+
+              <div class="mt-3" *ngIf="g.roundLog?.length">
+                <h4 class="fp-section-title text-primary mb-2 text-uppercase">Round log</h4>
+                <ul class="bj-log mb-0">
+                  <li *ngFor="let e of g.roundLog">
+                    <span class="bj-log-t">{{ e.t }}</span>
+                    <span *ngIf="e.detail"> — {{ e.detail }}</span>
+                  </li>
+                </ul>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <h2 class="fp-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Round details</h2>
+            <div class="fp-grid">
+            <div class="fp-cell">
+              <span class="fp-k">Player hand</span>
+              <span class="fp-v">{{ game?.playerTotal || lastHandLabels?.player || '—' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Dealer</span>
+              <span class="fp-v">{{ game?.dealerTotal || lastHandLabels?.house || '—' }}</span>
+            </div>
+            <div class="fp-cell fp-cell--wide">
+              <span class="fp-k">Winner</span>
+              <span class="fp-v fp-winner">{{ winnerName || '' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Server seed hash</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.['serverSeedHash'] || '—' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Client seed</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.['clientSeed'] || '—' }}</span>
+            </div>
+            <div class="fp-cell fp-cell--wide">
+              <span class="fp-k">Server seed (revealed at settlement)</span>
+              <span class="fp-v fp-mono fp-mono--wrap">{{
+                fairSnapshot?.['serverSeedReveal']
+                  ? fairSnapshot?.['serverSeedReveal']
+                  : '— (hidden until the hand settles)'
+              }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Roll digest</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.['rollDigest'] || '—' }}</span>
+            </div>
+            <div class="fp-cell fp-cell--wide">
+              <span class="fp-k">Deck preview (first 5 cards after shuffle)</span>
+              <span class="fp-v fp-mono fp-mono--wrap">{{
+                fairSnapshot?.['shuffledDeckPreview'] ? (fairSnapshot?.['shuffledDeckPreview'] | json) : '—'
+              }}</span>
+            </div>
+          </div>
+          <p class="fp-note mb-0 mt-3 small">
+            After settlement, the revealed server seed must match the committed hash. The full deck order is derived deterministically
+            from the server secret and your client seed (see Detailed information).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="toast" class="fp-toast" [class.fp-toast--error]="toast.type === 'error'" role="status">
+  {{ toast.message }}
+</div>
+
+<div
+  *ngIf="showBjDetailsModal"
+  class="fp-details-modal"
+  (click)="closeBjDetailsModal()"
+  role="presentation"
+>
+  <div
+    class="fp-details-modal__card"
+    (click)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="bjDetailsModalTitle"
+  >
+    <button type="button" class="fp-details-modal__close" aria-label="Close" (click)="closeBjDetailsModal()">×</button>
+    <p class="fp-details-modal__eyebrow mb-1">Blackjack</p>
+    <h3 id="bjDetailsModalTitle" class="fp-details-modal__title text-primary mb-2">Rules &amp; provably fair</h3>
+    <p class="fp-details-modal__lead mb-3">
+      One standard deck per hand, shuffled with a deterministic Fisher–Yates using HMAC-SHA-256 counters
+      <code class="fp-details-inline-code">claimy-bj|v1|&lt;clientSeed&gt;|&lt;n&gt;</code>
+      on the server secret (same pattern as Flowerpoker).
+    </p>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Gameplay</h4>
+      <ul class="fp-details-list">
+        <li>Number cards count as face value; J, Q, K count as 10; Aces are 1 or 11 (best total ≤ 21).</li>
+        <li>Dealer peeks for blackjack when showing an Ace or a ten-value card.</li>
+        <li>Insurance is offered only against a dealer Ace; it pays 2:1 if the dealer has blackjack.</li>
+        <li>Double down adds a second main bet and draws one card only.</li>
+        <li>Dealer draws until reaching 17 or higher, then stands.</li>
+      </ul>
+    </section>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Payouts</h4>
+      <ul class="fp-details-list fp-details-list--compact">
+        <li><strong>Win</strong> — 1:1 on the total amount you have on the hand (main + double).</li>
+        <li><strong>Natural blackjack</strong> — 3:2 on the original main stake (before double).</li>
+        <li><strong>Push</strong> — your main + double stakes are returned; ties on both blackjacks push the main hand.</li>
+        <li><strong>Insurance</strong> — side bet up to half your main stake; pays 2:1 when dealer has blackjack.</li>
+      </ul>
+    </section>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Verification</h4>
+      <p class="fp-details-muted mb-0">
+        After settlement, the server seed is revealed. You can confirm
+        <code class="fp-details-inline-code">SHA-256(serverSeed)</code> equals the committed hash, then re-run the shuffle with the same
+        client seed to reproduce the deck order dealt to you and the dealer.
+      </p>
+    </section>
   </div>
 </div>

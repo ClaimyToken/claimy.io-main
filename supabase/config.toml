@@ -3,3 +3,6 @@
 
 [functions.playhouse-feed]
 verify_jwt = false
+
+[functions.blackjack-game]
+verify_jwt = false

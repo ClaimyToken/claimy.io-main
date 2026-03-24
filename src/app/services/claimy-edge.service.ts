@@ -35,6 +35,28 @@ export type FlowerpokerServerRound = {
   currentRoundProofs?: FlowerpokerRoundProof[];
 };
 
+/** Public blackjack table state from `blackjack-game` Edge. */
+export type BlackjackPublicGame = {
+  phase: string;
+  status?: string;
+  playerCards: string[];
+  dealerCards: string[];
+  holeRevealed: boolean;
+  playerTotal: string;
+  dealerTotal: string;
+  canHit: boolean;
+  canStand: boolean;
+  canDouble: boolean;
+  canInsurance: boolean;
+  stakeAmount: number;
+  baseStake: number;
+  mainStake: number;
+  doubleStake: number;
+  insuranceStake: number;
+  roundLog: { t: string; detail?: string }[];
+  fairSnapshot: Record<string, unknown> | null;
+};
+
 /** Row from `playhouse-feed` / `playhouse_list_settled_bets` (settled; optional in_progress when filtered by wallet). */
 export type PlayhouseBetRow = {
   id: string;
@@ -304,6 +326,183 @@ export class ClaimyEdgeService {
         stakeAmount: stake,
         playableBalance: playable,
         currentRound
+      };
+    } catch {
+      return { ok: false, error: 'Network error resuming session.' };
+    }
+  }
+
+  async startBlackjackBet(body: {
+    walletAddress: string;
+    betAmount: string;
+    clientSeed?: string | null;
+  }): Promise<{
+    ok: boolean;
+    gameId?: string;
+    stakeAmount?: number;
+    playableBalance?: number;
+    game?: BlackjackPublicGame;
+    settled?: boolean;
+    winner?: 'Player' | 'House' | 'Tie';
+    payoutAmount?: number;
+    playerHand?: string;
+    houseHand?: string;
+    fairSnapshot?: unknown;
+    error?: string;
+  }> {
+    try {
+      const res = await fetch(this.functionsUrl('blackjack-game'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({
+          action: 'start_bet',
+          walletAddress: body.walletAddress,
+          betAmount: body.betAmount,
+          clientSeed: body.clientSeed ?? null
+        })
+      });
+      const text = await res.text();
+      const data = this.parseEdgeJson(text);
+      const businessOk = res.ok && data['ok'] === true;
+      const stake = this.readNum(data['stakeAmount']);
+      const playable = this.readNum(data['playableBalance']);
+      const payout = this.readNum(data['payoutAmount']);
+      let errMsg =
+        (typeof data['error'] === 'string' && data['error']) ||
+        (typeof data['message'] === 'string' && data['message']) ||
+        undefined;
+      if (!businessOk && !errMsg) errMsg = `Request failed (${res.status})`;
+      const settled = data['settled'] === true;
+      const gameRaw = data['game'];
+      const game =
+        gameRaw != null && typeof gameRaw === 'object' && !Array.isArray(gameRaw)
+          ? (gameRaw as BlackjackPublicGame)
+          : undefined;
+      const w = data['winner'];
+      const winner =
+        w === 'Player' || w === 'House' || w === 'Tie' ? (w as 'Player' | 'House' | 'Tie') : undefined;
+      const success = businessOk && (settled || typeof data['gameId'] === 'string');
+      return {
+        ok: success,
+        gameId: typeof data['gameId'] === 'string' ? data['gameId'] : undefined,
+        stakeAmount: stake,
+        playableBalance: playable,
+        game,
+        settled,
+        winner,
+        payoutAmount: payout,
+        playerHand: typeof data['playerHand'] === 'string' ? data['playerHand'] : undefined,
+        houseHand: typeof data['houseHand'] === 'string' ? data['houseHand'] : undefined,
+        fairSnapshot: data['fairSnapshot'],
+        error: success ? undefined : errMsg
+      };
+    } catch {
+      return { ok: false, error: 'Network error starting bet.' };
+    }
+  }
+
+  async blackjackPlayerAction(body: {
+    walletAddress: string;
+    gameId: string;
+    move: 'insurance_yes' | 'insurance_no' | 'hit' | 'stand' | 'double';
+  }): Promise<{
+    ok: boolean;
+    settled?: boolean;
+    winner?: 'Player' | 'House' | 'Tie';
+    payoutAmount?: number;
+    playableBalance?: number;
+    game?: BlackjackPublicGame;
+    fairSnapshot?: unknown;
+    error?: string;
+  }> {
+    try {
+      const res = await fetch(this.functionsUrl('blackjack-game'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({
+          action: 'player_action',
+          walletAddress: body.walletAddress,
+          gameId: body.gameId,
+          move: body.move
+        })
+      });
+      const text = await res.text();
+      const data = this.parseEdgeJson(text);
+      const ok = res.ok && data['ok'] === true;
+      const playable = this.readNum(data['playableBalance']);
+      const payout = this.readNum(data['payoutAmount']);
+      const w = data['winner'];
+      const winner =
+        w === 'Player' || w === 'House' || w === 'Tie' ? (w as 'Player' | 'House' | 'Tie') : undefined;
+      const gameRaw = data['game'];
+      const game =
+        gameRaw != null && typeof gameRaw === 'object' && !Array.isArray(gameRaw)
+          ? (gameRaw as BlackjackPublicGame)
+          : undefined;
+      let errMsg =
+        (typeof data['error'] === 'string' && data['error']) ||
+        (typeof data['message'] === 'string' && data['message']) ||
+        undefined;
+      if (!ok && !errMsg) errMsg = `Request failed (${res.status})`;
+      return {
+        ok,
+        settled: data['settled'] === true,
+        winner,
+        payoutAmount: payout,
+        playableBalance: playable,
+        game,
+        fairSnapshot: data['fairSnapshot'],
+        error: ok ? undefined : errMsg
+      };
+    } catch {
+      return { ok: false, error: 'Network error.' };
+    }
+  }
+
+  async resumeBlackjackSession(walletAddress: string): Promise<{
+    ok: boolean;
+    active?: boolean;
+    staleRefunded?: boolean;
+    gameId?: string;
+    stakeAmount?: number;
+    playableBalance?: number;
+    game?: BlackjackPublicGame;
+    error?: string;
+  }> {
+    const w = walletAddress?.trim();
+    if (!w) return { ok: false, error: 'No wallet.' };
+    try {
+      const res = await fetch(this.functionsUrl('blackjack-game'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({ action: 'resume_session', walletAddress: w })
+      });
+      const text = await res.text();
+      const data = this.parseEdgeJson(text);
+      const businessOk = res.ok && data['ok'] === true;
+      const stake = this.readNum(data['stakeAmount']);
+      const playable = this.readNum(data['playableBalance']);
+      let errMsg =
+        (typeof data['error'] === 'string' && data['error']) ||
+        (typeof data['message'] === 'string' && data['message']) ||
+        undefined;
+      if (!businessOk && !errMsg) errMsg = `Request failed (${res.status})`;
+      if (!businessOk) return { ok: false, error: errMsg };
+      const staleRefunded = data['staleRefunded'] === true;
+      const active = data['active'] === true;
+      const gameRaw = data['game'];
+      const game =
+        gameRaw != null && typeof gameRaw === 'object' && !Array.isArray(gameRaw)
+          ? (gameRaw as BlackjackPublicGame)
+          : undefined;
+      return {
+        ok: true,
+        active,
+        staleRefunded,
+        gameId: typeof data['gameId'] === 'string' ? data['gameId'] : undefined,
+        stakeAmount: stake,
+        playableBalance: playable,
+        game
       };
     } catch {
       return { ok: false, error: 'Network error resuming session.' };
@@ -618,7 +817,7 @@ export class ClaimyEdgeService {
     }
   }
 
-  /** Paginated settled Flowerpoker bets for The Playhouse (`playhouse-feed` Edge). */
+  /** Paginated settled Flowerpoker + Blackjack bets for The Playhouse (`playhouse-feed` Edge). */
   async fetchPlayhouseBets(opts: {
     page: number;
     pageSize: number;
@@ -709,7 +908,7 @@ export class ClaimyEdgeService {
   }
 
   /**
-   * Single aggregated Flowerpoker stats for Ranking progress (`playhouse-feed` action `player_ranking_stats`).
+   * Aggregated stats for Ranking progress (`playhouse-feed` action `player_ranking_stats`): Flowerpoker + Blackjack.
    * Server-side SUM/COUNT — no paging. Requires RPC `playhouse_player_ranking_stats` in Postgres.
    */
   async fetchPlayerRankingStats(walletAddress: string): Promise<{
