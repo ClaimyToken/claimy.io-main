@@ -30,6 +30,8 @@ import { PrivacyComponent } from './modules/pages/privacy/privacy.component';
 import { LandingComponent } from './modules/pages/landing/landing.component';
 import { RegisterComponent } from './modules/pages/register/register.component';
 import { LoginComponent } from './modules/pages/login/login.component';
+import { LoginFormComponent } from './modules/pages/login/login-form.component';
+import { LoginModalComponent } from './modules/global/login-modal/login-modal.component';
 import { AccountSettingsComponent } from './modules/pages/account-settings/account-settings.component';
 import { ReferralRankingComponent } from './modules/pages/referral-ranking/referral-ranking.component';
 import { ClaimyTokenComponent } from './modules/pages/claimy-token/claimy-token.component';
@@ -58,6 +60,8 @@ import { MainLayoutRouterComponent } from './modules/layouts/main-layout-router/
     LandingComponent,
     RegisterComponent,
     LoginComponent,
+    LoginFormComponent,
+    LoginModalComponent,
     AccountSettingsComponent,
     ReferralRankingComponent,
     ClaimyTokenComponent,

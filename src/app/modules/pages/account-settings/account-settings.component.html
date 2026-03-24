@@ -6,6 +6,12 @@
   </h1>
 </header>
 
+<div class="row my-3 my-lg-4" *ngIf="!walletAuth.isLoggedIn">
+  <div class="col-12 col-lg-7 mx-auto text-center">
+    <p class="text-secondary small mb-0">Sign in with Phantom to view and change your account settings.</p>
+  </div>
+</div>
+
 <div class="row my-3 my-lg-4" *ngIf="walletAuth.isLoggedIn">
   <div class="col-12 col-lg-7 mx-auto">
     <div class="card">

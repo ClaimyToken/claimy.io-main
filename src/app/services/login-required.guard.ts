@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { LoginModalService } from './login-modal.service';
 import { WalletAuthService } from './wallet-auth.service';
 
 @Injectable({
@@ -8,13 +9,19 @@ import { WalletAuthService } from './wallet-auth.service';
 export class LoginRequiredGuard implements CanActivate {
   constructor(
     private readonly walletAuth: WalletAuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly loginModal: LoginModalService
   ) {}
 
-  canActivate(): boolean | UrlTree {
+  canActivate(_route: unknown, state: RouterStateSnapshot): boolean | UrlTree {
     if (this.walletAuth.isLoggedIn) {
       return true;
     }
-    return this.router.createUrlTree(['/login']);
+    this.loginModal.open({ returnUrl: state.url });
+    const nav = this.router.getCurrentNavigation();
+    if (nav?.id === 1) {
+      return this.router.parseUrl('/home');
+    }
+    return false;
   }
 }

@@ -105,7 +105,8 @@
 
             <div class="nav-shell__col nav-shell__col--right d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end nav-auth">
                 <ng-container *ngIf="!walletAuth.isLoggedIn">
-                    <a routerLink="/login" class="btn btn-outline-secondary py-2 px-3 text-uppercase fw-bold">Login</a>
+                    <a href="/login" class="btn btn-outline-secondary py-2 px-3 text-uppercase fw-bold"
+                      (click)="openLoginModal($event)">Login</a>
                     <a routerLink="/register" class="btn btn-primary py-2 px-4 text-uppercase fw-bold">Register now</a>
                 </ng-container>
 

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { ClaimyEdgeService } from 'src/app/services/claimy-edge.service';
+import { LoginModalService } from 'src/app/services/login-modal.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 
 const LEADERBOARD_MAX = 15;
@@ -35,7 +35,7 @@ export class ReferralRankingComponent implements OnInit, OnDestroy {
   constructor(
     private readonly edge: ClaimyEdgeService,
     readonly walletAuth: WalletAuthService,
-    private readonly router: Router
+    private readonly loginModal: LoginModalService
   ) {}
 
   /** Always 15 rows: real users first, then empty slots (0-referral accounts are not listed). */
@@ -83,7 +83,7 @@ export class ReferralRankingComponent implements OnInit, OnDestroy {
 
   openReferralModal() {
     if (!this.walletAuth.isLoggedIn || !this.walletAuth.walletAddress) {
-      void this.router.navigate(['/login']);
+      this.loginModal.open({ returnUrl: '/referrals' });
       return;
     }
     this.referralButtonLoading = true;

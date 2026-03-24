@@ -1,6 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfigService } from 'src/app/services/config.service';
+import { LoginModalService } from 'src/app/services/login-modal.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 
 declare global {
@@ -18,7 +19,8 @@ export class RegisterComponent implements OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly walletAuth: WalletAuthService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
+    private readonly loginModal: LoginModalService
   ) {}
 
   private readonly endpoints = {
@@ -346,7 +348,8 @@ export class RegisterComponent implements OnDestroy {
   closeRegistrationSuccessModal() {
     this.showRegistrationSuccessModal = false;
     if (this.registrationComplete) {
-      this.router.navigate(['/login']);
+      void this.router.navigate(['/home']);
+      this.loginModal.open();
     }
   }
 

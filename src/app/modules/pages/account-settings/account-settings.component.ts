@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { ClaimyCreditsService } from 'src/app/services/claimy-credits.service';
 import { ClaimyEdgeService } from 'src/app/services/claimy-edge.service';
 import { ConfigService } from 'src/app/services/config.service';
+import { LoginModalService } from 'src/app/services/login-modal.service';
 import { WalletModalService } from 'src/app/services/wallet-modal.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 
@@ -15,6 +17,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   copiedDeposit = false;
   creditsLoading = false;
   private copyDepositResetId: ReturnType<typeof setTimeout> | null = null;
+  private loginSucceededSub?: Subscription;
 
   /** Read-only display; set via Random or loaded from server. */
   gamesSeedInput = '';
@@ -28,7 +31,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     private readonly credits: ClaimyCreditsService,
     private readonly claimyEdge: ClaimyEdgeService,
     private readonly walletModal: WalletModalService,
-    private readonly router: Router
+    private readonly loginModal: LoginModalService
   ) {}
 
   openWalletModal() {
@@ -46,13 +49,17 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (!this.walletAuth.isLoggedIn) {
-      void this.router.navigate(['/login']);
+      this.loginSucceededSub = this.walletAuth.loginSucceeded$
+        .pipe(take(1))
+        .subscribe(() => void this.loadCreditsAndSeed());
+      this.loginModal.open({ returnUrl: '/account-settings' });
       return;
     }
     void this.loadCreditsAndSeed();
   }
 
   ngOnDestroy(): void {
+    this.loginSucceededSub?.unsubscribe();
     if (this.toastClearId) {
       clearTimeout(this.toastClearId);
       this.toastClearId = null;

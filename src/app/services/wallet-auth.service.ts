@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 /** Last verified wallet from login — survives full page refresh so games/credits can resolve the wallet before Phantom injects. */
 const SESSION_WALLET_KEY = 'claimy.sessionWallet';
@@ -39,6 +40,9 @@ export class WalletAuthService {
 
   /** Placeholder until ranks are implemented server-side. */
   readonly rankDisplay = '—';
+
+  /** Emits after a successful `loginWithWallet` (e.g. modal login while staying on the same route). */
+  readonly loginSucceeded$ = new Subject<void>();
 
   /** Wallet from last `loginWithWallet` (sessionStorage). Survives refresh before in-memory state is restored. */
   getPersistedSessionWallet(): string | null {
@@ -150,6 +154,7 @@ export class WalletAuthService {
     const gs = gamesClientSeed?.trim();
     this.gamesClientSeed = gs && gs.length > 0 ? gs : null;
     this.isLoggedIn = true;
+    this.loginSucceeded$.next();
   }
 
   login() {

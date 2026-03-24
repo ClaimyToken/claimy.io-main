@@ -10,57 +10,8 @@
   <div class="col-12 col-lg-7 mx-auto">
     <div class="card">
       <div class="card-body p-3 p-md-4">
-        <h2 class="login-title text-primary text-uppercase c-text-glow">Phantom sign-in</h2>
-        <p class="login-lead mb-3">
-          Connect Phantom, then sign in. We look up your wallet in Claimy—no password.
-        </p>
-
-        <div class="login-flow mb-3">
-          <div class="flow-step"
-            [class.flow-step--done]="!!phantomWalletAddress"
-            [class.flow-step--active]="!phantomWalletAddress && !connecting">
-            <div class="flow-step__title">1 · Connect Phantom</div>
-            <p class="flow-step__hint mb-2">Choose the wallet linked to your Claimy account.</p>
-            <label class="form-label login-label">Wallet</label>
-            <div class="login-wallet text-break mb-2">
-              {{ phantomWalletAddress || '—' }}
-            </div>
-            <div class="login-actions login-actions--stack">
-              <button type="button" class="btn btn-sm login-btn" (click)="connectPhantom()"
-                [class.btn-outline-secondary]="!phantomWalletAddress"
-                [class.btn-success]="!!phantomWalletAddress"
-                [disabled]="connecting || !!phantomWalletAddress">
-                {{ connecting ? 'Connecting…' : (phantomWalletAddress ? 'Connected ✓' : 'Connect Phantom') }}
-              </button>
-            </div>
-            <p *ngIf="connectError" class="login-error mb-0 mt-2">{{ connectError }}</p>
-          </div>
-
-          <div class="flow-step"
-            [class.flow-step--locked]="!phantomWalletAddress"
-            [class.flow-step--active]="!!phantomWalletAddress && !verifying">
-            <div class="flow-step__title">2 · Sign in</div>
-            <p class="flow-step__hint mb-2">We’ll look up your wallet in Claimy.</p>
-            <div class="login-actions login-actions--stack">
-              <button type="button" class="btn btn-primary btn-sm login-btn" (click)="verifyWalletLogin()"
-                [disabled]="!phantomWalletAddress || verifying">
-                {{ verifying ? 'Signing in…' : 'Login' }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <p class="login-footer-link mb-0 text-center">
-          New here?
-          <a routerLink="/register" class="login-footer-link__a">Create an account</a>
-        </p>
+        <app-login-form variant="page"></app-login-form>
       </div>
     </div>
   </div>
-</div>
-
-<div *ngIf="toast as t" class="login-toast" [class.login-toast--error]="t.type === 'error'"
-  [class.login-toast--success]="t.type === 'success'" role="status">
-  <span class="login-toast__text">{{ t.message }}</span>
-  <button type="button" class="login-toast__close" aria-label="Dismiss" (click)="dismissToast()">×</button>
 </div>
