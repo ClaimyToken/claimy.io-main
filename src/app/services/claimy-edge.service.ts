@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ConfigService } from './config.service';
 
 /** Row from `claimy_credit_ledger` (via claimy-credits `list_ledger`). */
@@ -56,22 +55,7 @@ export type PlayhouseBetRow = {
   providedIn: 'root'
 })
 export class ClaimyEdgeService {
-  /** Lazy anon client for `functions.invoke` (correct headers / URL for Supabase gateway + CORS). */
-  private supabaseAnonClient: SupabaseClient | null = null;
-
   constructor(private readonly config: ConfigService) {}
-
-  private getSupabaseAnonClient(): SupabaseClient | null {
-    const url = this.config.supabaseUrl?.replace(/\/$/, '');
-    const key = this.config.supabaseAnonKey?.trim();
-    if (!url || !key) return null;
-    if (!this.supabaseAnonClient) {
-      this.supabaseAnonClient = createClient(url, key, {
-        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-      });
-    }
-    return this.supabaseAnonClient;
-  }
 
   private functionsUrl(slug: string): string {
     return `${this.config.supabaseUrl.replace(/\/$/, '')}/functions/v1/${slug}`;
@@ -656,28 +640,23 @@ export class ClaimyEdgeService {
           'Missing Supabase anon key. Set it in environment.prod.ts (production) or .env + node scripts/sync-env.cjs (dev).'
       };
     }
-    const sb = this.getSupabaseAnonClient();
-    if (!sb) {
-      return { ok: false, error: 'Missing Supabase URL or anon key.' };
+    const url = this.config.supabaseUrl?.replace(/\/$/, '');
+    if (!url) {
+      return { ok: false, error: 'Missing Supabase URL.' };
     }
     try {
-      const { data, error } = await sb.functions.invoke('playhouse-feed', {
-        body: {
+      const res = await fetch(this.functionsUrl('playhouse-feed'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({
           action: 'list_bets',
           page,
           pageSize,
           walletAddress: wallet
-        }
+        })
       });
-      if (error) {
-        const msg = error.message?.trim() || String(error);
-        const hint =
-          /401|403|jwt|unauthor/i.test(msg) || /Edge Function returned a non-2xx status code/i.test(msg)
-            ? ' In Supabase Dashboard → Edge Functions → playhouse-feed, turn JWT verification OFF (or deploy supabase/config.toml with verify_jwt = false).'
-            : '';
-        return { ok: false, error: msg + hint };
-      }
-      const payload = data as {
+      const text = await res.text();
+      const payload = this.parseEdgeJson(text) as {
         ok?: boolean;
         page?: number;
         pageSize?: number;
@@ -686,6 +665,17 @@ export class ClaimyEdgeService {
         rows?: PlayhouseBetRow[];
         error?: string;
       };
+      if (!res.ok) {
+        const errMsg =
+          (typeof payload.error === 'string' && payload.error) ||
+          (text && text.length < 400 ? text : null) ||
+          `Request failed (${res.status}).`;
+        const jwtHint =
+          res.status === 401 || res.status === 403
+            ? ' In Supabase Dashboard → Edge Functions → playhouse-feed, turn JWT verification OFF (or deploy supabase/config.toml with verify_jwt = false).'
+            : '';
+        return { ok: false, error: errMsg + jwtHint };
+      }
       if (!payload || typeof payload !== 'object') {
         return { ok: false, error: 'Unexpected response from playhouse-feed.' };
       }
