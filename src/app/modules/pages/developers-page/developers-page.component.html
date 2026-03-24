@@ -80,7 +80,7 @@
         </tr>
         <tr>
       <td>Edge Functions</td>
-      <td>Register/login, credits sync, game sessions (Flowerpoker + Blackjack), Playhouse feed/ranking stats, withdrawals, referrals.</td>
+      <td>Register/login, credits sync, game sessions (Flowerpoker + Blackjack + Dice), Playhouse feed/ranking stats, withdrawals, referrals.</td>
         </tr>
         <tr>
           <td>Solana RPC</td>
@@ -279,8 +279,9 @@ npx ng serve
   <p>
     Claimy game pages use Edge game handlers that lock stake, persist session metadata in
     <code>claimy_game_sessions</code>, and settle through <code>claimy_apply_credit_delta</code>.
-    <strong>Flowerpoker</strong> and <strong>Blackjack</strong> are both wired this way. The UI also includes browser-side
-    verification utilities so users can compare committed seed/hash values against revealed settlement data.
+    <strong>Flowerpoker</strong>, <strong>Blackjack</strong>, and <strong>Dice</strong> follow the same pattern (Dice uses
+    one-shot <code>roll</code> with HMAC label <code>claimy-dice|v2|…</code> and <code>rollSpace</code> 1000 in the fairness snapshot).
+    The UI includes browser-side verification utilities so players can compare committed seed/hash values against revealed settlement data.
   </p>
   <p>
     Ranking now refreshes right after game settlement, and live nav toasts announce rank-ups (including multi-tier jumps)

@@ -32,6 +32,17 @@ export class DevUpdatesComponent {
    */
   readonly entries: DevUpdateEntry[] = [
     {
+      dateLabel: '25 March 2026',
+      isoDate: '2026-03-25',
+      subtitle: 'Dice (Playhouse) — provably fair roll under / over',
+      bullets: [
+        'Shipped Dice end-to-end: Edge dice-game (roll action), one-shot settle in claimy_game_sessions (game_key dice), credits lock/payout via claimy_apply_credit_delta, HMAC claimy-dice|v2|… with roll in 0…999 (1000 outcomes).',
+        'Playhouse feed + ranking RPCs extended with claimy_playhouse_include_dice.sql so Dice sessions aggregate with Flowerpoker and Blackjack.',
+        'Dice page: Roll under / Roll over toggles (neutral styling, green border on selected), target + odds panel, compact Roll dice CTA, fixed-height play surface, and browser-side verify (dice-provably-fair.ts) matching the Edge snapshot.',
+        'Docs refreshed: README handoff, supabase/functions/README.md, and For developers (/developers) list dice-game, migration order, and fairness notes alongside other table games.'
+      ]
+    },
+    {
       dateLabel: '24 March 2026',
       isoDate: '2026-03-24',
       subtitle: 'Admin sweep controls + credits-safe reconciliation + live rank-up toasts',

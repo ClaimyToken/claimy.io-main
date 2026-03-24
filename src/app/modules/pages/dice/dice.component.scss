@@ -342,10 +342,6 @@
   padding: 0.5rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
-  border-color: #ff8b2b !important;
-  background: rgba(0, 0, 0, 0.92) !important;
-  color: #ff9b3a !important;
-  box-shadow: inset 0 0 0 1px rgba(255, 139, 43, 0.15);
   transition:
     background-color 0.15s ease,
     color 0.15s ease,
@@ -353,14 +349,19 @@
     box-shadow 0.15s ease;
 }
 
+/* Primary — Roll dice (orange) */
 .dice-actions-grid--primary .dice-action-btn {
   width: auto !important;
   max-width: none;
   min-width: 0;
+  border-color: #ff8b2b !important;
+  background: rgba(0, 0, 0, 0.92) !important;
+  color: #ff9b3a !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 139, 43, 0.15);
 }
 
-.dice-action-btn:hover:not(:disabled),
-.dice-action-btn:focus-visible:not(:disabled) {
+.dice-actions-grid--primary .dice-action-btn:hover:not(:disabled),
+.dice-actions-grid--primary .dice-action-btn:focus-visible:not(:disabled) {
   border-color: #ffad5a !important;
   background: rgba(18, 10, 0, 0.95) !important;
   color: #ffc17f !important;
@@ -369,7 +370,7 @@
     0 0 0 1px rgba(255, 139, 43, 0.2);
 }
 
-.dice-action-btn:disabled {
+.dice-actions-grid--primary .dice-action-btn:disabled {
   border-color: rgba(255, 139, 43, 0.45) !important;
   background: rgba(0, 0, 0, 0.7) !important;
   color: rgba(255, 155, 58, 0.48) !important;
@@ -378,7 +379,7 @@
   cursor: not-allowed;
 }
 
-/* Mode toggle — same chrome as primary roll; active state only brightens */
+/* Mode toggles — identical neutral; selected = green ring */
 .dice-mode-btns .dice-action-btn {
   flex: 1 1 0;
   width: auto !important;
@@ -387,17 +388,43 @@
   white-space: nowrap;
 }
 
-.dice-action-btn--mode {
-  min-height: 3rem;
+.dice-mode-btns .dice-action-btn.dice-action-btn--mode {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  background: rgba(0, 0, 0, 0.78) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
-.dice-action-btn--mode-active {
-  border-color: #ffad5a !important;
-  background: rgba(18, 10, 0, 0.95) !important;
-  color: #ffc17f !important;
+.dice-mode-btns .dice-action-btn.dice-action-btn--mode:hover:not(:disabled),
+.dice-mode-btns .dice-action-btn.dice-action-btn--mode:focus-visible:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  color: #fff !important;
+}
+
+.dice-mode-btns .dice-action-btn.dice-action-btn--mode:disabled {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(0, 0, 0, 0.55) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.dice-mode-btns .dice-action-btn.dice-action-btn--mode-active {
+  border-color: #3ecf8e !important;
+  background: rgba(6, 32, 22, 0.92) !important;
+  color: #d4ffe9 !important;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 173, 90, 0.35),
-    0 0 0 1px rgba(255, 139, 43, 0.22);
+    0 0 0 2px rgba(62, 207, 142, 0.45),
+    inset 0 0 0 1px rgba(62, 207, 142, 0.25) !important;
+}
+
+.dice-mode-btns .dice-action-btn.dice-action-btn--mode-active:hover:not(:disabled),
+.dice-mode-btns .dice-action-btn.dice-action-btn--mode-active:focus-visible:not(:disabled) {
+  border-color: #5ed9a3 !important;
+  background: rgba(8, 40, 28, 0.95) !important;
+  color: #eafff4 !important;
 }
 
 .dice-board-placeholder {
