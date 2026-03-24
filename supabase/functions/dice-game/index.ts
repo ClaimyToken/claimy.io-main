@@ -1,5 +1,5 @@
 /**
- * Claimy Dice — provably fair roll in [0, 9999] (10000 outcomes).
+ * Claimy Dice — provably fair roll in [0, 999] (1000 outcomes). HMAC label `claimy-dice|v2|…`.
  * game_key = "dice". One-shot settle per request (`roll` action).
  *
  * Modes: `under` (win if roll < target), `over` (win if roll > target).
@@ -15,8 +15,10 @@ const cors = {
 
 const HOUSE_EDGE = 0.01;
 const MAX_MULTIPLIER = 500;
-const MIN_WIN_OUTCOMES = 200;
-const MAX_WIN_OUTCOMES = 9800;
+/** 1000 outcomes (0..999); ~2% min win = 20 outcomes, ~98% max = 980 outcomes. */
+const OUTCOME_SPACE = 1000;
+const MIN_WIN_OUTCOMES = 20;
+const MAX_WIN_OUTCOMES = 980;
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -73,7 +75,7 @@ async function hmacSha256(key: Uint8Array, message: string): Promise<Uint8Array>
 }
 
 async function deriveUint32(serverSecret: Uint8Array, clientSeed: string, counter: number): Promise<number> {
-  const msg = `claimy-dice|v1|${clientSeed}|${counter}`;
+  const msg = `claimy-dice|v2|${clientSeed}|${counter}`;
   const h = await hmacSha256(serverSecret, msg);
   const view = new DataView(h.buffer);
   return view.getUint32(0, false) >>> 0;
@@ -101,6 +103,7 @@ async function buildFairSnapshot(
     serverSeedHash: serverSeedHashHex,
     clientSeed,
     nonce: 0,
+    rollSpace: OUTCOME_SPACE,
     roll,
     mode,
     target,
@@ -120,14 +123,14 @@ function winCountFor(mode: "under" | "over", target: number): number | null {
     if (!Number.isInteger(target) || target < MIN_WIN_OUTCOMES || target > MAX_WIN_OUTCOMES) return null;
     return target;
   }
-  if (!Number.isInteger(target) || target < 199 || target > 9799) return null;
-  const wc = 9999 - target;
+  if (!Number.isInteger(target) || target < 19 || target > 979) return null;
+  const wc = 999 - target;
   if (wc < MIN_WIN_OUTCOMES || wc > MAX_WIN_OUTCOMES) return null;
   return wc;
 }
 
 function payoutMultiplier(winCount: number): number {
-  const fair = 10000 / winCount;
+  const fair = OUTCOME_SPACE / winCount;
   const m = fair * (1 - HOUSE_EDGE);
   return round6(Math.min(MAX_MULTIPLIER, m));
 }
@@ -168,7 +171,7 @@ serve(async (req) => {
       ok: false,
       error: mode === "under"
         ? `target must be an integer ${MIN_WIN_OUTCOMES}–${MAX_WIN_OUTCOMES} for roll-under.`
-        : `target must be an integer 199–9799 for roll-over (win window ${MIN_WIN_OUTCOMES}–${MAX_WIN_OUTCOMES}).`,
+        : `target must be an integer 19–979 for roll-over (win window ${MIN_WIN_OUTCOMES}–${MAX_WIN_OUTCOMES}).`,
     }, 200);
   }
 
@@ -212,7 +215,7 @@ serve(async (req) => {
   if (clientSeed.length > 128) clientSeed = clientSeed.slice(0, 128);
 
   const u32 = await deriveUint32(serverSeedSecret, clientSeed, 0);
-  const roll = u32 % 10000;
+  const roll = u32 % OUTCOME_SPACE;
 
   const won = mode === "under" ? roll < target : roll > target;
   const payout = won ? round6(stake * mult) : 0;

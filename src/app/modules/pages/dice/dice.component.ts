@@ -5,10 +5,11 @@ import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 import type { VerificationResult } from '../flowerpoker/flowerpoker-provably-fair';
 import { verifyDiceRound, type DiceFairSnapshot } from './dice-provably-fair';
 
+const OUTCOME_SPACE = 1000;
 const HOUSE_EDGE = 0.01;
 const MAX_MULTIPLIER = 500;
-const MIN_WIN_OUTCOMES = 200;
-const MAX_WIN_OUTCOMES = 9800;
+const MIN_WIN_OUTCOMES = 20;
+const MAX_WIN_OUTCOMES = 980;
 
 function round6(n: number): number {
   return Math.round(n * 1_000_000) / 1_000_000;
@@ -59,8 +60,8 @@ export class DiceComponent implements OnDestroy {
       if (t < MIN_WIN_OUTCOMES || t > MAX_WIN_OUTCOMES) return null;
       return t;
     }
-    if (t < 199 || t > 9799) return null;
-    const wc = 9999 - t;
+    if (t < 19 || t > 979) return null;
+    const wc = 999 - t;
     if (wc < MIN_WIN_OUTCOMES || wc > MAX_WIN_OUTCOMES) return null;
     return wc;
   }
@@ -68,14 +69,14 @@ export class DiceComponent implements OnDestroy {
   get multiplierPreview(): number | null {
     const wc = this.winCountPreview;
     if (wc == null) return null;
-    const fair = 10000 / wc;
+    const fair = OUTCOME_SPACE / wc;
     return round6(Math.min(MAX_MULTIPLIER, fair * (1 - HOUSE_EDGE)));
   }
 
   get winChancePreview(): string | null {
     const wc = this.winCountPreview;
     if (wc == null) return null;
-    return `${(wc / 100).toFixed(2)}%`;
+    return `${((wc / OUTCOME_SPACE) * 100).toFixed(2)}%`;
   }
 
   private get parsedTarget(): number | null {
@@ -88,14 +89,14 @@ export class DiceComponent implements OnDestroy {
     if (this.rolling) return;
     this.mode = m;
     if (m === 'under') {
-      let t = this.parsedTarget ?? 5000;
+      let t = this.parsedTarget ?? 500;
       if (t < MIN_WIN_OUTCOMES) t = MIN_WIN_OUTCOMES;
       if (t > MAX_WIN_OUTCOMES) t = MAX_WIN_OUTCOMES;
       this.targetInput = String(t);
     } else {
-      let t = this.parsedTarget ?? 4999;
-      if (t < 199) t = 199;
-      if (t > 9799) t = 9799;
+      let t = this.parsedTarget ?? 499;
+      if (t < 19) t = 19;
+      if (t > 979) t = 979;
       this.targetInput = String(t);
     }
     this.verificationReport = null;
@@ -164,11 +165,11 @@ export class DiceComponent implements OnDestroy {
         return;
       }
     } else {
-      if (target < 199 || target > 9799) {
-        this.flashToast('Roll-over target must be 199–9799.', 5000, 'error');
+      if (target < 19 || target > 979) {
+        this.flashToast('Roll-over target must be 19–979.', 5000, 'error');
         return;
       }
-      const wc = 9999 - target;
+      const wc = 999 - target;
       if (wc < MIN_WIN_OUTCOMES || wc > MAX_WIN_OUTCOMES) {
         this.flashToast('Invalid target for roll-over.', 5000, 'error');
         return;
@@ -185,7 +186,7 @@ export class DiceComponent implements OnDestroy {
     this.message = 'Rolling…';
 
     try {
-      await this.delay(750);
+      await this.delay(320);
       const res = await this.claimyEdge.rollDice({
         walletAddress: wallet,
         betAmount: amt,

@@ -15,13 +15,13 @@
           </div>
           <ul class="fp-list mb-2">
             <li>
-              One roll per bet: integer in <strong>0–9999</strong> from provably fair HMAC
-              <code class="dice-inline-code">claimy-dice|v1|…|0</code>.
+              One roll per bet: integer in <strong>0–999</strong> (1000 outcomes) from provably fair HMAC
+              <code class="dice-inline-code">claimy-dice|v2|…|0</code>.
             </li>
             <li><strong>Roll under</strong> — you win if the roll is <strong>strictly less</strong> than your target.</li>
             <li><strong>Roll over</strong> — you win if the roll is <strong>strictly greater</strong> than your target.</li>
             <li>
-              Multiplier ≈ <strong>(10000 ÷ winning outcomes) × 0.99</strong> (1% house edge), capped at
+              Multiplier ≈ <strong>(1000 ÷ winning outcomes) × 0.99</strong> (1% house edge), capped at
               <strong>500×</strong>; playable odds window is about <strong>2%–98%</strong> win chance.
             </li>
           </ul>
@@ -87,8 +87,8 @@
               [disabled]="rolling"
             />
             <p class="dice-target-hint mb-0">
-              <ng-container *ngIf="mode === 'under'">Valid range: {{ 200 }}–{{ 9800 }} (win on roll &lt; target).</ng-container>
-              <ng-container *ngIf="mode === 'over'">Valid range: {{ 199 }}–{{ 9799 }} (win on roll &gt; target).</ng-container>
+              <ng-container *ngIf="mode === 'under'">Valid range: {{ 20 }}–{{ 980 }} (win on roll &lt; target).</ng-container>
+              <ng-container *ngIf="mode === 'over'">Valid range: {{ 19 }}–{{ 979 }} (win on roll &gt; target).</ng-container>
             </p>
           </div>
 
@@ -256,8 +256,8 @@
     <p class="fp-details-modal__eyebrow mb-1">Dice</p>
     <h3 id="diceDetailsModalTitle" class="fp-details-modal__title text-primary mb-2">Rules &amp; fairness</h3>
     <p class="fp-details-modal__lead mb-3">
-      Each bet samples one uniform index in <code class="fp-details-inline-code">0…9999</code> using HMAC-SHA256 with label
-      <code class="fp-details-inline-code">claimy-dice|v1|&lt;clientSeed&gt;|0</code> on the server secret. The committed hash is
+      Each bet samples one uniform index in <code class="fp-details-inline-code">0…999</code> (1000 outcomes) using HMAC-SHA256 with label
+      <code class="fp-details-inline-code">claimy-dice|v2|&lt;clientSeed&gt;|0</code> on the server secret. The committed hash is
       <code class="fp-details-inline-code">SHA-256(secret)</code> before you roll.
     </p>
     <section class="fp-details-section">
@@ -271,7 +271,7 @@
     <section class="fp-details-section">
       <h4 class="fp-details-section__h">Verification</h4>
       <p class="fp-details-muted mb-0">
-        After settlement, reproduce <code class="fp-details-inline-code">roll = HMAC_uint32 % 10000</code>, check the digest
+        After settlement, reproduce <code class="fp-details-inline-code">roll = HMAC_uint32 % 1000</code> (v2 label), check the digest
         <code class="fp-details-inline-code">SHA-256(roll|mode|target|clientSeed)</code>, and confirm the hash of the revealed seed.
       </p>
     </section>
