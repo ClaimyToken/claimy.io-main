@@ -272,12 +272,9 @@
         background: rgba(0, 0, 0, 0.2);
     }
 
-    .c-home-callout-card--blog {
-        border-left: 3px solid rgba(var(--bs-primary-rgb), 0.55);
-    }
-
+    .c-home-callout-card--blog,
     .c-home-callout-card--dev {
-        border-left: 3px solid rgba(110, 168, 254, 0.45);
+        border-left: 3px solid rgba(var(--bs-primary-rgb), 0.55);
     }
 
     .c-home-callout-card__title {
