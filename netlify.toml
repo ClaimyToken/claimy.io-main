@@ -1,4 +1,10 @@
 # Netlify: Angular app (output is dist/claimy per angular.json)
+#
+# Build injects `src/environments/environment.prod.ts` from env when NETLIFY=true (see scripts/inject-env-prod.cjs).
+# Set in Netlify: Site settings → Environment variables (Production + Preview as needed):
+#   CLAIMY_SOLANA_RPC_URL = https://rpc.shyft.to/?api_key=YOUR_KEY   (or your RPC; required for best SPL reads)
+# Optional overrides: CLAIMY_SPL_MINT, CLAIMY_SUPABASE_URL, CLAIMY_SUPABASE_ANON_KEY
+#
 [build]
   command = "npm run build"
   publish = "dist/claimy"
