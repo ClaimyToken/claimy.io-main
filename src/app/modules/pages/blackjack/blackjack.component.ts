@@ -20,7 +20,8 @@ function buildRevealQueue(
     q.push({ side: 'p', idx: 0, code: np[0]! });
     q.push({ side: 'd', idx: 0, code: nd[0]! });
     q.push({ side: 'p', idx: 1, code: np[1]! });
-    q.push({ side: 'd', idx: 1, code: nd[1]! });
+    // Dealer hole card may be hidden as ?? initially; do not animate a fake "draw" for that placeholder.
+    if (nd[1] !== '??') q.push({ side: 'd', idx: 1, code: nd[1]! });
     for (let i = 2; i < np.length; i++) q.push({ side: 'p', idx: i, code: np[i]! });
     for (let i = 2; i < nd.length; i++) q.push({ side: 'd', idx: i, code: nd[i]! });
     return q;
@@ -283,6 +284,18 @@ export class BlackjackComponent implements OnInit, OnDestroy {
     return !!arr[idx];
   }
 
+  get dealerSlotIndices(): number[] {
+    const loadingCount = this.revealingSlot?.side === 'd' ? this.revealingSlot.idx + 1 : 0;
+    const count = Math.max(this.displayDealerCards.length, loadingCount);
+    return Array.from({ length: count }, (_, i) => i);
+  }
+
+  get playerSlotIndices(): number[] {
+    const loadingCount = this.revealingSlot?.side === 'p' ? this.revealingSlot.idx + 1 : 0;
+    const count = Math.max(this.displayPlayerCards.length, loadingCount);
+    return Array.from({ length: count }, (_, i) => i);
+  }
+
   private async runDealAnimation(
     beforeGame: BlackjackPublicGame | null,
     after: BlackjackPublicGame
@@ -410,6 +423,13 @@ export class BlackjackComponent implements OnInit, OnDestroy {
         }
       }
       if (res.settled) {
+        this.message = 'Settling hand…';
+        if (res.fairSnapshot && typeof res.fairSnapshot === 'object') {
+          this.fairSnapshot = res.fairSnapshot as Record<string, unknown>;
+        }
+        if (res.game) {
+          await this.runDealAnimation(beforeGame, res.game);
+        }
         this.winnerName = res.winner ?? null;
         this.resultTone =
           res.winner === 'Player' ? 'win' : res.winner === 'Tie' ? 'tie' : 'loss';
@@ -419,15 +439,9 @@ export class BlackjackComponent implements OnInit, OnDestroy {
             : res.winner === 'Tie'
               ? `Push — ${res.payoutAmount ?? 0} CLAIMY returned.`
               : 'House wins.';
-        if (res.fairSnapshot && typeof res.fairSnapshot === 'object') {
-          this.fairSnapshot = res.fairSnapshot as Record<string, unknown>;
-        }
         this.handFinished = true;
         this.activeGameId = null;
         this.lastHandLabels = null;
-        if (res.game) {
-          await this.runDealAnimation(beforeGame, res.game);
-        }
         this.verificationReport = null;
       } else if (res.game) {
         await this.runDealAnimation(beforeGame, res.game);

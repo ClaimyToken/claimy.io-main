@@ -54,15 +54,14 @@
             </button>
           </div>
           <p class="fp-note mb-2 small" *ngIf="resumingSession">Checking for an in-progress session…</p>
-          <div class="fp-status" aria-live="polite">{{ message }}</div>
+          <div class="fp-status" aria-live="polite">{{ message || ' ' }}</div>
           <div
-            class="mt-2 mb-2"
-            *ngIf="winnerName"
+            class="bj-resultline mt-2 mb-2"
             [class.text-success]="resultTone === 'win'"
             [class.text-danger]="resultTone === 'loss'"
             [class.text-warning]="resultTone === 'tie'"
           >
-            <strong>Result:</strong> {{ winnerName }}
+            <strong>Result:</strong> {{ winnerName || ' ' }}
           </div>
 
           <div class="bj-board-wrap mt-3">
@@ -72,10 +71,16 @@
                 <div class="bj-cards bj-cards--centered">
                   <div
                     class="bj-card-slot"
-                    *ngFor="let _ of game.dealerCards; let i = index"
+                    *ngFor="let i of dealerSlotIndices"
                     [class.bj-card-slot--loading]="isRevealLoading('d', i)"
                   >
-                    <span class="bj-card-inner" *ngIf="slotHasCard('d', i)">{{ formatCard(displayDealerCards[i]!) }}</span>
+                    <span
+                      class="bj-card-inner"
+                      *ngIf="slotHasCard('d', i)"
+                      [class.bj-card-inner--back]="displayDealerCards[i] === '??'"
+                    >
+                      {{ displayDealerCards[i] === '??' ? '' : formatCard(displayDealerCards[i]!) }}
+                    </span>
                     <span class="bj-card-loading" *ngIf="!slotHasCard('d', i) && isRevealLoading('d', i)"></span>
                   </div>
                 </div>
@@ -87,7 +92,7 @@
                 <div class="bj-cards bj-cards--centered">
                   <div
                     class="bj-card-slot"
-                    *ngFor="let _ of game.playerCards; let i = index"
+                    *ngFor="let i of playerSlotIndices"
                     [class.bj-card-slot--loading]="isRevealLoading('p', i)"
                   >
                     <span class="bj-card-inner" *ngIf="slotHasCard('p', i)">{{ formatCard(displayPlayerCards[i]!) }}</span>
@@ -107,10 +112,10 @@
             </p>
 
             <ng-container *ngIf="game as g">
-              <div class="bj-actions d-flex flex-wrap justify-content-center gap-2 mt-4" *ngIf="gameSessionActive">
+              <div class="bj-actions-grid mt-4" *ngIf="gameSessionActive">
                 <button
                   type="button"
-                  class="btn btn-outline-light btn-sm"
+                  class="btn btn-outline-light btn-lg bj-action-btn"
                   (click)="insuranceYes()"
                   [disabled]="busy || dealingAnimating || !g.canInsurance"
                 >
@@ -118,18 +123,23 @@
                 </button>
                 <button
                   type="button"
-                  class="btn btn-outline-secondary btn-sm"
+                  class="btn btn-outline-secondary btn-lg bj-action-btn"
                   (click)="insuranceNo()"
                   [disabled]="busy || dealingAnimating || !g.canInsurance"
                 >
                   No insurance
                 </button>
-                <button type="button" class="btn btn-primary btn-sm" (click)="hit()" [disabled]="busy || dealingAnimating || !g.canHit">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-lg bj-action-btn"
+                  (click)="hit()"
+                  [disabled]="busy || dealingAnimating || !g.canHit"
+                >
                   Hit
                 </button>
                 <button
                   type="button"
-                  class="btn btn-outline-primary btn-sm"
+                  class="btn btn-outline-primary btn-lg bj-action-btn"
                   (click)="stand()"
                   [disabled]="busy || dealingAnimating || !g.canStand"
                 >
@@ -137,7 +147,7 @@
                 </button>
                 <button
                   type="button"
-                  class="btn btn-warning btn-sm text-dark"
+                  class="btn btn-warning btn-lg text-dark bj-action-btn"
                   (click)="double()"
                   [disabled]="busy || dealingAnimating || !g.canDouble"
                 >
