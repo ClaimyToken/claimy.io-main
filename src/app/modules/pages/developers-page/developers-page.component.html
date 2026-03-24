@@ -168,10 +168,11 @@ npx ng serve
       >
       and optional <code>walletAddress</code> for the
       filtered view. The function calls RPC <code>playhouse_list_settled_bets</code> with the service role — run
-      <code>DEVELOPERWORK/migrations/claimy_playhouse_feed.sql</code> before deploying. In
-      <code>supabase/config.toml</code>, set <code>verify_jwt = false</code> under
-      <code>[functions.playhouse-feed]</code> so the browser can call it with anon headers only (same pattern as other
-      public Edge endpoints).
+      <code>DEVELOPERWORK/migrations/claimy_playhouse_feed.sql</code> and
+      <code>claimy_playhouse_player_ranking_stats.sql</code> (RPC <code>playhouse_player_ranking_stats</code> for action
+      <code>player_ranking_stats</code>) before deploying. In <code>supabase/config.toml</code>, set
+      <code>verify_jwt = false</code> under <code>[functions.playhouse-feed]</code> so the browser can call it with anon
+      headers only (same pattern as other public Edge endpoints).
     </p>
     <p class="small text-secondary mb-2 font-monospace">
       npx supabase@latest functions deploy playhouse-feed --project-ref &lt;ref&gt;

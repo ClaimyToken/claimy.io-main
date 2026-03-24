@@ -10,6 +10,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 - **`DEVELOPERWORK/CLAIMY_VAULT.md`** — vault architecture (credits, custodial deposits, PDA vault, `withdraw-spl`).
 - **`DEVELOPERWORK/TESTING_DEPOSITS.md`** — test Claimy SPL deposits / credits (wallet + `npm run check-deposit`).
 - **`DEVELOPERWORK/PLAYABLE_CREDITS.md`** — database playable balance + `claimy-credits` Edge Function.
+- **`supabase/functions/README.md`** — slugs for repo Edge functions (e.g. `playhouse-feed`: `list_bets`, `player_ranking_stats`) and which SQL migrations to run.
 
 ## On-chain vault (Claimy SPL)
 

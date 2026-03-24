@@ -32,6 +32,7 @@ This folder is the **single place** for whoever finishes backend, on-chain, and 
 | **TESTING_DEPOSITS.md** | How to verify SPL deposits / Claimy Credits (Phantom + CLI). |
 | **PLAYABLE_CREDITS.md** | DB ledger + `claimy-credits` Edge (playable balance, deposits, games). |
 | **migrations/claimy_playable_credits.sql** | Run in Supabase to add tables + RPCs. |
+| **migrations/claimy_playhouse_player_ranking_stats.sql** | RPC `playhouse_player_ranking_stats` — aggregates for Ranking progress (used by `playhouse-feed` action `player_ranking_stats`). Apply after `claimy_playhouse_feed.sql`. |
 | **FRONTEND_AND_ENV.md** | `env.template`, production env, what the SPA exposes. |
 
 ---

@@ -2,8 +2,10 @@
  * Supabase Edge: playhouse-feed
  * POST JSON:
  *   { "action": "list_bets", "page": 1, "pageSize": 15, "walletAddress": "<optional filter>" }
+ *   { "action": "player_ranking_stats", "walletAddress": "<required>" }
  *
- * Returns settled Flowerpoker sessions (public feed). walletAddress filters to that wallet when set.
+ * list_bets: settled Flowerpoker sessions (public feed). walletAddress filters to that wallet when set.
+ * player_ranking_stats: one row of SUM/COUNT aggregates for Ranking progress (settled only).
  *
  * Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  * Deploy: set `verify_jwt = false` in `supabase/config.toml` ([functions.playhouse-feed]) so the public feed works without a Supabase JWT.
@@ -41,8 +43,23 @@ serve(async (req) => {
   const body = await req.json().catch(() => ({}));
   const action = String(body.action ?? "").trim();
 
+  if (action === "player_ranking_stats") {
+    const wallet = String(body.walletAddress ?? "").trim();
+    if (!wallet) {
+      return json({ ok: false, error: "walletAddress is required for player_ranking_stats" }, 400);
+    }
+    const { data, error } = await supabase.rpc("playhouse_player_ranking_stats", {
+      p_wallet: wallet,
+    });
+    if (error) {
+      return json({ ok: false, error: error.message ?? String(error) }, 200);
+    }
+    const stats = data && typeof data === "object" ? data : {};
+    return json({ ok: true, stats });
+  }
+
   if (action !== "list_bets") {
-    return json({ ok: false, error: "Unknown action. Use: list_bets" }, 400);
+    return json({ ok: false, error: "Unknown action. Use: list_bets | player_ranking_stats" }, 400);
   }
 
   let page = Math.max(1, parseInt(String(body.page ?? "1"), 10) || 1);

@@ -707,4 +707,93 @@ export class ClaimyEdgeService {
       return { ok: false, error: base + fetchHint };
     }
   }
+
+  /**
+   * Single aggregated Flowerpoker stats for Ranking progress (`playhouse-feed` action `player_ranking_stats`).
+   * Server-side SUM/COUNT — no paging. Requires RPC `playhouse_player_ranking_stats` in Postgres.
+   */
+  async fetchPlayerRankingStats(walletAddress: string): Promise<{
+    ok: boolean;
+    betsSettled?: number;
+    lifetimeWagered?: number;
+    pnl?: number;
+    wins?: number;
+    losses?: number;
+    ties?: number;
+    error?: string;
+  }> {
+    const w = walletAddress?.trim();
+    if (!w) {
+      return { ok: false, error: 'Wallet address required.' };
+    }
+    if (!this.config.supabaseAnonKey?.trim()) {
+      return {
+        ok: false,
+        error:
+          'Missing Supabase anon key. Set it in environment.prod.ts (production) or .env + node scripts/sync-env.cjs (dev).'
+      };
+    }
+    const url = this.config.supabaseUrl?.replace(/\/$/, '');
+    if (!url) {
+      return { ok: false, error: 'Missing Supabase URL.' };
+    }
+    try {
+      const res = await fetch(this.functionsUrl('playhouse-feed'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({
+          action: 'player_ranking_stats',
+          walletAddress: w
+        })
+      });
+      const text = await res.text();
+      const payload = this.parseEdgeJson(text) as {
+        ok?: boolean;
+        stats?: Record<string, unknown>;
+        error?: string;
+      };
+      if (!res.ok) {
+        const errMsg =
+          (typeof payload.error === 'string' && payload.error) ||
+          (text && text.length < 400 ? text : null) ||
+          `Request failed (${res.status}).`;
+        return { ok: false, error: errMsg };
+      }
+      if (!payload || payload.ok !== true) {
+        const errMsg =
+          (typeof payload.error === 'string' && payload.error) ||
+          'Could not load ranking stats (apply migration claimy_playhouse_player_ranking_stats.sql and redeploy playhouse-feed).';
+        return { ok: false, error: errMsg };
+      }
+      const s = payload.stats ?? {};
+      const readNum = (k: string): number => {
+        const v = s[k];
+        if (typeof v === 'number' && Number.isFinite(v)) return v;
+        if (typeof v === 'string') {
+          const n = parseFloat(v);
+          return Number.isFinite(n) ? n : 0;
+        }
+        return 0;
+      };
+      const readInt = (k: string): number => {
+        const n = Math.round(readNum(k));
+        return Number.isFinite(n) ? n : 0;
+      };
+      return {
+        ok: true,
+        betsSettled: readInt('betsSettled'),
+        lifetimeWagered: readNum('lifetimeWagered'),
+        pnl: readNum('pnl'),
+        wins: readInt('wins'),
+        losses: readInt('losses'),
+        ties: readInt('ties')
+      };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message.trim() : '';
+      return {
+        ok: false,
+        error: msg || 'Network error loading ranking stats.'
+      };
+    }
+  }
 }
