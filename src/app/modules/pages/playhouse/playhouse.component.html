@@ -21,9 +21,9 @@
             code.
           </p>
           <p class="playhouse-body mb-0">
-            The marquee runs <strong>four core games</strong>. <strong>Flowerpoker</strong> and
-            <strong>Blackjack</strong> are live now; <strong>Dice</strong> and <strong>Hi-low</strong> open next as we lock
-            odds, pacing, and polish. We ship tables one at a time so every mode earns its spot on the floor.
+            The marquee runs <strong>four core games</strong>. <strong>Flowerpoker</strong>, <strong>Blackjack</strong>, and
+            <strong>Dice</strong> are live; <strong>Hi-low</strong> is next as we lock odds and polish. We ship modes one
+            at a time so every table earns its spot on the floor.
           </p>
         </div>
       </div>
@@ -83,8 +83,8 @@
 
           <p class="playhouse-console-subtext mb-3">
             <ng-container *ngIf="!myBetsOnly">
-              Public feed: <strong>settled</strong> Flowerpoker hands only. A row is created when you start a bet; it
-              only shows here after <strong>settlement</strong> completes in Flowerpoker.
+              Public feed: <strong>settled</strong> Flowerpoker, Blackjack, and Dice rounds. A row is created when you
+              start a bet; it appears here after <strong>settlement</strong>.
             </ng-container>
             <ng-container *ngIf="myBetsOnly">
               <strong>My bets</strong> includes settled hands and any <strong>in progress</strong> session for your
@@ -116,8 +116,8 @@
                 <tbody>
                   <tr *ngIf="!betsLoading && bets.length === 0 && !betsError">
                     <td colspan="7" class="text-center text-secondary py-4 small">
-                      <ng-container *ngIf="!myBetsOnly">No settled hands to show yet.</ng-container>
-                      <ng-container *ngIf="myBetsOnly">No rows for this wallet — start Flowerpoker while logged in.</ng-container>
+                    <ng-container *ngIf="!myBetsOnly">No settled bets to show yet.</ng-container>
+                    <ng-container *ngIf="myBetsOnly">No rows for this wallet — play a table game while logged in.</ng-container>
                     </td>
                   </tr>
                   <tr *ngFor="let bet of bets">
@@ -266,7 +266,20 @@
           </button>
         </div>
         <p class="small text-secondary mb-2" *ngIf="!canVerifySelected() && bet.fairSnapshot">
-          Verification needs a revealed server seed and full flower rows (older rows may be incomplete).
+          <ng-container *ngIf="(bet.gameKey || '').toLowerCase() === 'flowerpoker'">
+            Verification needs a revealed server seed and full flower rows (older rows may be incomplete).
+          </ng-container>
+          <ng-container *ngIf="(bet.gameKey || '').toLowerCase() === 'dice'">
+            Verification needs a revealed server seed and roll fields in the snapshot.
+          </ng-container>
+          <ng-container *ngIf="(bet.gameKey || '').toLowerCase() === 'blackjack'">
+            Use <strong>Verify round</strong> on the Blackjack page for full shuffle verification.
+          </ng-container>
+          <ng-container
+            *ngIf="!['flowerpoker', 'dice', 'blackjack'].includes((bet.gameKey || '').toLowerCase())"
+          >
+            Verification for this game type may require additional snapshot fields.
+          </ng-container>
         </p>
 
         <div class="playhouse-verify-report" *ngIf="verifyReport as rep">

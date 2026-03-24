@@ -165,8 +165,8 @@
                 <section class="c-home-content-block">
                     <h3 class="c-home-block-subheading text-primary fw-semibold">What is shipping next</h3>
                     <p class="c-home-block-text mb-0">
-                        More table games share the same Edge + Postgres pattern as Flowerpoker; blackjack is now live with
-                        a full table flow while dice and hi-low remain staged on the same wallet session and credits plumbing.
+                        More table games share the same Edge + Postgres pattern as Flowerpoker; blackjack and dice are live
+                        with full flows while hi-low is staged on the same wallet session and credits plumbing.
                         Follow the
                         <a routerLink="/updates" class="c-home-inline-link">dev blog</a> for concrete milestones.
                     </p>
@@ -185,8 +185,8 @@
                 </h2>
                 <p class="c-home-block-text c-home-games-intro mb-4">
                     Four titles share one credit model: Edge Functions and Postgres record bets, sessions, and settlements so
-                    outcomes stay auditable. <strong>Flowerpoker</strong> and <strong>Blackjack</strong> are live
-                    end-to-end; dice and hi-low are on the roadmap with the same ledger discipline.
+                    outcomes stay auditable. <strong>Flowerpoker</strong>, <strong>Blackjack</strong>, and
+                    <strong>Dice</strong> are live end-to-end; hi-low is on the roadmap with the same ledger discipline.
                 </p>
 
                 <div class="row g-3 g-lg-4">
@@ -246,16 +246,23 @@
                         <article class="c-home-game-tile h-100">
                             <h3 class="c-home-game-tile__title mb-2">
                                 <a routerLink="/dice" class="c-home-game-tile__link">Dice</a>
-                                <span class="c-home-game-tile__badge c-home-game-tile__badge--soon">Coming</span>
+                                <span class="c-home-game-tile__badge">Live</span>
                             </h3>
                             <p class="c-home-game-tile__lede small mb-3">
-                                Target-based rolls with clear multipliers.
+                                Roll under or over on 10,000 outcomes with on-screen multipliers and verification.
                             </p>
                             <div class="c-home-game-tile__pair">
-                                <span class="c-home-game-tile__label">Plan</span>
+                                <span class="c-home-game-tile__label">In the app</span>
                                 <p class="c-home-game-tile__body mb-0">
-                                    Verifiable or server-enforced rolls, bet settlement, and credit updates through the same
-                                    RPCs as the rest of the Playhouse.
+                                    Fixed-size play surface, odds panel, one-shot rolls, and browser verify like the other
+                                    tables.
+                                </p>
+                            </div>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">On the server</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Edge <code>dice-game</code>: HMAC roll, stake lock, settle via
+                                    <code>claimy_apply_credit_delta</code>, sessions in <code>claimy_game_sessions</code>.
                                 </p>
                             </div>
                         </article>

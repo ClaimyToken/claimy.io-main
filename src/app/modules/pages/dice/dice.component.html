@@ -1,13 +1,279 @@
-<header class="game-header border-primary border rounded-3 my-3 my-lg-4">
-  <h1 class="game-title text-center mb-0">DICE</h1>
+<header class="fp-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="fp-title text-center mb-0">DICE</h1>
 </header>
 
-<div class="game-page">
-  <div class="card game-card">
-    <div class="card-body p-3 p-lg-4">
-      <p class="mb-0">
-        Dice game page is reserved for logged-in users. Roll mechanics and payout flow will be added next.
-      </p>
+<div class="fp-page pb-4">
+  <div class="row justify-content-center mb-3">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <div class="fp-how-card-head d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+            <h2 class="fp-section-title text-primary mb-0 text-uppercase fw-semibold c-text-glow">How this game works</h2>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" (click)="openDiceDetailsModal()">
+              Detailed information
+            </button>
+          </div>
+          <ul class="fp-list mb-2">
+            <li>
+              One roll per bet: integer in <strong>0–9999</strong> from provably fair HMAC
+              <code class="dice-inline-code">claimy-dice|v1|…|0</code>.
+            </li>
+            <li><strong>Roll under</strong> — you win if the roll is <strong>strictly less</strong> than your target.</li>
+            <li><strong>Roll over</strong> — you win if the roll is <strong>strictly greater</strong> than your target.</li>
+            <li>
+              Multiplier ≈ <strong>(10000 ÷ winning outcomes) × 0.99</strong> (1% house edge), capped at
+              <strong>500×</strong>; playable odds window is about <strong>2%–98%</strong> win chance.
+            </li>
+          </ul>
+          <p class="mb-0 fp-note">Credits lock and settle the same way as Flowerpoker and Blackjack (Edge + claimy_game_sessions).</p>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div class="row justify-content-center mb-3">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <div class="fp-betbar mb-3">
+            <div class="fp-betbar__left">
+              <label for="diceBetAmount" class="fp-betbar__label">Bet (CLAIMY)</label>
+              <input
+                id="diceBetAmount"
+                class="fp-betbar__input"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="10"
+                [(ngModel)]="betAmountInput"
+                [disabled]="rolling"
+              />
+              <span class="fp-betbar__meta">One shot per roll — stake returns × multiplier on a hit.</span>
+            </div>
+          </div>
+
+          <div class="dice-mode-row mb-3">
+            <span class="dice-mode-label">Direction</span>
+            <div class="dice-mode-btns">
+              <button
+                type="button"
+                class="btn btn-lg dice-action-btn dice-action-btn--ghost"
+                [class.active]="mode === 'under'"
+                (click)="setMode('under')"
+                [disabled]="rolling"
+              >
+                Roll under
+              </button>
+              <button
+                type="button"
+                class="btn btn-lg dice-action-btn dice-action-btn--ghost"
+                [class.active]="mode === 'over'"
+                (click)="setMode('over')"
+                [disabled]="rolling"
+              >
+                Roll over
+              </button>
+            </div>
+          </div>
+
+          <div class="dice-target-row mb-3">
+            <label for="diceTarget" class="dice-target-label">Target (integer)</label>
+            <input
+              id="diceTarget"
+              class="fp-betbar__input dice-target-input"
+              type="number"
+              inputmode="numeric"
+              [(ngModel)]="targetInput"
+              [disabled]="rolling"
+            />
+            <p class="dice-target-hint mb-0">
+              <ng-container *ngIf="mode === 'under'">Valid range: {{ 200 }}–{{ 9800 }} (win on roll &lt; target).</ng-container>
+              <ng-container *ngIf="mode === 'over'">Valid range: {{ 199 }}–{{ 9799 }} (win on roll &gt; target).</ng-container>
+            </p>
+          </div>
+
+          <div class="dice-odds-panel mb-3" aria-live="polite">
+            <div class="dice-odds-line">
+              <span class="dice-odds-k">Win chance</span>
+              <span class="dice-odds-v">{{ winChancePreview || '—' }}</span>
+            </div>
+            <div class="dice-odds-line">
+              <span class="dice-odds-k">Multiplier on hit</span>
+              <span class="dice-odds-v">{{ multiplierPreview != null ? (multiplierPreview | number : '1.2-6') : '—' }}×</span>
+            </div>
+          </div>
+
+          <div class="fp-status" aria-live="polite">{{ message }}</div>
+
+          <div
+            class="dice-resultline mt-2 mb-2"
+            [class.text-success]="resultTone === 'win'"
+            [class.text-danger]="resultTone === 'loss'"
+          >
+            <strong>Result:</strong> {{ resultSummaryLine() }}
+          </div>
+
+          <div class="dice-board-wrap mt-3">
+            <div class="dice-roll-stage">
+              <h3 class="fp-row-title dice-roll-title text-center">Roll</h3>
+              <div class="dice-roll-face" [class.dice-roll-face--busy]="rolling">
+                <span class="dice-roll-num" *ngIf="!rolling && displayRoll !== null">{{ displayRoll }}</span>
+                <span class="dice-roll-placeholder" *ngIf="!rolling && displayRoll === null">—</span>
+                <span class="dice-roll-loading" *ngIf="rolling" aria-hidden="true"></span>
+              </div>
+              <p class="dice-roll-caption text-center mb-0 text-secondary">
+                <ng-container *ngIf="rolling">Drawing…</ng-container>
+                <ng-container *ngIf="!rolling">&nbsp;</ng-container>
+              </p>
+            </div>
+
+            <div class="dice-actions-grid mt-4">
+              <button type="button" class="btn btn-lg dice-action-btn" (click)="roll()" [disabled]="rolling">
+                {{ rolling ? 'Rolling…' : 'Roll dice' }}
+              </button>
+            </div>
+
+            <p class="dice-board-placeholder text-center text-secondary mb-0">
+              The board area keeps a fixed size between rolls — only the numbers update.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <h2 class="fp-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Round details</h2>
+          <div class="fp-grid">
+            <div class="fp-cell">
+              <span class="fp-k">Your line</span>
+              <span class="fp-v">{{ mode === 'under' ? 'Roll under ' + targetInput : 'Roll over ' + targetInput }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Outcome roll</span>
+              <span class="fp-v">{{ displayRoll !== null ? displayRoll : '—' }}</span>
+            </div>
+            <div class="fp-cell fp-cell--wide">
+              <span class="fp-k">Winner</span>
+              <span class="fp-v fp-winner">{{ winnerLabel || '' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Server seed hash</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.['serverSeedHash'] || '—' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Client seed</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.['clientSeed'] || '—' }}</span>
+            </div>
+            <div class="fp-cell fp-cell--wide">
+              <span class="fp-k">Server seed (revealed at settlement)</span>
+              <span class="fp-v fp-mono fp-mono--wrap">{{
+                fairSnapshot?.['serverSeedReveal'] ? fairSnapshot?.['serverSeedReveal'] : '— (roll to reveal)'
+              }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Roll digest</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.['rollDigest'] || '—' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Mode / target</span>
+              <span class="fp-v fp-mono"
+                >{{ fairSnapshot?.['mode'] || '—' }} @ {{ fairSnapshot?.['target'] ?? '—' }}</span
+              >
+            </div>
+          </div>
+
+          <div class="fp-verify-actions text-center mt-3">
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              (click)="verifyProvablyFair()"
+              [disabled]="verifyingRound || !fairSnapshot?.['serverSeedReveal']"
+            >
+              {{ verifyingRound ? 'Verifying…' : 'Verify round' }}
+            </button>
+            <p class="fp-note mb-0 mt-2 small" *ngIf="!fairSnapshot?.['serverSeedReveal']">
+              Verification needs a revealed server seed (shown after you roll).
+            </p>
+          </div>
+
+          <div class="fp-verify-report mt-3" *ngIf="verificationReport as rep">
+            <p class="fp-verify-summary mb-2" [class.text-success]="rep.ok" [class.text-danger]="!rep.ok">
+              {{ rep.summary }}
+            </p>
+            <div class="fp-verify-block" *ngFor="let c of rep.comparisons">
+              <div class="fp-verify-block-head">
+                <span class="fp-verify-block-title">{{ c.title }}</span>
+                <span class="fp-verify-badge" [class.fp-verify-badge--ok]="c.match" [class.fp-verify-badge--bad]="!c.match">
+                  {{ c.match ? 'Match' : 'Mismatch' }}
+                </span>
+              </div>
+              <div class="fp-verify-compare">
+                <div class="fp-verify-col">
+                  <span class="fp-verify-cap">{{ c.leftCaption }}</span>
+                  <pre class="fp-verify-pre">{{ c.leftValue }}</pre>
+                </div>
+                <div class="fp-verify-col">
+                  <span class="fp-verify-cap">{{ c.rightCaption }}</span>
+                  <pre class="fp-verify-pre">{{ c.rightValue }}</pre>
+                </div>
+              </div>
+              <p class="fp-verify-detail mb-0" *ngIf="c.detail">{{ c.detail }}</p>
+            </div>
+          </div>
+
+          <p class="fp-note mb-0 mt-3 small">
+            After a roll, <strong>Verify round</strong> recomputes the HMAC roll and digest in your browser — same commitment pattern as
+            our other tables.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="toast" class="fp-toast" [class.fp-toast--error]="toast.type === 'error'" role="status">
+  {{ toast.message }}
+</div>
+
+<div
+  *ngIf="showDiceDetailsModal"
+  class="fp-details-modal"
+  (click)="closeDiceDetailsModal()"
+  role="presentation"
+>
+  <div
+    class="fp-details-modal__card"
+    (click)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="diceDetailsModalTitle"
+  >
+    <button type="button" class="fp-details-modal__close" aria-label="Close" (click)="closeDiceDetailsModal()">×</button>
+    <p class="fp-details-modal__eyebrow mb-1">Dice</p>
+    <h3 id="diceDetailsModalTitle" class="fp-details-modal__title text-primary mb-2">Rules &amp; fairness</h3>
+    <p class="fp-details-modal__lead mb-3">
+      Each bet samples one uniform index in <code class="fp-details-inline-code">0…9999</code> using HMAC-SHA256 with label
+      <code class="fp-details-inline-code">claimy-dice|v1|&lt;clientSeed&gt;|0</code> on the server secret. The committed hash is
+      <code class="fp-details-inline-code">SHA-256(secret)</code> before you roll.
+    </p>
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Payouts</h4>
+      <ul class="fp-details-list fp-details-list--compact">
+        <li><strong>Hit</strong> — you receive <strong>stake × multiplier</strong> in credits (multiplier shown in the odds panel).</li>
+        <li><strong>Miss</strong> — locked stake is lost for that round.</li>
+        <li>Boundary rolls (equal to the target) are losses for both under and over.</li>
+      </ul>
+    </section>
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Verification</h4>
+      <p class="fp-details-muted mb-0">
+        After settlement, reproduce <code class="fp-details-inline-code">roll = HMAC_uint32 % 10000</code>, check the digest
+        <code class="fp-details-inline-code">SHA-256(roll|mode|target|clientSeed)</code>, and confirm the hash of the revealed seed.
+      </p>
+    </section>
   </div>
 </div>

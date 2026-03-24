@@ -9,6 +9,7 @@ import {
   VerificationResult,
   verifyFlowerpokerRound
 } from 'src/app/modules/pages/flowerpoker/flowerpoker-provably-fair';
+import { verifyDiceRound, type DiceFairSnapshot } from 'src/app/modules/pages/dice/dice-provably-fair';
 
 type PlayhouseGameCard = {
   title: string;
@@ -36,7 +37,7 @@ export class PlayhouseComponent implements OnInit {
   page = 1;
   total = 0;
   totalPages = 1;
-  /** Logged-in only: show only this wallet’s Flowerpoker results. */
+  /** Logged-in only: show only this wallet’s table-game results. */
   myBetsOnly = false;
   pageInput = '1';
 
@@ -56,6 +57,8 @@ export class PlayhouseComponent implements OnInit {
   gameLabel(key: string): string {
     const k = (key ?? '').toLowerCase();
     if (k === 'flowerpoker') return 'Flowerpoker';
+    if (k === 'blackjack') return 'Blackjack';
+    if (k === 'dice') return 'Dice';
     return key || '—';
   }
 
@@ -152,7 +155,7 @@ export class PlayhouseComponent implements OnInit {
       typeof fs['subRoundIndex'] === 'number'
         ? fs['subRoundIndex']
         : typeof fs['nonce'] === 'number'
-          ? fs['nonce']
+          ? (fs['nonce'] as number)
           : 0;
     if (!serverSeedHash && !clientSeed) return null;
     return {
@@ -173,12 +176,21 @@ export class PlayhouseComponent implements OnInit {
   }
 
   async runVerify(): Promise<void> {
+    const bet = this.selectedBet;
     const snap = this.fairSnapshotForSelected;
-    const flowers = this.finalFlowersForSelected;
-    if (!snap || !flowers || this.verifying) return;
+    if (!bet || !snap?.serverSeedReveal?.trim() || this.verifying) return;
+    const gk = (bet.gameKey ?? '').toLowerCase();
     this.verifying = true;
     this.verifyReport = null;
     try {
+      if (gk === 'dice') {
+        const raw = bet.fairSnapshot as Record<string, unknown> | null;
+        if (!raw || typeof raw !== 'object') return;
+        this.verifyReport = await verifyDiceRound({ fairSnapshot: raw as DiceFairSnapshot });
+        return;
+      }
+      const flowers = this.finalFlowersForSelected;
+      if (!flowers) return;
       this.verifyReport = await verifyFlowerpokerRound({
         fairSnapshot: snap,
         player: flowers.player,
@@ -193,6 +205,10 @@ export class PlayhouseComponent implements OnInit {
   }
 
   canVerifySelected(): boolean {
-    return !!this.fairSnapshotForSelected?.serverSeedReveal?.trim() && !!this.finalFlowersForSelected;
+    const bet = this.selectedBet;
+    if (!bet || !this.fairSnapshotForSelected?.serverSeedReveal?.trim()) return false;
+    const gk = (bet.gameKey ?? '').toLowerCase();
+    if (gk === 'dice') return true;
+    return !!this.finalFlowersForSelected;
   }
 }

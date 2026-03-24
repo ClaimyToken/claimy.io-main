@@ -4,8 +4,8 @@
  *   { "action": "list_bets", "page": 1, "pageSize": 15, "walletAddress": "<optional filter>" }
  *   { "action": "player_ranking_stats", "walletAddress": "<required>" }
  *
- * list_bets: settled Flowerpoker + Blackjack sessions (public feed). walletAddress filters to that wallet when set.
- * player_ranking_stats: one row of SUM/COUNT aggregates for Ranking progress (settled only; both games).
+ * list_bets: settled Flowerpoker + Blackjack + Dice sessions (public feed). walletAddress filters to that wallet when set.
+ * player_ranking_stats: one row of SUM/COUNT aggregates for Ranking progress (settled only; those games).
  *
  * Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  * Deploy: set `verify_jwt = false` in `supabase/config.toml` ([functions.playhouse-feed]) so the public feed works without a Supabase JWT.

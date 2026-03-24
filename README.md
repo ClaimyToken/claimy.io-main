@@ -14,13 +14,14 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 - **`DEVELOPERWORK/CLAIMY_VAULT.md`** — vault architecture (credits, custodial deposits, PDA vault, `withdraw-spl`).
 - **`DEVELOPERWORK/TESTING_DEPOSITS.md`** — test Claimy SPL deposits / credits (wallet + `npm run check-deposit`).
 - **`DEVELOPERWORK/PLAYABLE_CREDITS.md`** — database playable balance + `claimy-credits` Edge Function.
-- **`supabase/functions/README.md`** — slugs for repo Edge functions (including `blackjack-game` and `playhouse-feed`) and which SQL migrations to run.
+- **`supabase/functions/README.md`** — slugs for repo Edge functions (including `blackjack-game`, `dice-game`, and `playhouse-feed`) and which SQL migrations to run.
 
 ## Current shipped highlights
 
 - **Flowerpoker (live):** bet lifecycle, rerolls, resume flow, and browser-side provably fair verification.
 - **Blackjack (live):** bet/hit/stand/double/insurance, animated dealing, static table UI, and verify-round checks.
-- **Playhouse feed:** paginated settled bets + ranking stats RPC; now supports Flowerpoker and Blackjack sessions.
+- **Dice (live):** roll under/over on 10k outcomes, fixed-size play surface, provably fair verify, Playhouse + ranking.
+- **Playhouse feed:** paginated settled bets + ranking stats RPC; Flowerpoker, Blackjack, and Dice sessions.
 - **Admin sweep tools (live):** whitelist-gated Account Settings tab for `summary_only`, `dry_run`, and `execute` custodial sweeps, including top-holder selection, debug trace output, and wallet-level modal details.
 - **Live rank-up notifications:** multi-rank jump toasts now trigger after settled hands and include updated tier + RTP/payout multiplier.
 - **Landing token metrics:** live PumpPortal-derived **Current Marketcap** and rolling **24h Volume** cards.

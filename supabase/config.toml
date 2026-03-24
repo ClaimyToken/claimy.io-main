@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.admin-sweep-wallets]
 verify_jwt = false
+
+[functions.dice-game]
+verify_jwt = false

@@ -38,6 +38,7 @@ This folder is the **single place** for whoever finishes backend, on-chain, and 
 | **migrations/claimy_playable_credits.sql** | Run in Supabase to add tables + RPCs. |
 | **migrations/claimy_playhouse_player_ranking_stats.sql** | RPC `playhouse_player_ranking_stats` — aggregates for Ranking progress (used by `playhouse-feed` action `player_ranking_stats`). Apply after `claimy_playhouse_feed.sql`. |
 | **migrations/claimy_playhouse_include_blackjack.sql** | Extends Playhouse feed + ranking aggregates to include Blackjack sessions alongside Flowerpoker. |
+| **migrations/claimy_playhouse_include_dice.sql** | Extends Playhouse feed + ranking aggregates to include Dice (`game_key` `dice`). Apply after the Blackjack migration (replaces the same RPCs again). |
 | **FRONTEND_AND_ENV.md** | `env.template`, production env, what the SPA exposes. |
 
 ---
@@ -86,6 +87,7 @@ In addition to the table above, current game pages also call:
 
 - `flowerpoker-game`
 - `blackjack-game`
+- `dice-game`
 - `claimy-credits`
 - `claimy-referrals`
 - `claimy-profile`

@@ -522,6 +522,79 @@ export class ClaimyEdgeService {
     }
   }
 
+  /** One-shot Dice roll (`dice-game` Edge). */
+  async rollDice(body: {
+    walletAddress: string;
+    betAmount: string;
+    mode: 'under' | 'over';
+    target: number;
+    clientSeed?: string | null;
+  }): Promise<{
+    ok: boolean;
+    gameId?: string;
+    settled?: boolean;
+    roll?: number;
+    multiplier?: number;
+    winCount?: number;
+    winner?: 'Player' | 'House';
+    payoutAmount?: number;
+    playableBalance?: number;
+    playerHand?: string;
+    houseHand?: string;
+    fairSnapshot?: Record<string, unknown>;
+    error?: string;
+  }> {
+    try {
+      const res = await fetch(this.functionsUrl('dice-game'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({
+          action: 'roll',
+          walletAddress: body.walletAddress,
+          betAmount: body.betAmount,
+          mode: body.mode,
+          target: body.target,
+          clientSeed: body.clientSeed ?? null
+        })
+      });
+      const text = await res.text();
+      const data = this.parseEdgeJson(text);
+      const businessOk = res.ok && data['ok'] === true;
+      const playable = this.readNum(data['playableBalance']);
+      const payout = this.readNum(data['payoutAmount']);
+      const mult = this.readNum(data['multiplier']);
+      const wc = this.readNum(data['winCount']);
+      const roll = typeof data['roll'] === 'number' ? data['roll'] : parseInt(String(data['roll'] ?? ''), 10);
+      let errMsg =
+        (typeof data['error'] === 'string' && data['error']) ||
+        (typeof data['message'] === 'string' && data['message']) ||
+        undefined;
+      if (!businessOk && !errMsg) errMsg = `Request failed (${res.status})`;
+      const w = data['winner'];
+      const winner = w === 'Player' || w === 'House' ? (w as 'Player' | 'House') : undefined;
+      const fs = data['fairSnapshot'];
+      const fairSnapshot =
+        fs != null && typeof fs === 'object' && !Array.isArray(fs) ? (fs as Record<string, unknown>) : undefined;
+      return {
+        ok: businessOk,
+        gameId: typeof data['gameId'] === 'string' ? data['gameId'] : undefined,
+        settled: data['settled'] === true,
+        roll: Number.isFinite(roll) ? roll : undefined,
+        multiplier: mult,
+        winCount: wc !== undefined && Number.isFinite(wc) ? Math.round(wc) : undefined,
+        winner,
+        payoutAmount: payout,
+        playableBalance: playable,
+        playerHand: typeof data['playerHand'] === 'string' ? data['playerHand'] : undefined,
+        houseHand: typeof data['houseHand'] === 'string' ? data['houseHand'] : undefined,
+        fairSnapshot,
+        error: businessOk ? undefined : errMsg
+      };
+    } catch {
+      return { ok: false, error: 'Network error rolling dice.' };
+    }
+  }
+
   async adminSweepWhoAmI(walletAddress: string): Promise<{ ok: boolean; isAdmin: boolean; error?: string }> {
     const w = walletAddress?.trim();
     if (!w) return { ok: false, isAdmin: false, error: 'No wallet.' };
@@ -910,7 +983,7 @@ export class ClaimyEdgeService {
     }
   }
 
-  /** Paginated settled Flowerpoker + Blackjack bets for The Playhouse (`playhouse-feed` Edge). */
+  /** Paginated settled Flowerpoker + Blackjack + Dice bets for The Playhouse (`playhouse-feed` Edge). */
   async fetchPlayhouseBets(opts: {
     page: number;
     pageSize: number;
