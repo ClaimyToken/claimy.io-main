@@ -421,7 +421,49 @@
         </div>
 
         <pre class="account-settings-admin-result mt-3 mb-0" *ngIf="adminResultText">{{ adminResultText }}</pre>
+        <div class="mt-2" *ngIf="adminLastItems.length > 0">
+          <button type="button" class="btn btn-sm btn-outline-warning account-settings-btn" (click)="openAdminDetails()">
+            View {{ adminLastItems.length }} wallets in total
+          </button>
+          <p class="account-settings-note mb-0 mt-2">
+            Click to view all deposit wallets with CLAIMY and verify total:
+            <button type="button" class="btn btn-link p-0 border-0 account-settings-inline-link" (click)="openAdminDetails()">
+              {{ adminDetailsTotalUi | number : '1.0-8' }}
+            </button>
+          </p>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="account-settings-admin-modal-backdrop" *ngIf="adminDetailsOpen" (click)="closeAdminDetails()">
+  <div class="account-settings-admin-modal-card" (click)="$event.stopPropagation()">
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+      <h3 class="account-settings-title mb-0">Deposit wallets with CLAIMY</h3>
+      <button type="button" class="btn btn-sm btn-outline-secondary account-settings-btn" (click)="closeAdminDetails()">Close</button>
+    </div>
+    <div class="account-settings-admin-modal-table-wrap">
+      <table class="table table-sm table-dark table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Deposit wallet</th>
+            <th class="text-end">CLAIMY</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let it of adminLastItems">
+            <td class="account-settings-value--mono text-break">{{ it.depositWalletAddress }}</td>
+            <td class="text-end">{{ it.uiAmount | number : '1.0-8' }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>Total</th>
+            <th class="text-end">{{ adminDetailsTotalUi | number : '1.0-8' }}</th>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </div>
 </div>

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { ClaimyCreditsService } from 'src/app/services/claimy-credits.service';
-import { ClaimyEdgeService } from 'src/app/services/claimy-edge.service';
+import { AdminSweepItem, ClaimyEdgeService } from 'src/app/services/claimy-edge.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { LoginModalService } from 'src/app/services/login-modal.service';
 import { PlayerRankingService } from 'src/app/services/player-ranking.service';
@@ -40,6 +40,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   adminSummaryBusy = false;
   adminSummaryLastAt: Date | null = null;
   adminSummaryCacheTtlMs = 60_000;
+  adminLastItems: AdminSweepItem[] = [];
+  adminDetailsOpen = false;
   private adminSummaryCache: {
     key: string;
     text: string;
@@ -219,6 +221,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         `Wallets with balance: ${res.walletsWithBalance ?? 0}`,
         `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
       ];
+      this.adminLastItems = res.items ?? [];
       if (this.adminMode === 'execute') {
         lines.push(`Swept: ${res.swept ?? 0}`);
         lines.push(`Failed: ${res.failed ?? 0}`);
@@ -271,6 +274,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
       ].join('\n');
       this.adminResultText = out;
+      this.adminLastItems = res.items ?? [];
       this.adminSummaryLastAt = new Date();
       this.adminSummaryCache = {
         key: cacheKey,
@@ -281,5 +285,18 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     } finally {
       this.adminSummaryBusy = false;
     }
+  }
+
+  openAdminDetails(): void {
+    if (!this.adminLastItems.length) return;
+    this.adminDetailsOpen = true;
+  }
+
+  closeAdminDetails(): void {
+    this.adminDetailsOpen = false;
+  }
+
+  get adminDetailsTotalUi(): number {
+    return this.adminLastItems.reduce((sum, it) => sum + (Number.isFinite(it.uiAmount) ? it.uiAmount : 0), 0);
   }
 }

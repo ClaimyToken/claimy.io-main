@@ -321,6 +321,32 @@
   padding: 0.65rem 0.75rem;
 }
 
+.account-settings-admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1065;
+  background: rgba(0, 0, 0, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.account-settings-admin-modal-card {
+  width: min(920px, 100%);
+  max-height: min(86vh, 900px);
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.4);
+  border-radius: 0.45rem;
+  background: #121212;
+  box-shadow: 0 0.6rem 2rem rgba(0, 0, 0, 0.45);
+  padding: 0.8rem;
+}
+
+.account-settings-admin-modal-table-wrap {
+  overflow: auto;
+  max-height: calc(86vh - 4.5rem);
+}
+
 ::ng-deep .account-settings-tab-card mat-progress-bar {
   height: 10px;
   border-radius: 0.25rem;

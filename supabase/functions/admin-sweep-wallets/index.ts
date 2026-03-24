@@ -270,7 +270,7 @@ serve(async (req) => {
       scanAll,
       swept,
       failed,
-      items: action === "summary_only" ? [] : candidates.map((c) => ({
+      items: candidates.map((c) => ({
         depositWalletAddress: c.depositWalletAddress,
         sourceAta: c.sourceAta,
         rawAmount: c.rawAmount.toString(),
