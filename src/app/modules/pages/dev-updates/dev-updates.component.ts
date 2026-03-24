@@ -34,7 +34,7 @@ export class DevUpdatesComponent {
     {
       dateLabel: '25 March 2026',
       isoDate: '2026-03-25',
-      subtitle: 'Product updates page — layout & changelog',
+      subtitle: 'Development blog — layout & changelog',
       bullets: [
         'This page is wider on large screens and uses slightly smaller type for titles and body text so more fits on screen.',
         'Changelog expanded below with a fuller history of recent ships (Playhouse, APIs, Netlify, builds).',

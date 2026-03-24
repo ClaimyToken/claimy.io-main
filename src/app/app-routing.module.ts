@@ -58,7 +58,7 @@ const otherLayoutRoutes: Routes = [
     path: 'updates',
     canActivate: [SiteStatusGuard],
     component: DevUpdatesComponent,
-    title: "CLAIMY | Product updates"
+    title: "CLAIMY | Development Blog"
   },
   {
     path: 'playhouse',
