@@ -13,7 +13,6 @@ import {
 type PlayhouseGameCard = {
   title: string;
   route: string;
-  blurb: string;
 };
 
 @Component({
@@ -23,26 +22,10 @@ type PlayhouseGameCard = {
 })
 export class PlayhouseComponent implements OnInit {
   readonly games: PlayhouseGameCard[] = [
-    {
-      title: 'Flowerpoker',
-      route: '/flowerpoker',
-      blurb: 'Classic flower roll duels with transparent win logic and room for high-energy matches.'
-    },
-    {
-      title: 'Blackjack',
-      route: '/blackjack',
-      blurb: 'Fast hands, clear rules, and token-based rounds built around a clean table experience.'
-    },
-    {
-      title: 'Dice',
-      route: '/dice',
-      blurb: 'Simple, rapid rounds with configurable risk and payout multipliers for every roll.'
-    },
-    {
-      title: 'Hi-low',
-      route: '/hi-low',
-      blurb: 'Predict up or down streaks and push your run while keeping odds and outcomes visible.'
-    }
+    { title: 'Flowerpoker', route: '/flowerpoker' },
+    { title: 'Blackjack', route: '/blackjack' },
+    { title: 'Dice', route: '/dice' },
+    { title: 'Hi-low', route: '/hi-low' }
   ];
 
   readonly pageSize = 15;
