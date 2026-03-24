@@ -70,45 +70,40 @@
             [class.flow-step--active]="usernameAvailable === true && !phantomSignatureBase64">
             <div class="flow-step__title">2 · Connect Phantom &amp; sign</div>
             <p class="flow-step__hint mb-3">
-              Link the wallet that will own this account, then sign once to prove you control it.
+              One button: Phantom will ask you to connect, then to sign—both in a row. If you cancel the signature,
+              use <strong>Sign message</strong> to try again. We never see your keys.
             </p>
 
-            <div class="register-merge-block mb-3">
-              <p class="register-label mb-1">Wallet</p>
-              <div class="register-wallet text-break mb-2">
-                {{ phantomWalletAddress || '—' }}
-              </div>
-              <div class="register-actions register-actions--stack">
-                <button type="button" class="btn btn-sm register-btn" (click)="connectPhantom()"
-                  [class.btn-outline-secondary]="!phantomWalletAddress"
-                  [class.btn-success]="!!phantomWalletAddress"
-                  [disabled]="usernameAvailable !== true || !!phantomWalletAddress">
-                  {{ phantomWalletAddress ? 'Connected ✓' : 'Connect Phantom' }}
-                </button>
-              </div>
+            <label class="form-label register-label mb-1">Wallet</label>
+            <div class="register-wallet text-break mb-2">
+              {{ phantomWalletAddress || '—' }}
+            </div>
+            <div class="register-actions register-actions--stack mb-3">
+              <button
+                type="button"
+                class="btn btn-sm register-btn register-btn--with-spinner"
+                (click)="walletStepPrimaryAction()"
+                [class.btn-outline-secondary]="usernameAvailable !== true"
+                [class.btn-primary]="usernameAvailable === true && !phantomSignatureBase64 && !walletStepBusy"
+                [class.btn-success]="!!phantomSignatureBase64"
+                [disabled]="usernameAvailable !== true || !!phantomSignatureBase64 || walletStepBusy"
+              >
+                <span *ngIf="walletStepBusy" class="register-btn__spinner" aria-hidden="true"></span>
+                <span class="register-btn__label">{{
+                  walletStepBusy
+                    ? (phantomWalletAddress ? 'Signing…' : 'Connecting…')
+                    : phantomSignatureBase64
+                      ? 'Signed ✓'
+                      : phantomWalletAddress
+                        ? 'Sign message'
+                        : 'Connect & sign'
+                }}</span>
+              </button>
             </div>
 
-            <div
-              class="register-merge-block"
-              [class.register-merge-block--muted]="usernameAvailable === true && !phantomWalletAddress"
-            >
-              <p class="register-label mb-1">One-time signature</p>
-              <p class="flow-step__hint mb-2 text-start">
-                We verify this on the server; your keys never leave Phantom.
-              </p>
-              <div class="register-actions register-actions--stack mb-2">
-                <button type="button" class="btn btn-sm register-btn" (click)="signPhantomMessage()"
-                  [class.btn-outline-secondary]="!phantomWalletAddress"
-                  [class.btn-primary]="!!phantomWalletAddress && !phantomSignatureBase64"
-                  [class.btn-success]="!!phantomSignatureBase64"
-                  [disabled]="!phantomWalletAddress || !!phantomSignatureBase64">
-                  {{ phantomSignatureBase64 ? 'Signed ✓' : 'Sign message' }}
-                </button>
-              </div>
-              <div class="register-sig register-sig--static">
-                <p class="register-label mb-1">Signature (base64)</p>
-                <p class="register-sig-value mb-0 text-break">{{ phantomSignatureBase64 || '—' }}</p>
-              </div>
+            <div class="register-sig register-sig--static">
+              <p class="register-label mb-1">Signature (base64)</p>
+              <p class="register-sig-value mb-0 text-break">{{ phantomSignatureBase64 || '—' }}</p>
             </div>
           </div>
 

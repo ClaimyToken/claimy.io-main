@@ -36,6 +36,8 @@ export class RegisterComponent implements OnDestroy {
   phantomWalletAddress = '';
   phantomMessage = '';
   phantomSignatureBase64 = '';
+  /** True while connect+sign or a sign retry is in flight. */
+  walletStepBusy = false;
 
   submittingRegistration = false;
   registrationComplete = false;
@@ -152,7 +154,11 @@ export class RegisterComponent implements OnDestroy {
       });
   }
 
-  async connectPhantom() {
+  /**
+   * One click: connect Phantom, then immediately request the registration signature.
+   * If the user rejects the signature, `phantomWalletAddress` may still be set — use `signPhantomMessage()` to retry.
+   */
+  async connectAndSignPhantom() {
     if (this.usernameAvailable !== true) {
       this.showToast('Confirm your username is available first.', 'error');
       return;
@@ -166,6 +172,7 @@ export class RegisterComponent implements OnDestroy {
       return;
     }
 
+    this.walletStepBusy = true;
     try {
       const res = await provider.connect();
       this.phantomWalletAddress = res?.publicKey?.toString?.() ?? '';
@@ -177,11 +184,24 @@ export class RegisterComponent implements OnDestroy {
         return;
       }
 
+      await this.runSignWithProvider(provider);
       this.dismissToast();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Failed to connect Phantom wallet.';
+      const msg = e instanceof Error ? e.message : 'Failed to connect or sign.';
       this.showToast(msg, 'error');
+    } finally {
+      this.walletStepBusy = false;
     }
+  }
+
+  /** Primary button on step 2: connect+sign, or retry sign if already connected. */
+  walletStepPrimaryAction() {
+    if (this.phantomSignatureBase64 || this.walletStepBusy) return;
+    if (this.phantomWalletAddress) {
+      void this.signPhantomMessage();
+      return;
+    }
+    void this.connectAndSignPhantom();
   }
 
   private toBase64(bytes: Uint8Array): string {
@@ -204,6 +224,7 @@ export class RegisterComponent implements OnDestroy {
     ].join('\n');
   }
 
+  /** Sign after connect, or retry if the user rejected the first sign prompt. */
   async signPhantomMessage() {
     if (this.usernameAvailable !== true) {
       this.showToast('Confirm your username is available first.', 'error');
@@ -217,33 +238,42 @@ export class RegisterComponent implements OnDestroy {
     }
 
     if (!this.phantomWalletAddress) {
-      this.showToast('Connect your Phantom wallet first.', 'error');
+      this.showToast('Use “Connect & sign” first.', 'error');
       return;
     }
 
+    this.dismissToast();
+    this.walletStepBusy = true;
     try {
-      this.phantomMessage = this.buildPhantomRegistrationMessage();
-      const encoded = new TextEncoder().encode(this.phantomMessage);
-
-      const signed = await provider.signMessage(encoded, 'utf8');
-      const signatureBytes: Uint8Array =
-        signed?.signature instanceof Uint8Array
-          ? signed.signature
-          : signed instanceof Uint8Array
-            ? signed
-            : new Uint8Array();
-
-      if (!signatureBytes.length) {
-        this.showToast('Could not sign message.', 'error');
-        return;
-      }
-
-      this.phantomSignatureBase64 = this.toBase64(signatureBytes);
+      await this.runSignWithProvider(provider);
       this.dismissToast();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to sign message.';
       this.showToast(msg, 'error');
+    } finally {
+      this.walletStepBusy = false;
     }
+  }
+
+  private async runSignWithProvider(provider: {
+    signMessage: (message: Uint8Array, encoding: string) => Promise<{ signature?: Uint8Array } | Uint8Array>;
+  }): Promise<void> {
+    this.phantomMessage = this.buildPhantomRegistrationMessage();
+    const encoded = new TextEncoder().encode(this.phantomMessage);
+
+    const signed = await provider.signMessage(encoded, 'utf8');
+    const signatureBytes: Uint8Array =
+      signed && typeof signed === 'object' && 'signature' in signed && signed.signature instanceof Uint8Array
+        ? signed.signature
+        : signed instanceof Uint8Array
+          ? signed
+          : new Uint8Array();
+
+    if (!signatureBytes.length) {
+      throw new Error('Could not sign message.');
+    }
+
+    this.phantomSignatureBase64 = this.toBase64(signatureBytes);
   }
 
   completeRegistration() {
