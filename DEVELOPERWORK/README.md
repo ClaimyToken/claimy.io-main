@@ -86,6 +86,14 @@ In addition to the table above, current game pages also call:
 - `claimy-referrals`
 - `claimy-profile`
 - `playhouse-feed` (**public feed**; `verify_jwt = false` in `supabase/config.toml`)
+- `admin-sweep-wallets` (admin-only sweep panel in Account Settings; also `verify_jwt = false` with internal wallet whitelist check)
+
+Admin sweep requires extra Edge secrets:
+
+- `CLAIMY_ADMIN_WALLETS` (comma-separated Phantom wallets allowed to run sweeps)
+- `CLAIMY_SWEEP_DESTINATION_WALLET` (optional default destination for collected tokens)
+- `CLAIMY_SWEEP_FEE_PAYER_PRIVATE_KEY` (required for execute mode; pays tx fees)
+- `DEPOSIT_WALLET_ENCRYPTION_KEY` (already used by registration; reused for decrypting custodial wallets during sweep)
 
 If browser Network shows `OPTIONS /functions/v1/playhouse-feed` as `404`, the function is missing on that project.
 Deploy with the exact slug:

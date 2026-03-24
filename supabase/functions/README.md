@@ -12,6 +12,7 @@ These folders mirror what you paste into **Supabase Dashboard → Edge Functions
 | `claimy-referrals` | `claimy-referrals` | `leaderboard_referrals` (top 15, `referral_count` ≥ 1), `mine` (code + count for a wallet). |
 | `flowerpoker-game` | `flowerpoker-game` | Bet lifecycle for Flowerpoker: create DB game row, lock stake, settle payout and persist round metadata. |
 | `blackjack-game` | `blackjack-game` | Blackjack lifecycle: one fresh deck per hand, bet/hit/stand/double/insurance, resume, settlement, and fairness snapshot metadata in `claimy_game_sessions`. |
+| `admin-sweep-wallets` | `admin-sweep-wallets` | Admin-only custodial sweep tool (`admin_whoami`, `dry_run`, `execute`) for consolidating CLAIMY SPL from deposit wallets. Requires `CLAIMY_ADMIN_WALLETS`, `DEPOSIT_WALLET_ENCRYPTION_KEY`, and execute secrets. |
 | `playhouse-feed` | `playhouse-feed` | Actions: **`list_bets`** (paginated feed; public = settled only; wallet filter adds in-progress for “My bets”) and **`player_ranking_stats`** (single JSON of SUM/COUNT for settled sessions — Flowerpoker + Blackjack). Run `DEVELOPERWORK/migrations/claimy_playhouse_feed.sql`, **`claimy_playhouse_player_ranking_stats.sql`**, and `claimy_playhouse_include_blackjack.sql`. **`supabase/config.toml` sets `verify_jwt = false`**. Redeploy after RPC or handler changes. If `OPTIONS` returns 404, the slug is not deployed on that project. |
 
 Other functions (`check-username`, etc.) remain documented in **`DEVELOPERWORK/SUPABASE_SETUP.md`** where not listed above.

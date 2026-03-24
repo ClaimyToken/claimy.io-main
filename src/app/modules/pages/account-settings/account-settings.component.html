@@ -39,6 +39,18 @@
           Ranking progress
         </button>
       </li>
+      <li class="nav-item" role="presentation" *ngIf="isAdmin">
+        <button
+          type="button"
+          class="nav-link"
+          [class.active]="settingsTab === 'admin'"
+          (click)="settingsTab = 'admin'"
+          role="tab"
+          [attr.aria-selected]="settingsTab === 'admin'"
+        >
+          Admin
+        </button>
+      </li>
     </ul>
 
     <div class="card account-settings-tab-card border-top-0 rounded-top-0">
@@ -295,6 +307,77 @@
           </button>
           <a routerLink="/home" class="account-settings-back">← Back to home</a>
         </p>
+      </div>
+
+      <div class="card-body p-3 p-md-4" *ngIf="settingsTab === 'admin' && isAdmin">
+        <h2 class="account-settings-title text-primary text-uppercase c-text-glow">Admin sweep tool</h2>
+        <p class="account-settings-lead mb-3">
+          Consolidate CLAIMY SPL from custodial deposit wallets into the configured treasury destination.
+        </p>
+
+        <div class="account-settings-panel">
+          <div class="account-settings-row">
+            <span class="account-settings-label">Mode</span>
+            <div class="d-flex gap-2 flex-wrap">
+              <button
+                type="button"
+                class="btn btn-sm account-settings-btn"
+                [class.btn-outline-primary]="adminMode === 'dry_run'"
+                [class.btn-outline-secondary]="adminMode !== 'dry_run'"
+                (click)="adminMode = 'dry_run'"
+                [disabled]="adminBusy"
+              >
+                Dry run
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm account-settings-btn"
+                [class.btn-outline-danger]="adminMode === 'execute'"
+                [class.btn-outline-secondary]="adminMode !== 'execute'"
+                (click)="adminMode = 'execute'"
+                [disabled]="adminBusy"
+              >
+                Execute
+              </button>
+            </div>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">Max wallets</span>
+            <input
+              type="number"
+              class="form-control form-control-sm account-settings-admin-input"
+              [(ngModel)]="adminMaxWallets"
+              [disabled]="adminBusy"
+              min="1"
+              max="500"
+            />
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">Destination (optional)</span>
+            <input
+              type="text"
+              class="form-control form-control-sm account-settings-admin-input"
+              [(ngModel)]="adminDestinationWallet"
+              [disabled]="adminBusy"
+              placeholder="Use Edge secret/default when empty"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+          <div class="account-settings-row account-settings-row--last">
+            <span class="account-settings-label">Run</span>
+            <div>
+              <button type="button" class="btn btn-sm btn-outline-primary account-settings-btn" (click)="runAdminSweep()" [disabled]="adminBusy">
+                {{ adminBusy ? 'Running…' : (adminMode === 'execute' ? 'Execute sweep' : 'Run dry-run') }}
+              </button>
+              <p class="account-settings-note mb-0 mt-2">
+                Safety note: execute mode sends on-chain transfers and logs every wallet attempt.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <pre class="account-settings-admin-result mt-3 mb-0" *ngIf="adminResultText">{{ adminResultText }}</pre>
       </div>
     </div>
   </div>

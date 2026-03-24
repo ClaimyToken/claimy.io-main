@@ -303,6 +303,24 @@
   background: rgba(var(--bs-primary-rgb), 0.08);
 }
 
+.account-settings-admin-input {
+  max-width: min(28rem, 100%);
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(var(--bs-primary-rgb), 0.35);
+  color: var(--bs-body-color);
+}
+
+.account-settings-admin-result {
+  white-space: pre-wrap;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+  border-radius: 0.35rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.65rem 0.75rem;
+}
+
 ::ng-deep .account-settings-tab-card mat-progress-bar {
   height: 10px;
   border-radius: 0.25rem;

@@ -57,6 +57,13 @@ export type BlackjackPublicGame = {
   fairSnapshot: Record<string, unknown> | null;
 };
 
+export type AdminSweepItem = {
+  depositWalletAddress: string;
+  sourceAta: string;
+  rawAmount: string;
+  uiAmount: number;
+};
+
 /** Row from `playhouse-feed` / `playhouse_list_settled_bets` (settled; optional in_progress when filtered by wallet). */
 export type PlayhouseBetRow = {
   id: string;
@@ -506,6 +513,74 @@ export class ClaimyEdgeService {
       };
     } catch {
       return { ok: false, error: 'Network error resuming session.' };
+    }
+  }
+
+  async adminSweepWhoAmI(walletAddress: string): Promise<{ ok: boolean; isAdmin: boolean; error?: string }> {
+    const w = walletAddress?.trim();
+    if (!w) return { ok: false, isAdmin: false, error: 'No wallet.' };
+    try {
+      const res = await fetch(this.functionsUrl('admin-sweep-wallets'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({ action: 'admin_whoami', walletAddress: w })
+      });
+      const data = this.parseEdgeJson(await res.text());
+      const ok = res.ok && data['ok'] === true;
+      return {
+        ok,
+        isAdmin: ok && data['isAdmin'] === true,
+        error: ok ? undefined : ((typeof data['error'] === 'string' && data['error']) || `Request failed (${res.status})`)
+      };
+    } catch {
+      return { ok: false, isAdmin: false, error: 'Network error.' };
+    }
+  }
+
+  async adminSweepWallets(body: {
+    walletAddress: string;
+    mode: 'dry_run' | 'execute';
+    maxWallets?: number;
+    destinationWallet?: string;
+  }): Promise<{
+    ok: boolean;
+    runId?: string;
+    walletsScanned?: number;
+    walletsWithBalance?: number;
+    totalUiAmount?: number;
+    swept?: number;
+    failed?: number;
+    items?: AdminSweepItem[];
+    error?: string;
+  }> {
+    const w = body.walletAddress?.trim();
+    if (!w) return { ok: false, error: 'No wallet.' };
+    try {
+      const res = await fetch(this.functionsUrl('admin-sweep-wallets'), {
+        method: 'POST',
+        headers: this.edgeJsonHeaders(),
+        body: JSON.stringify({
+          action: body.mode,
+          walletAddress: w,
+          maxWallets: body.maxWallets ?? 150,
+          destinationWallet: body.destinationWallet?.trim() || undefined
+        })
+      });
+      const data = this.parseEdgeJson(await res.text());
+      const ok = res.ok && data['ok'] === true;
+      return {
+        ok,
+        runId: typeof data['runId'] === 'string' ? data['runId'] : undefined,
+        walletsScanned: this.readNum(data['walletsScanned']),
+        walletsWithBalance: this.readNum(data['walletsWithBalance']),
+        totalUiAmount: this.readNum(data['totalUiAmount']),
+        swept: this.readNum(data['swept']),
+        failed: this.readNum(data['failed']),
+        items: Array.isArray(data['items']) ? (data['items'] as AdminSweepItem[]) : undefined,
+        error: ok ? undefined : ((typeof data['error'] === 'string' && data['error']) || `Request failed (${res.status})`)
+      };
+    } catch {
+      return { ok: false, error: 'Network error.' };
     }
   }
 

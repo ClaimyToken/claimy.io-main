@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.blackjack-game]
 verify_jwt = false
+
+[functions.admin-sweep-wallets]
+verify_jwt = false

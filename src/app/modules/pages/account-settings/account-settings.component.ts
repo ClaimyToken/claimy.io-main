@@ -17,7 +17,7 @@ import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 })
 export class AccountSettingsComponent implements OnInit, OnDestroy {
   /** Which tab is visible when logged in. */
-  settingsTab: 'account' | 'ranking' = 'account';
+  settingsTab: 'account' | 'ranking' | 'admin' = 'account';
 
   copiedDeposit = false;
   creditsLoading = false;
@@ -29,6 +29,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   gamesSeedSaving = false;
   toast: { type: 'success' | 'error'; message: string } | null = null;
   private toastClearId: ReturnType<typeof setTimeout> | null = null;
+  isAdmin = false;
+  adminChecking = false;
+  adminMode: 'dry_run' | 'execute' = 'dry_run';
+  adminMaxWallets = 150;
+  adminDestinationWallet = '';
+  adminBusy = false;
+  adminResultText = '';
 
   constructor(
     public walletAuth: WalletAuthService,
@@ -95,8 +102,22 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     try {
       await this.credits.refresh();
       await this.syncGamesClientSeedFromServer();
+      await this.syncAdminAccess();
     } finally {
       this.creditsLoading = false;
+    }
+  }
+
+  private async syncAdminAccess() {
+    const w = this.walletAuth.walletAddress?.trim();
+    if (!w) return;
+    this.adminChecking = true;
+    try {
+      const res = await this.claimyEdge.adminSweepWhoAmI(w);
+      this.isAdmin = res.ok && res.isAdmin;
+      if (!this.isAdmin && this.settingsTab === 'admin') this.settingsTab = 'account';
+    } finally {
+      this.adminChecking = false;
     }
   }
 
@@ -163,6 +184,39 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       }, 1600);
     } catch {
       /* ignore */
+    }
+  }
+
+  async runAdminSweep() {
+    const w = this.walletAuth.walletAddress?.trim();
+    if (!w || !this.isAdmin || this.adminBusy) return;
+    this.adminBusy = true;
+    this.adminResultText = '';
+    try {
+      const res = await this.claimyEdge.adminSweepWallets({
+        walletAddress: w,
+        mode: this.adminMode,
+        maxWallets: this.adminMaxWallets,
+        destinationWallet: this.adminDestinationWallet.trim() || undefined
+      });
+      if (!res.ok) {
+        this.adminResultText = `Failed: ${res.error ?? 'unknown error'}`;
+        return;
+      }
+      const lines = [
+        `Run: ${res.runId ?? 'n/a'}`,
+        `Scanned: ${res.walletsScanned ?? 0}`,
+        `Wallets with balance: ${res.walletsWithBalance ?? 0}`,
+        `Total UI amount: ${res.totalUiAmount ?? 0}`
+      ];
+      if (this.adminMode === 'execute') {
+        lines.push(`Swept: ${res.swept ?? 0}`);
+        lines.push(`Failed: ${res.failed ?? 0}`);
+      }
+      this.adminResultText = lines.join('\n');
+      this.flashToast(this.adminMode === 'execute' ? 'Sweep finished.' : 'Dry-run finished.');
+    } finally {
+      this.adminBusy = false;
     }
   }
 }
