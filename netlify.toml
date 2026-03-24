@@ -1,0 +1,8 @@
+# Netlify: Angular app (output is dist/claimy per angular.json)
+[build]
+  command = "npm run build"
+  publish = "dist/claimy"
+
+# Use a supported Node for Angular 16 (Netlify defaults vary)
+[build.environment]
+  NODE_VERSION = "18"

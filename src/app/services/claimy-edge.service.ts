@@ -317,7 +317,7 @@ export class ClaimyEdgeService {
     if (!w) return null;
     const res = await fetch(this.functionsUrl('account-linked-wallet'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.edgeJsonHeaders(),
       body: JSON.stringify({ walletAddress: w })
     });
     const data = (await res.json().catch(() => ({}))) as {
@@ -345,7 +345,7 @@ export class ClaimyEdgeService {
     try {
       const res = await fetch(this.functionsUrl('claimy-credits'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.edgeJsonHeaders(),
         body: JSON.stringify({ action: 'sync_from_chain', walletAddress: w })
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -372,7 +372,7 @@ export class ClaimyEdgeService {
     try {
       const res = await fetch(this.functionsUrl('claimy-credits'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.edgeJsonHeaders(),
         body: JSON.stringify({ action: 'get', walletAddress: w })
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -422,8 +422,12 @@ export class ClaimyEdgeService {
         return { ok: true, entries: data.entries };
       }
       return { ok: false, error: data.error ?? 'Could not load history.' };
-    } catch {
-      return { ok: false, error: 'Network error loading history.' };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message.trim() : '';
+      return {
+        ok: false,
+        error: msg || 'Network error loading history (check Supabase anon key and claimy-credits deploy).'
+      };
     }
   }
 
@@ -474,7 +478,7 @@ export class ClaimyEdgeService {
     try {
       const res = await fetch(this.functionsUrl('claimy-referrals'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.edgeJsonHeaders(),
         body: JSON.stringify({ action: 'leaderboard_referrals' })
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -503,7 +507,7 @@ export class ClaimyEdgeService {
     try {
       const res = await fetch(this.functionsUrl('claimy-referrals'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.edgeJsonHeaders(),
         body: JSON.stringify({ action: 'mine', walletAddress: w })
       });
       const data = (await res.json().catch(() => ({}))) as {
