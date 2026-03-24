@@ -1,5 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ClaimyEdgeService, BlackjackPublicGame } from 'src/app/services/claimy-edge.service';
+import { PlayerRankingService } from 'src/app/services/player-ranking.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 import type { VerificationResult } from '../flowerpoker/flowerpoker-provably-fair';
 import { verifyBlackjackRound, type BlackjackFairSnapshot } from './blackjack-provably-fair';
@@ -106,7 +107,8 @@ export class BlackjackComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly walletAuth: WalletAuthService,
-    private readonly claimyEdge: ClaimyEdgeService
+    private readonly claimyEdge: ClaimyEdgeService,
+    private readonly playerRanking: PlayerRankingService
   ) {}
 
   get gameSessionActive(): boolean {
@@ -409,6 +411,7 @@ export class BlackjackComponent implements OnInit, OnDestroy {
               ? `Push — ${res.payoutAmount ?? 0} CLAIMY returned.`
               : 'House wins.';
         this.fairSnapshot = (res.fairSnapshot as Record<string, unknown>) ?? null;
+        await this.playerRanking.refresh();
         return;
       }
 
@@ -469,6 +472,7 @@ export class BlackjackComponent implements OnInit, OnDestroy {
         this.activeGameId = null;
         this.lastHandLabels = null;
         this.verificationReport = null;
+        await this.playerRanking.refresh();
       } else if (res.game) {
         await this.runDealAnimation(beforeGame, res.game);
         this.message = 'Continue your hand or stand.';

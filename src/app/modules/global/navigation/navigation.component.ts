@@ -17,9 +17,12 @@ import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 export class NavigationComponent implements OnInit, OnDestroy {
   private walletModalSub?: Subscription;
   private rankSnapSub?: Subscription;
+  private rankToastSub?: Subscription;
+  private rankToastClearId: ReturnType<typeof setTimeout> | null = null;
 
   /** Latest ranking snapshot for nav badge (null until loaded or on error). */
   rankSnap: PlayerRankingSnapshot | null = null;
+  rankToastMessage: string | null = null;
 
   constructor(
     public configService: ConfigService,
@@ -46,6 +49,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
       this.rankSnap = s;
     });
     this.playerRanking.initFromSession();
+    this.rankToastSub = this.playerRanking.rankToast$.subscribe((evt) => {
+      if (!evt?.message) return;
+      this.rankToastMessage = evt.message;
+      if (this.rankToastClearId) clearTimeout(this.rankToastClearId);
+      this.rankToastClearId = setTimeout(() => {
+        this.rankToastMessage = null;
+        this.rankToastClearId = null;
+      }, 6500);
+    });
 
     this.walletModalSub = this.walletModal.openRequested$.subscribe(() => {
       const el = document.getElementById('claimyWalletModal');
@@ -61,6 +73,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.walletModalSub?.unsubscribe();
     this.rankSnapSub?.unsubscribe();
+    this.rankToastSub?.unsubscribe();
+    if (this.rankToastClearId) {
+      clearTimeout(this.rankToastClearId);
+      this.rankToastClearId = null;
+    }
   }
 
   logout() {

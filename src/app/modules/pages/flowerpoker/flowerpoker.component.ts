@@ -11,6 +11,7 @@ import {
   VerificationResult,
   verifyFlowerpokerRound
 } from 'src/app/modules/pages/flowerpoker/flowerpoker-provably-fair';
+import { PlayerRankingService } from 'src/app/services/player-ranking.service';
 
 declare global {
   interface Window {
@@ -109,7 +110,8 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly walletAuth: WalletAuthService,
-    private readonly claimyEdge: ClaimyEdgeService
+    private readonly claimyEdge: ClaimyEdgeService,
+    private readonly playerRanking: PlayerRankingService
   ) {}
 
   get gameSessionActive(): boolean {
@@ -610,6 +612,7 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
     if (typeof res.playableBalance === 'number' && Number.isFinite(res.playableBalance)) {
       this.walletAuth.claimyCreditsBalance = res.playableBalance;
     }
+    await this.playerRanking.refresh();
     this.clearLocalRoundSnapshot();
     this.activeGameId = null;
     this.activeStake = null;

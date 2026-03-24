@@ -88,4 +88,9 @@ export class RankLadderService {
   winProfitPerUnitStaked(milli: number): string {
     return ((milli - 1000) / 1000).toFixed(3);
   }
+
+  tierIndex(tier: RankTierDef | null | undefined): number {
+    if (!tier) return -1;
+    return this.tiers.findIndex((t) => t.tierLabel === tier.tierLabel);
+  }
 }

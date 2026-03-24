@@ -249,3 +249,7 @@
 </ng-template>
 
 <app-wallet-deposit-modal></app-wallet-deposit-modal>
+
+<div class="nav-rank-toast" *ngIf="rankToastMessage" role="status" aria-live="polite">
+  {{ rankToastMessage }}
+</div>

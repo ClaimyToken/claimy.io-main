@@ -532,3 +532,21 @@ $nav-promo-btn-height: 3.1rem;
         max-width: min(11.5rem, 48vw);
     }
 }
+
+.nav-rank-toast {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1065;
+    max-width: min(30rem, calc(100vw - 2rem));
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.38rem;
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.72);
+    background: rgba(18, 18, 18, 0.97);
+    color: #ffd9c7;
+    font-size: 0.79rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.45;
+    box-shadow: 0 0.35rem 1.25rem rgba(0, 0, 0, 0.42);
+}

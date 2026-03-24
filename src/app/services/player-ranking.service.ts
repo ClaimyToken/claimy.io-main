@@ -16,11 +16,16 @@ export type PlayerRankingSnapshot = {
   progressToNextPercent: number;
 };
 
+export type RankToastEvent = {
+  message: string;
+};
+
 @Injectable({
   providedIn: 'root'
 })
 export class PlayerRankingService {
   readonly snapshot$ = new BehaviorSubject<PlayerRankingSnapshot | null>(null);
+  readonly rankToast$ = new BehaviorSubject<RankToastEvent | null>(null);
   /** True only on the first fetch when no snapshot exists yet (shows skeleton line; avoids layout jump on refresh). */
   loading = false;
   /** True during any in-flight fetch (initial or refresh). Use to disable the Refresh button. */
@@ -74,6 +79,10 @@ export class PlayerRankingService {
       const currentTier = this.ranks.tierForLifetimeWagered(lifetimeWagered);
       const nextTier = this.ranks.nextTierAfter(currentTier);
       const progressToNextPercent = this.ranks.progressPercentTowardNext(lifetimeWagered, currentTier);
+      const prevSnap = this.snapshot$.value;
+      const prevIdx = this.ranks.tierIndex(prevSnap?.currentTier);
+      const nextIdx = this.ranks.tierIndex(currentTier);
+      const jumps = prevIdx >= 0 && nextIdx > prevIdx ? nextIdx - prevIdx : 0;
 
       this.snapshot$.next({
         lifetimeWagered,
@@ -86,6 +95,19 @@ export class PlayerRankingService {
         nextTier,
         progressToNextPercent
       });
+
+      if (jumps > 0 && prevSnap) {
+        const mult = this.ranks.multiplierDisplay(currentTier.multiplierMilli);
+        const rtpPct = (mult * 100).toFixed(1);
+        const from = prevSnap.currentTier.tierLabel;
+        const to = currentTier.tierLabel;
+        this.rankToast$.next({
+          message:
+            jumps === 1
+              ? `Rank up: ${from} -> ${to}. RTP is now ${rtpPct}% (${mult.toFixed(3)}x payout).`
+              : `Rank up x${jumps}: ${from} -> ${to}. RTP is now ${rtpPct}% (${mult.toFixed(3)}x payout).`
+        });
+      }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Could not load ranking data.';
       this.error = msg;
