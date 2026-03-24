@@ -318,6 +318,19 @@
           <strong>Dry run</strong> scans balances and reports totals only (no transfers). <strong>Execute</strong> does the same
           scan and then sends on-chain transfers for each wallet with CLAIMY.
         </p>
+        <div class="mb-3">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-info account-settings-btn"
+            (click)="runAdminSummaryOnly()"
+            [disabled]="adminSummaryBusy || adminBusy"
+          >
+            {{ adminSummaryBusy ? 'Scanning totals…' : 'Show total CLAIMY in all deposit wallets' }}
+          </button>
+          <p class="account-settings-note mb-0 mt-2">
+            This scans deposit wallets and returns the project-wide CLAIMY total (no transfers, no sweep logs).
+          </p>
+        </div>
 
         <div class="account-settings-panel">
           <div class="account-settings-row">
@@ -392,7 +405,7 @@
                 (click)="runAdminSummaryOnly()"
                 [disabled]="adminSummaryBusy || adminBusy"
               >
-                {{ adminSummaryBusy ? 'Scanning…' : 'Summary only' }}
+                {{ adminSummaryBusy ? 'Scanning…' : 'Summary only (quick)' }}
               </button>
               <button type="button" class="btn btn-sm btn-outline-primary account-settings-btn" (click)="runAdminSweep()" [disabled]="adminBusy">
                 {{ adminBusy ? 'Running…' : (adminMode === 'execute' ? 'Execute sweep' : 'Run dry-run') }}
