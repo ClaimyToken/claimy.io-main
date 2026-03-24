@@ -14,6 +14,8 @@ import { verifyDiceRound, type DiceFairSnapshot } from 'src/app/modules/pages/di
 type PlayhouseGameCard = {
   title: string;
   route: string;
+  /** When true, card is outlined and CTA is disabled (game not live yet). */
+  comingSoon?: boolean;
 };
 
 @Component({
@@ -26,7 +28,7 @@ export class PlayhouseComponent implements OnInit {
     { title: 'Flowerpoker', route: '/flowerpoker' },
     { title: 'Blackjack', route: '/blackjack' },
     { title: 'Dice', route: '/dice' },
-    { title: 'Hi-low', route: '/hi-low' }
+    { title: 'Hi-low', route: '/hi-low', comingSoon: true }
   ];
 
   readonly pageSize = 15;

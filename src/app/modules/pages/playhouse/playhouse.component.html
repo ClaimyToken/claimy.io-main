@@ -37,14 +37,31 @@
       </h2>
       <div class="row g-3">
         <div class="col-12 col-sm-6 col-xl-3" *ngFor="let game of games">
-          <article class="playhouse-game h-100">
+          <article
+            class="playhouse-game h-100"
+            [class.playhouse-game--coming-soon]="game.comingSoon"
+          >
+            <span class="playhouse-game__soon-badge" *ngIf="game.comingSoon">Coming soon</span>
             <div class="playhouse-game__title-wrap">
               <h3 class="playhouse-game__title text-primary text-uppercase fw-semibold c-text-glow mb-0">
                 {{ game.title }}
               </h3>
             </div>
-            <button type="button" class="playhouse-game__cta w-100" [routerLink]="game.route">
+            <button
+              *ngIf="!game.comingSoon"
+              type="button"
+              class="playhouse-game__cta w-100"
+              [routerLink]="game.route"
+            >
               Play {{ game.title }} now!
+            </button>
+            <button
+              *ngIf="game.comingSoon"
+              type="button"
+              class="playhouse-game__cta playhouse-game__cta--soon w-100"
+              disabled
+            >
+              Coming soon
             </button>
           </article>
         </div>
