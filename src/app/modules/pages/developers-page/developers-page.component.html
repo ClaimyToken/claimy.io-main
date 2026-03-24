@@ -20,17 +20,24 @@
       </p>
       <p class="small text-secondary mb-2 text-uppercase fw-semibold letter-spacing-tight">On this page</p>
       <ul class="dev-doc__toc small mb-0">
-        <li><a href="#philosophy">Open source &amp; secrets</a></li>
-        <li><a href="#stack">Stack overview</a></li>
-        <li><a href="#prereqs">Prerequisites</a></li>
-        <li><a href="#clone">Clone &amp; install</a></li>
-        <li><a href="#env-local">Local <code>.env</code></a></li>
-        <li><a href="#supabase">Supabase setup</a></li>
-        <li><a href="#flows">Registration, login, credits, withdrawals</a></li>
-        <li><a href="#own-token">Your own SPL mint</a></li>
-        <li><a href="#scripts">npm scripts</a></li>
-        <li><a href="#docs">Further reading</a></li>
-        <li><a href="#security">Security checklist</a></li>
+        <li>
+          <a href="#philosophy" (click)="scrollToSection('philosophy', $event)">Open source &amp; secrets</a>
+        </li>
+        <li><a href="#stack" (click)="scrollToSection('stack', $event)">Stack overview</a></li>
+        <li><a href="#prereqs" (click)="scrollToSection('prereqs', $event)">Prerequisites</a></li>
+        <li><a href="#clone" (click)="scrollToSection('clone', $event)">Clone &amp; install</a></li>
+        <li><a href="#env-local" (click)="scrollToSection('env-local', $event)">Local <code>.env</code></a></li>
+        <li><a href="#supabase" (click)="scrollToSection('supabase', $event)">Supabase setup</a></li>
+        <li>
+          <a href="#playhouse-feed-troubleshooting" (click)="scrollToSection('playhouse-feed-troubleshooting', $event)"
+            >Playhouse feed troubleshooting</a
+          >
+        </li>
+        <li><a href="#flows" (click)="scrollToSection('flows', $event)">Registration, login, credits, withdrawals</a></li>
+        <li><a href="#own-token" (click)="scrollToSection('own-token', $event)">Your own SPL mint</a></li>
+        <li><a href="#scripts" (click)="scrollToSection('scripts', $event)">npm scripts</a></li>
+        <li><a href="#docs" (click)="scrollToSection('docs', $event)">Further reading</a></li>
+        <li><a href="#security" (click)="scrollToSection('security', $event)">Security checklist</a></li>
       </ul>
     </div>
   </div>
@@ -148,14 +155,33 @@ npx ng serve
   <p class="mt-3 mb-0">
     Slugs include <code>check-username</code>, <code>register-phantom</code>, <code>wallet-login</code>,
     <code>account-linked-wallet</code>, <code>claimy-credits</code>, <code>claimy-profile</code>,
-    <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, and others listed in
-    <code>supabase/functions/README.md</code> and <code>DEVELOPERWORK/README.md</code>.
+    <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, <code>playhouse-feed</code>,
+    and others listed in <code>supabase/functions/README.md</code> and <code>DEVELOPERWORK/README.md</code>.
   </p>
-  <div class="dev-doc__note mt-3">
-    If Playhouse feed fails with browser <code>Failed to fetch</code> and Network shows
-    <code>OPTIONS /functions/v1/playhouse-feed → 404</code>, the function slug is not deployed on that project yet.
-    Deploy exactly <code>playhouse-feed</code> (job names can be different; slug/path cannot).
-  </div>
+
+  <section id="playhouse-feed-troubleshooting" class="mt-4" aria-labelledby="playhouse-feed-heading">
+    <h3 id="playhouse-feed-heading">Playhouse feed</h3>
+    <p class="mb-2">
+      Public feed and “My bets” both POST to Edge <code>playhouse-feed</code> with
+      <code
+        >{{ '{' }} "action": "list_bets", "page", "pageSize" {{ '}' }}</code
+      >
+      and optional <code>walletAddress</code> for the
+      filtered view. The function calls RPC <code>playhouse_list_settled_bets</code> with the service role — run
+      <code>DEVELOPERWORK/migrations/claimy_playhouse_feed.sql</code> before deploying. In
+      <code>supabase/config.toml</code>, set <code>verify_jwt = false</code> under
+      <code>[functions.playhouse-feed]</code> so the browser can call it with anon headers only (same pattern as other
+      public Edge endpoints).
+    </p>
+    <p class="small text-secondary mb-2 font-monospace">
+      npx supabase@latest functions deploy playhouse-feed --project-ref &lt;ref&gt;
+    </p>
+    <div class="dev-doc__note mb-0">
+      If Playhouse feed fails with browser <code>Failed to fetch</code> and Network shows
+      <code>OPTIONS /functions/v1/playhouse-feed → 404</code>, the function slug is not deployed on that project yet.
+      Deploy exactly <code>playhouse-feed</code> (CI job names can differ; the URL path must not).
+    </div>
+  </section>
 
   <h2 id="flows">How the main flows work</h2>
   <h3>Registration</h3>
