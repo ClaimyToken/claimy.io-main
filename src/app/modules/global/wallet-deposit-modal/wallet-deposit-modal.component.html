@@ -324,8 +324,11 @@
                   {{ loadingLedger ? '…' : 'Refresh' }}
                 </button>
               </div>
-              <div class="wallet-modal-ledger-table-wrap" *ngIf="!loadingLedger && ledgerEntries.length > 0">
-                <table class="wallet-modal-ledger-table">
+              <div class="wallet-modal-ledger-table-wrap">
+                <div class="wallet-modal-ledger-state" *ngIf="loadingLedger">
+                  <p class="deposit-mint-hint mb-0 text-center">Loading history…</p>
+                </div>
+                <table class="wallet-modal-ledger-table" *ngIf="!loadingLedger && ledgerEntries.length > 0">
                   <thead>
                     <tr>
                       <th scope="col">When</th>
@@ -349,25 +352,43 @@
                       </td>
                       <td>{{ numDelta(row.balance_after) | number : '1.0-8' }}</td>
                       <td class="wallet-modal-ledger__ref">
-                        <a
-                          *ngIf="solscanTxUrl(row.ref) as u"
-                          [href]="u"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="wallet-modal-ledger-tx-link"
-                          >Tx</a>
-                        <span *ngIf="!solscanTxUrl(row.ref)" class="text-secondary text-break">{{
-                          row.ref || '—'
-                        }}</span>
+                        <div class="wallet-modal-ledger-ref-row">
+                          <span
+                            class="wallet-modal-ledger-ref-text"
+                            [class.text-secondary]="!row.ref?.trim()"
+                            [title]="row.ref?.trim() || ''"
+                            >{{ displayRef(row.ref) }}</span
+                          >
+                          <a
+                            *ngIf="solscanTxUrl(row.ref) as u"
+                            [href]="u"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="wallet-modal-ledger-tx-link"
+                            >Tx</a
+                          >
+                          <button
+                            *ngIf="row.ref?.trim()"
+                            type="button"
+                            class="wallet-modal-ledger-copy"
+                            (click)="copyLedgerRef(row.ref)"
+                            title="Copy ref"
+                            [attr.aria-label]="'Copy ref'"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
                 </table>
+                <div class="wallet-modal-ledger-state" *ngIf="!loadingLedger && ledgerEntries.length === 0">
+                  <p class="deposit-mint-hint mb-0 text-center">No ledger entries yet for this filter.</p>
+                </div>
               </div>
-              <p class="deposit-mint-hint mb-0 text-center" *ngIf="!loadingLedger && ledgerEntries.length === 0">
-                No ledger entries yet for this filter.
-              </p>
-              <p class="deposit-mint-hint mb-0 text-center" *ngIf="loadingLedger">Loading history…</p>
             </div>
           </div>
         </div>

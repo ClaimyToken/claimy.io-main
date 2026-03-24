@@ -134,6 +134,23 @@ export class WalletDepositModalComponent implements OnInit, AfterViewInit, OnDes
     return isDev ? `${base}?cluster=devnet` : base;
   }
 
+  /** Single-line display; full value in [title]. Ellipsis applied in CSS. */
+  displayRef(ref: string | null | undefined): string {
+    const r = ref?.trim();
+    return r || '—';
+  }
+
+  async copyLedgerRef(ref: string | null | undefined) {
+    const r = ref?.trim();
+    if (!r) return;
+    try {
+      await navigator.clipboard.writeText(r);
+      this.showToast('success', 'Copied ref', 2200);
+    } catch {
+      this.showToast('error', 'Could not copy ref');
+    }
+  }
+
   setLedgerDirection(dir: 'all' | 'incoming' | 'outgoing') {
     if (this.ledgerDirection === dir) {
       return;
