@@ -11,6 +11,6 @@ These folders mirror what you paste into **Supabase Dashboard → Edge Functions
 | `claimy-profile` | `claimy-profile` | `set_games_client_seed` — optional account-wide provably fair client seed (max 128 chars). Run migration `DEVELOPERWORK/migrations/claimy_games_client_seed.sql`. |
 | `claimy-referrals` | `claimy-referrals` | `leaderboard_referrals` (top 15, `referral_count` ≥ 1), `mine` (code + count for a wallet). |
 | `flowerpoker-game` | `flowerpoker-game` | Bet lifecycle for Flowerpoker: create DB game row, lock stake, settle payout and persist round metadata. |
-| `playhouse-feed` | `playhouse-feed` | Public paginated feed of settled Flowerpoker bets (`list_bets`). Run migration `DEVELOPERWORK/migrations/claimy_playhouse_feed.sql`. **`supabase/config.toml` sets `verify_jwt = false`** (public endpoint; server uses service role only). |
+| `playhouse-feed` | `playhouse-feed` | Public paginated Flowerpoker feed (`list_bets`): public view shows settled rows; wallet-filtered view can include in-progress sessions for that wallet. Run migration `DEVELOPERWORK/migrations/claimy_playhouse_feed.sql`. **`supabase/config.toml` sets `verify_jwt = false`** (public endpoint; server uses service role only). If browser preflight (`OPTIONS`) returns 404, deploy the function with the exact slug on the target project. |
 
 Other functions (`check-username`, etc.) remain documented in **`DEVELOPERWORK/SUPABASE_SETUP.md`** where not listed above.

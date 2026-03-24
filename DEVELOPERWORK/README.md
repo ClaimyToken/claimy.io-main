@@ -59,7 +59,7 @@ Minimum for a working stack:
 
 ---
 
-## Phase 3 — Deploy Edge Functions (5 slugs)
+## Phase 3 — Deploy Edge Functions (core slugs)
 
 For each function: **create slug exactly as named**, **JWT verification OFF**, paste Deno code.
 
@@ -72,6 +72,30 @@ For each function: **create slug exactly as named**, **JWT verification OFF**, p
 | `withdraw-spl` | **`../supabase/functions/withdraw-spl/index.ts`** (entire file) |
 
 Do not rename slugs; the Angular app and `ClaimyEdgeService` expect these paths under `{supabaseUrl}/functions/v1/...`.
+CI/deploy job names may differ, but the deployed function slug must still be exact.
+
+### Playhouse / games slugs used by current frontend
+
+In addition to the table above, current game pages also call:
+
+- `flowerpoker-game`
+- `claimy-credits`
+- `claimy-referrals`
+- `claimy-profile`
+- `playhouse-feed` (**public feed**; `verify_jwt = false` in `supabase/config.toml`)
+
+If browser Network shows `OPTIONS /functions/v1/playhouse-feed` as `404`, the function is missing on that project.
+Deploy with the exact slug:
+
+`supabase functions deploy playhouse-feed --project-ref <your_ref>`
+
+### Windows note (PowerShell script policy)
+
+If PowerShell blocks `npm.ps1` / `npx.ps1`, use one of:
+
+- `npm.cmd` / `npx.cmd`
+- Command Prompt (`cmd`)
+- or set execution policy for current user (`RemoteSigned`), then reopen terminal.
 
 ---
 

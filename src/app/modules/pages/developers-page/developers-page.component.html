@@ -151,6 +151,11 @@ npx ng serve
     <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, and others listed in
     <code>supabase/functions/README.md</code> and <code>DEVELOPERWORK/README.md</code>.
   </p>
+  <div class="dev-doc__note mt-3">
+    If Playhouse feed fails with browser <code>Failed to fetch</code> and Network shows
+    <code>OPTIONS /functions/v1/playhouse-feed → 404</code>, the function slug is not deployed on that project yet.
+    Deploy exactly <code>playhouse-feed</code> (job names can be different; slug/path cannot).
+  </div>
 
   <h2 id="flows">How the main flows work</h2>
   <h3>Registration</h3>
