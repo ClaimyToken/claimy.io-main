@@ -147,7 +147,11 @@ const routes: Routes = [
   declarations: [],
   imports: [
     CommonModule,
-    RouterModule.forRoot(routes)
+    RouterModule.forRoot(routes, {
+      // Default router behavior keeps the previous scroll offset; reset on forward nav and restore on back/forward.
+      scrollPositionRestoration: 'enabled',
+      anchorScrolling: 'enabled'
+    })
   ],
   exports: [RouterModule]
 })
