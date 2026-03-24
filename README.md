@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://i.imgur.com/K7VniKH.png" alt="Claimy" width="100%" />
+</p>
+
 # Claimy.io
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.1.

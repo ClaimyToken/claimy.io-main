@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://i.imgur.com/K7VniKH.png" alt="Claimy" width="100%" />
+</p>
+
 # Supabase Edge Functions (source in repo)
 
 These folders mirror what you paste into **Supabase Dashboard → Edge Functions** or deploy via `supabase functions deploy <name>`.

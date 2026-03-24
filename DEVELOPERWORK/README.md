@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://i.imgur.com/K7VniKH.png" alt="Claimy" width="100%" />
+</p>
+
 # Claimy — developer handoff
 
 This folder is the **single place** for whoever finishes backend, on-chain, and Supabase setup. The Angular app in this repo already calls the Edge Functions and the vault withdraw flow; **your job** is to deploy/configure everything below in order.
