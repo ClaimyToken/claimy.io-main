@@ -10,9 +10,5 @@ export class LandingComponent {
 
   constructor(public configService: ConfigService) { }
 
-  getSiteStatus(): string {
-    return this.configService.getSiteStatus();
-  }
-
   currentYear: number = new Date().getFullYear();
 }

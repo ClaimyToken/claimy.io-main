@@ -12,18 +12,38 @@
         <div class="col-12">
             <h1 class="fw-bold text-primary c-text-glow text-center">CLAIMY</h1>
         </div>
-        <div class="col-12 col-lg-8 col-xl-7">
-            <p class="text-center">
-                A pioneering ERC project enabling periodic token claims, a first-of-its-kind feature. Plus, explore our
-                limited NFT collection, revolutionizing decentralized finance. Join us at the forefront of innovation
-                with
-                CLAIMY.
+        <div class="col-12 col-lg-8 col-xl-7 text-center">
+            <p class="mb-3">
+                Claimy is a fully decentralized play-house powered by a native token economy. No fiat, no corporate
+                overhead, no takeout. Just pure probability, zero middlemen, and a token that actually means something.
+                Born from years in crypto and being in the frontlines of artificial intelligence, built for people who
+                believe the house should be the people. Every bet, every win, every loss flows through the community.
+                No real money. Just the games themselves.
+            </p>
+            <p class="mb-3">
+                The mechanics are real. Unique games with actual 50/50 win chances—all played in tokens. But here's the
+                difference: instead of rigged odds, we keep it transparent. Bet 1 token, win and you get back 1.9 tokens.
+                That's a 10% house edge, taken only on wins, no hidden math. You know exactly what you're getting into.
+            </p>
+            <p class="mb-0">
+                This project was made possible with the help of
+                <a href="https://cursor.com/agents" target="_blank" rel="noopener noreferrer"
+                    class="text-body text-decoration-underline d-inline-flex align-items-center gap-1">Cursor<svg
+                        xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"
+                        class="flex-shrink-0" aria-hidden="true">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg></a>
+                and a suite of high-end AI agents that built significant portions of our website and backend
+                architecture. What started as an idea between friends deeply invested in DeFi and memetoken culture became
+                reality through the power of modern development tools and collaborative AI design.
             </p>
         </div>
         <div class="col-12">
             <div class="d-flex flex-column justify-content-center align-content-center">
-                <a href="/home" class="btn btn-primary btn-lg w-auto m-auto py-2 px-4 text-uppercase fw-bold"
-                    [class.disabled]="getSiteStatus() === 'offline'">EXPLORE
+                <a href="/home" class="btn btn-primary btn-lg w-auto m-auto py-2 px-4 text-uppercase fw-bold">EXPLORE
                     MAIN
                     WEBSITE
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
@@ -34,9 +54,6 @@
                         </g>
                     </svg>
                 </a>
-                <p class="text-center mt-2 mb-0 text-danger" *ngIf="getSiteStatus() === 'offline'">Access not
-                    granted
-                    yet</p>
             </div>
         </div>
 
@@ -53,36 +70,7 @@
                             <p class="text-primary mb-1 text-center fw-bold c-text-glow text-uppercase">CLAIMY TOKEN
                                 CONTRACT</p>
                             <div class="d-flex flex-row align-items-center justify-content-center gap-2">
-                                <p class="mb-0 text-center text-uppercase">
-                                    {{ configService.TokenContractAddress | shortenAddress }}
-                                </p>
-
-                                <button type="button" cdkCopyToClipboard="{{ configService.TokenContractAddress }}"
-                                    matTooltip="Copy" matTooltipPosition="below"
-                                    class="text-muted bg-transparent shadow-none border-0 p-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-                                        <g stroke-width="1" fill="none" stroke="currentColor" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <rect x="5.5" y="4.5" width="6" height="7"></rect>
-                                            <path d="M8.5,2.5V.5H.5v10h3"></path>
-                                        </g>
-                                    </svg>
-                                </button>
-                                <a href="https://etherscan.io/address/{{ configService.TokenContractAddress }}"
-                                    target="_blank" rel="noreferrer noopener" class="text-muted">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-                                        <g stroke-width="1" fill="none" stroke="currentColor" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <line x1="3.5" y1="8.5" x2="8.5" y2="3.5"></line>
-                                            <path
-                                                d="M5,3,6.672,1.328a2.829,2.829,0,0,1,4,0h0a2.829,2.829,0,0,1,0,4L9,7">
-                                            </path>
-                                            <path
-                                                d="M3,5,1.328,6.672a2.829,2.829,0,0,0,0,4h0a2.829,2.829,0,0,0,4,0L7,9">
-                                            </path>
-                                        </g>
-                                    </svg>
-                                </a>
+                                <p class="mb-0 text-center text-uppercase">TBA</p>
                             </div>
                         </div>
                     </div>
@@ -125,40 +113,10 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <p class="text-primary mb-1 text-center fw-bold c-text-glow text-uppercase">Claimy Rewards
-                                Contract
-                            </p>
+                            <p class="text-primary mb-1 text-center fw-bold c-text-glow text-uppercase">CLAIMY TREASURY
+                                WALLET</p>
                             <div class="d-flex flex-row align-items-center justify-content-center gap-2">
-                                <p class="mb-0 text-center text-uppercase">
-                                    {{ configService.RewardsContractAddress | shortenAddress }}
-                                </p>
-
-                                <button type="button" cdkCopyToClipboard="{{ configService.RewardsContractAddress }}"
-                                    matTooltip="Copy" matTooltipPosition="below"
-                                    class="text-muted bg-transparent shadow-none border-0 p-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-                                        <g stroke-width="1" fill="none" stroke="currentColor" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <rect x="5.5" y="4.5" width="6" height="7"></rect>
-                                            <path d="M8.5,2.5V.5H.5v10h3"></path>
-                                        </g>
-                                    </svg>
-                                </button>
-                                <a href="https://etherscan.io/address/{{ configService.RewardsContractAddress }}"
-                                    target="_blank" rel="noreferrer noopener" class="text-muted">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-                                        <g stroke-width="1" fill="none" stroke="currentColor" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <line x1="3.5" y1="8.5" x2="8.5" y2="3.5"></line>
-                                            <path
-                                                d="M5,3,6.672,1.328a2.829,2.829,0,0,1,4,0h0a2.829,2.829,0,0,1,0,4L9,7">
-                                            </path>
-                                            <path
-                                                d="M3,5,1.328,6.672a2.829,2.829,0,0,0,0,4h0a2.829,2.829,0,0,0,4,0L7,9">
-                                            </path>
-                                        </g>
-                                    </svg>
-                                </a>
+                                <p class="mb-0 text-center text-uppercase">TBA</p>
                             </div>
                         </div>
                     </div>
@@ -201,7 +159,6 @@
     </div>
 
     <div class="d-flex flex-column mb-4 mb-lg-5">
-        <app-gas-nav [showEthPrice]="true"></app-gas-nav>
         <p class="text-muted opacity-50 text-center mt-2">{{ configService.siteLink }} (c) {{ currentYear }} - All
             rights reserved.
         </p>

@@ -25,7 +25,7 @@ export class SiteStatusGuard implements CanActivate {
   }
 
   private isBlockedRoute(url: string): boolean {
-    const blockedRoutes = ['/home', '/dashboard'];
+    const blockedRoutes = ['/home', '/referrals', '/claimy-token', '/playhouse', '/flowerpoker', '/blackjack', '/dice', '/hi-low'];
 
     return blockedRoutes.includes(url);
   }

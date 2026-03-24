@@ -1,0 +1,192 @@
+<header class="token-page-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="token-page-title text-center mb-0">
+    <ngx-typed-js [strings]="['THE CLAIMY TOKEN']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
+      <span class="typing"></span>
+    </ngx-typed-js>
+  </h1>
+</header>
+
+<div class="c-token-page">
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <p class="c-token-lead mb-0">
+        <strong>$CLAIMY</strong> is the Solana SPL token that powers the Claimy Playhouse — credits, referrals, and
+        future game rewards all tie back to this mint. Below is how we’re launching it and where to verify it on-chain.
+      </p>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-3">
+    <div class="col-12 col-xl-11">
+      <div class="card token-card token-card--launch">
+        <div class="card-body p-3 p-lg-5">
+          <h2 class="c-token-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Launch</h2>
+          <p class="c-token-body mb-3">
+            We’re launching on <strong>pump.fun</strong> — the usual Solana launchpad flow for a fair, transparent pool
+            and community-first discovery.
+          </p>
+          <p class="c-token-body mb-4">
+            At launch we take a <strong>{{ devBuyPercent }}% developer allocation</strong> (bought into the vault for
+            Playhouse payouts and operations). With a <strong>{{ totalSupply | number }}</strong> total supply, that
+            leaves <strong>~{{ publicSupplyAfterDev | number }}</strong> for the broader public float after our initial
+            buy.
+          </p>
+
+          <h3 class="c-token-subsection-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Tokenomics</h3>
+          <div
+            class="tokenomics row align-items-center g-4"
+            role="group"
+            [attr.aria-label]="
+              'Tokenomics: ' +
+              devBuyPercent +
+              '% developer vault, ' +
+              publicFloatPercent +
+              '% public float at launch'
+            "
+          >
+            <div class="col-12 col-md-auto d-flex justify-content-center justify-content-md-start">
+              <div class="tokenomics-pie" aria-hidden="true">
+                <div class="tokenomics-pie__ring" [style.--dev-fraction]="devBuyPercent / 100"></div>
+                <div class="tokenomics-pie__center">
+                  <div class="tokenomics-pie__center-disc">
+                    <span class="tokenomics-pie__supply" [attr.title]="(totalSupply | number:'1.0-0') + ' tokens'">1B</span>
+                    <span class="tokenomics-pie__supply-label">total supply</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <ul class="tokenomics-legend list-unstyled mb-0">
+                <li class="tokenomics-legend__item">
+                  <span class="tokenomics-legend__swatch tokenomics-legend__swatch--dev" aria-hidden="true"></span>
+                  <div>
+                    <strong class="tokenomics-legend__title"
+                      >{{ devBuyPercent }}% · developer vault</strong
+                    >
+                    <p class="tokenomics-legend__desc mb-0">
+                      ~{{ devAllocationTokens | number }} tokens at launch for Playhouse payouts and operations.
+                    </p>
+                  </div>
+                </li>
+                <li class="tokenomics-legend__item">
+                  <span class="tokenomics-legend__swatch tokenomics-legend__swatch--public" aria-hidden="true"></span>
+                  <div>
+                    <strong class="tokenomics-legend__title"
+                      >{{ publicFloatPercent }}% · public float</strong
+                    >
+                    <p class="tokenomics-legend__desc mb-0">
+                      ~{{ publicSupplyAfterDev | number }} tokens available to the broader market after our initial buy.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <h2 class="c-token-subsection-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">
+        Liquidity &amp; fees
+      </h2>
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <div class="token-fee-box">
+            <h3 class="token-fee-box__title">Liquidity</h3>
+            <p class="token-fee-box__text mb-0">
+              <strong>Liquidity is burnt</strong> — no LP keys held by the team for that portion.
+            </p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="token-fee-box">
+            <h3 class="token-fee-box__title">Fees</h3>
+            <p class="token-fee-box__text mb-0">
+              <strong>0% transaction fees</strong> on buys and sells.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <div class="card token-card token-card--mint">
+        <div class="card-body p-3 p-lg-4">
+          <h2 class="c-token-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Token address</h2>
+          <p class="c-token-body mb-3 c-token-muted" *ngIf="!hasMint">
+            Configure <code>CLAIMY_SPL_MINT</code> in your environment to show the mint here.
+          </p>
+          <ng-container *ngIf="hasMint">
+            <div class="token-mint-row">
+              <code class="token-mint-row__code text-break">{{ config.claimyTokenMint }}</code>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary token-mint-row__btn"
+                (click)="copyMint()"
+                aria-label="Copy token address"
+              >
+                <span class="material-icons" aria-hidden="true">content_copy</span>
+                Copy
+              </button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-5">
+    <div class="col-12 col-xl-11">
+      <div class="card token-card">
+        <div class="card-body p-3 p-lg-4">
+          <h2 class="c-token-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Links</h2>
+          <div class="token-links">
+            <a
+              *ngIf="config.claimyPumpFunCoinUrl"
+              class="btn btn-outline-primary btn-sm token-links__btn"
+              [href]="config.claimyPumpFunCoinUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="material-icons token-links__icon" aria-hidden="true">open_in_new</span>
+              pump.fun
+            </a>
+            <a
+              *ngIf="config.claimySolscanTokenUrl"
+              class="btn btn-outline-primary btn-sm token-links__btn"
+              [href]="config.claimySolscanTokenUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="material-icons token-links__icon" aria-hidden="true">open_in_new</span>
+              Solscan
+            </a>
+            <a
+              *ngIf="config.claimyDexscreenerTokenUrl"
+              class="btn btn-outline-primary btn-sm token-links__btn"
+              [href]="config.claimyDexscreenerTokenUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="material-icons token-links__icon" aria-hidden="true">open_in_new</span>
+              DexScreener
+            </a>
+          </div>
+          <p class="c-token-body mb-0 mt-3 c-token-muted small" *ngIf="!hasMint">
+            Links activate once the SPL mint is set in the app environment.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="toast as t" class="token-toast token-toast--success" role="status">
+  <span class="token-toast__text">{{ t.message }}</span>
+  <button type="button" class="token-toast__close" aria-label="Dismiss" (click)="dismissToast()">×</button>
+</div>

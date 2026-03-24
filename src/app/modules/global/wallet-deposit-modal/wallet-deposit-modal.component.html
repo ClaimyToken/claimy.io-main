@@ -1,0 +1,397 @@
+<div class="wallet-deposit-modal-root">
+<div
+  #walletModal
+  class="modal fade claimy-wallet-modal"
+  id="claimyWalletModal"
+  tabindex="-1"
+  aria-labelledby="claimyWalletModalTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content claimy-wallet-modal__content">
+      <div class="modal-header border-secondary">
+        <h2 class="modal-title claimy-wallet-modal__title text-primary text-uppercase c-text-glow" id="claimyWalletModalTitle">
+          <ng-container *ngIf="!loadingBalance && creditsAmount > 0; else walletTitlePlain">
+            Your wallet: {{ creditsAmount | number : '1.0-8' }} Claimy
+          </ng-container>
+          <ng-template #walletTitlePlain>Your wallet</ng-template>
+        </h2>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" *ngIf="walletAuth.isLoggedIn">
+        <p class="deposit-lead deposit-lead--center mb-3">
+          <strong>Claimy Credits</strong> are your in-app balance. Send <strong>only Claimy SPL</strong> (mint below) to
+          your <strong>deposit address</strong> — that path is custodial. <strong>Withdrawals</strong> send Claimy SPL
+          <strong>to</strong> your registered Phantom wallet after you sign; tokens are released from the
+          <strong>protocol vault</strong> on-chain (not from your deposit wallet directly).
+        </p>
+
+        <div class="deposit-panel wallet-modal-credits-panel mb-3" *ngIf="walletAuth.depositWalletAddress">
+          <button
+            type="button"
+            class="wallet-modal-credits-refresh-btn"
+            (click)="refreshCreditsWithCooldown()"
+            [disabled]="loadingBalance || !hasMintConfigured"
+            [attr.aria-busy]="loadingBalance"
+            [attr.aria-label]="loadingBalance ? 'Refreshing balance' : 'Refresh Claimy Credits balance'"
+            title="Refresh balance"
+          >
+            <svg
+              class="wallet-modal-credits-refresh-icon"
+              [class.wallet-modal-credits-refresh-icon--spinning]="loadingBalance"
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+              <path d="M8 16H3v5" />
+            </svg>
+          </button>
+          <div class="wallet-modal-credits-centered">
+            <span class="wallet-modal-credits-title">Claimy Credits</span>
+            <span class="wallet-modal-credits-value" [class.wallet-modal-credits-value--loading]="loadingBalance">
+              <ng-container *ngIf="!loadingBalance">
+                {{ creditsAmount | number : '1.0-8' }}
+              </ng-container>
+              <ng-container *ngIf="loadingBalance">—</ng-container>
+            </span>
+          </div>
+          <p class="deposit-mint-hint mb-0 mt-2" *ngIf="!hasMintConfigured">
+            Set <code class="deposit-code">claimySplMintAddress</code> and
+            <code class="deposit-code">solanaRpcUrl</code> in <code class="deposit-code">config.service.ts</code> to load
+            balances.
+          </p>
+        </div>
+
+        <div class="wallet-modal-accordion mb-3" *ngIf="walletAuth.isLoggedIn">
+          <div class="wallet-modal-accordion__panel deposit-panel" *ngIf="walletAuth.depositWalletAddress">
+            <button
+              type="button"
+              class="wallet-modal-accordion__header"
+              id="wallet-deposit-accordion-btn"
+              [attr.aria-expanded]="depositSectionOpen"
+              aria-controls="wallet-deposit-accordion-body"
+              (click)="depositSectionOpen = !depositSectionOpen"
+            >
+              <span class="wallet-modal-accordion__title">Deposit Claimy</span>
+              <span class="wallet-modal-accordion__chev" [class.wallet-modal-accordion__chev--open]="depositSectionOpen" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="wallet-modal-accordion__body"
+              id="wallet-deposit-accordion-body"
+              role="region"
+              aria-labelledby="wallet-deposit-accordion-btn"
+              *ngIf="depositSectionOpen"
+            >
+              <div class="deposit-row deposit-row--flush-top">
+                <span class="deposit-label wallet-modal-section-heading">Claimy SPL token (mint)</span>
+                <p class="wallet-modal-mint-copy wallet-modal-mint-copy--center mb-2">
+                  Use this <strong>mint</strong> when sending Claimy SPL from Phantom or any wallet. SOL-only or other SPL
+                  tokens do not count toward credits.
+                </p>
+                <div class="wallet-modal-mint-center">
+                  <ng-container *ngIf="hasMintConfigured">
+                    <span class="deposit-value deposit-value--mono text-break wallet-modal-mint-address">{{
+                      config.claimySplMintAddress
+                    }}</span>
+                    <button
+                      type="button"
+                      class="wallet-modal-copy-ico"
+                      (click)="copyMintAddress()"
+                      [attr.aria-label]="copiedMint ? 'Copied' : 'Copy mint address'"
+                      [title]="copiedMint ? 'Copied' : 'Copy'"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    </button>
+                  </ng-container>
+                  <span class="deposit-value text-secondary" *ngIf="!hasMintConfigured">Not configured in app config</span>
+                </div>
+              </div>
+              <div class="deposit-row deposit-row--last">
+                <span class="deposit-label wallet-modal-section-heading">Your deposit address</span>
+                <p class="wallet-modal-mint-copy wallet-modal-mint-copy--center mb-2">
+                  Your <strong>custodial deposit address</strong> (unique to this account). Send Claimy SPL from the mint
+                  above; your credits update after the chain confirms.
+                </p>
+                <div class="wallet-modal-address-inline">
+                  <span class="deposit-value deposit-value--mono text-break">{{ walletAuth.depositWalletAddress }}</span>
+                  <button
+                    type="button"
+                    class="wallet-modal-copy-ico wallet-modal-copy-ico--deposit"
+                    (click)="copyDepositAddress()"
+                    [attr.aria-label]="copiedDeposit ? 'Copied' : 'Copy deposit address'"
+                    [title]="copiedDeposit ? 'Copied' : 'Copy'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="wallet-modal-accordion__panel deposit-panel wallet-modal-withdraw mt-2"
+            *ngIf="walletAuth.depositWalletAddress"
+          >
+            <button
+              type="button"
+              class="wallet-modal-accordion__header"
+              id="wallet-withdraw-accordion-btn"
+              [attr.aria-expanded]="withdrawSectionOpen"
+              aria-controls="wallet-withdraw-accordion-body"
+              (click)="withdrawSectionOpen = !withdrawSectionOpen"
+            >
+              <span class="wallet-modal-accordion__title">Withdraw Claimy</span>
+              <span class="wallet-modal-accordion__chev" [class.wallet-modal-accordion__chev--open]="withdrawSectionOpen" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="wallet-modal-accordion__body"
+              id="wallet-withdraw-accordion-body"
+              role="region"
+              aria-labelledby="wallet-withdraw-accordion-btn"
+              *ngIf="withdrawSectionOpen"
+            >
+              <p class="wallet-modal-mint-copy wallet-modal-mint-copy--center mb-2">
+                Sign with Phantom to withdraw. Tokens go <strong>to</strong> the wallet you registered with (verified
+                below). Claimy checks your account and signature on the server, then submits an on-chain transfer from the
+                <strong>vault</strong> — up to your Claimy Credits balance.
+              </p>
+              <p class="deposit-mint-hint mb-2" *ngIf="!hasMintConfigured">
+                Configure <code class="deposit-code">claimySplMintAddress</code> (and RPC) in
+                <code class="deposit-code">config.service.ts</code> to enable signed withdrawals and live credit balance.
+              </p>
+              <div class="wallet-modal-verify-block">
+                <span class="wallet-modal-verify-label">Registered Phantom (withdraw to)</span>
+                <div class="wallet-modal-verify-pubkey-wrap">
+                  <span class="deposit-value deposit-value--mono text-break wallet-modal-verify-pubkey">{{
+                    displayWithdrawDestination
+                  }}</span>
+                </div>
+                <div class="wallet-modal-verify-status">
+                  <p
+                    *ngIf="verifyingLinkedWallet && walletAuth.walletAddress"
+                    class="wallet-modal-verify-inline-checking mb-0"
+                  >
+                    Checking registration with Claimy…
+                  </p>
+                  <p
+                    *ngIf="
+                      !verifyingLinkedWallet &&
+                      linkedWalletUserVerified &&
+                      serverVerifiedRegistrationWallet &&
+                      linkedWalletMatchesSession
+                    "
+                    class="wallet-modal-verify-inline-success mb-0"
+                  >
+                    {{ verifyWithClaimySuccessMessage }}
+                  </p>
+                  <p
+                    *ngIf="!verifyingLinkedWallet && !linkedWalletUserVerified && walletAuth.walletAddress"
+                    class="wallet-modal-verify-inline-warn mb-0"
+                  >
+                    <span class="wallet-modal-verify-inline-warn-prefix">Couldn’t confirm — </span>
+                    <button
+                      type="button"
+                      class="wallet-modal-verify-tap"
+                      (click)="refreshLinkedWallet(true)"
+                      [disabled]="verifyingLinkedWallet"
+                    >
+                      Retry
+                    </button>
+                  </p>
+                </div>
+              </div>
+              <p class="wallet-modal-verify-hint text-danger small mb-2" *ngIf="linkedWalletError">{{ linkedWalletError }}</p>
+              <p class="wallet-modal-verify-hint small mb-2 text-warning" *ngIf="serverVerifiedRegistrationWallet && !linkedWalletMatchesSession">
+                Session wallet does not match verified record. Sign out and use your registered Phantom account.
+              </p>
+              <div class="wallet-modal-withdraw-actions">
+                <label class="form-label wallet-modal-withdraw-label mb-1">Amount (Claimy SPL)</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm wallet-modal-withdraw-input mb-2"
+                  [(ngModel)]="withdrawAmount"
+                  name="withdrawAmt"
+                  placeholder="e.g. 10"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  [disabled]="!hasMintConfigured"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary text-uppercase fw-bold wallet-modal-withdraw-cta"
+                  (click)="signAndSubmitWithdraw()"
+                  [disabled]="withdrawBusy || verifyingLinkedWallet || !linkedWalletMatchesSession || !hasMintConfigured"
+                >
+                  {{ withdrawBusy ? 'Signing…' : 'Sign & request withdraw' }}
+                </button>
+              </div>
+              <p class="deposit-mint-hint deposit-mint-hint--center mb-0 mt-2">
+                After you sign, Claimy builds the vault withdrawal on the server. You need a Claimy token account on Phantom
+                (usually created the first time you receive the token). If the vault pipeline is not fully live yet, you may
+                see an informational response instead of a completed transfer.
+              </p>
+            </div>
+          </div>
+
+          <div class="wallet-modal-accordion__panel deposit-panel wallet-modal-history mt-2">
+            <button
+              type="button"
+              class="wallet-modal-accordion__header"
+              id="wallet-history-accordion-btn"
+              [attr.aria-expanded]="historySectionOpen"
+              aria-controls="wallet-history-accordion-body"
+              (click)="toggleHistorySection()"
+            >
+              <span class="wallet-modal-accordion__title">Claimy transaction history</span>
+              <span class="wallet-modal-accordion__chev" [class.wallet-modal-accordion__chev--open]="historySectionOpen" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="wallet-modal-accordion__body"
+              id="wallet-history-accordion-body"
+              role="region"
+              aria-labelledby="wallet-history-accordion-btn"
+              *ngIf="historySectionOpen"
+            >
+              <p class="wallet-modal-mint-copy wallet-modal-mint-copy--center mb-2">
+                Credits ledger (deposits, withdrawals, syncs, and other balance changes). Filter by direction; data is stored on
+                Claimy.
+              </p>
+              <div class="wallet-modal-ledger-filters mb-2" role="group" aria-label="Filter transactions">
+                <button
+                  type="button"
+                  class="btn btn-sm wallet-modal-ledger-filter"
+                  [class.wallet-modal-ledger-filter--active]="ledgerDirection === 'all'"
+                  (click)="setLedgerDirection('all')"
+                >
+                  All
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm wallet-modal-ledger-filter"
+                  [class.wallet-modal-ledger-filter--active]="ledgerDirection === 'incoming'"
+                  (click)="setLedgerDirection('incoming')"
+                >
+                  Incoming
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm wallet-modal-ledger-filter"
+                  [class.wallet-modal-ledger-filter--active]="ledgerDirection === 'outgoing'"
+                  (click)="setLedgerDirection('outgoing')"
+                >
+                  Outgoing
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary wallet-modal-ledger-refresh"
+                  (click)="loadLedger()"
+                  [disabled]="loadingLedger"
+                  title="Refresh"
+                >
+                  {{ loadingLedger ? '…' : 'Refresh' }}
+                </button>
+              </div>
+              <div class="wallet-modal-ledger-table-wrap" *ngIf="!loadingLedger && ledgerEntries.length > 0">
+                <table class="wallet-modal-ledger-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">When</th>
+                      <th scope="col">Type</th>
+                      <th scope="col">Δ</th>
+                      <th scope="col">Balance</th>
+                      <th scope="col">Ref</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let row of ledgerEntries">
+                      <td class="wallet-modal-ledger__when">{{ row.created_at | date : 'medium' }}</td>
+                      <td>{{ entryTypeLabel(row.entry_type) }}</td>
+                      <td
+                        class="wallet-modal-ledger__delta"
+                        [class.wallet-modal-ledger__delta--in]="numDelta(row.amount_delta) > 0"
+                        [class.wallet-modal-ledger__delta--out]="numDelta(row.amount_delta) < 0"
+                      >
+                        {{ numDelta(row.amount_delta) >= 0 ? '+' : ''
+                        }}{{ numDelta(row.amount_delta) | number : '1.0-8' }}
+                      </td>
+                      <td>{{ numDelta(row.balance_after) | number : '1.0-8' }}</td>
+                      <td class="wallet-modal-ledger__ref">
+                        <a
+                          *ngIf="solscanTxUrl(row.ref) as u"
+                          [href]="u"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="wallet-modal-ledger-tx-link"
+                          >Tx</a>
+                        <span *ngIf="!solscanTxUrl(row.ref)" class="text-secondary text-break">{{
+                          row.ref || '—'
+                        }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="deposit-mint-hint mb-0 text-center" *ngIf="!loadingLedger && ledgerEntries.length === 0">
+                No ledger entries yet for this filter.
+              </p>
+              <p class="deposit-mint-hint mb-0 text-center" *ngIf="loadingLedger">Loading history…</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="deposit-panel deposit-panel--warn" *ngIf="!walletAuth.depositWalletAddress">
+          <p class="mb-0 text-center">
+            No custodial deposit address yet. Complete registration (or re-register after a DB reset) so Claimy can
+            assign your deposit wallet.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div
+    *ngIf="toast as t"
+    class="wallet-modal-toast"
+    [class.wallet-modal-toast--error]="t.type === 'error'"
+    [class.wallet-modal-toast--success]="t.type === 'success'"
+    [class.wallet-modal-toast--info]="t.type === 'info'"
+    role="status"
+  >
+    <span class="wallet-modal-toast__text">{{ t.text }}</span>
+    <button type="button" class="wallet-modal-toast__close" aria-label="Dismiss" (click)="dismissToast()">×</button>
+  </div>
+</div>

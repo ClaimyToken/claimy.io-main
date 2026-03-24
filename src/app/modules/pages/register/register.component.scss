@@ -1,0 +1,405 @@
+.register-page-header {
+  padding: 0.75rem 1rem;
+}
+
+.register-page-title {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.register-card .card-body {
+  font-size: 0.875rem;
+}
+
+.register-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.register-lead {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--bs-secondary-color);
+}
+
+.register-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.35rem;
+}
+
+.register-input {
+  font-size: 0.8125rem;
+}
+
+/* Same surface as card; emphasis only on border + SECURITY label */
+.register-security-note {
+  border: 1px solid rgba(var(--bs-danger-rgb), 0.55);
+  border-radius: 0.375rem;
+  padding: 0.85rem 1.15rem;
+  background: var(--bs-card-bg);
+  max-width: 40rem;
+}
+
+.register-security-note__label {
+  color: var(--bs-danger);
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.register-security-note__text {
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--bs-body-color);
+  opacity: 0.92;
+}
+
+.register-security-note__link-line {
+  font-size: 0.75rem;
+}
+
+.register-security-doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: rgba(var(--bs-danger-rgb), 0.95);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--bs-danger);
+  }
+
+  &:hover .register-security-doc-link__text {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-danger-rgb), 0.45);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.register-security-doc-link__icon {
+  font-size: 1rem;
+  line-height: 1;
+  width: 1em;
+  height: 1em;
+}
+
+.register-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.flow-step {
+  border-radius: 0.375rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(var(--bs-border-color-rgb), 0.45);
+  background-color: var(--bs-dark);
+  text-align: center;
+}
+
+.flow-step__title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-body-color);
+  margin-bottom: 0.35rem;
+}
+
+.flow-step__hint {
+  font-size: 0.72rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.45;
+}
+
+.flow-step--locked {
+  border: 2px dashed rgba(var(--bs-danger-rgb), 0.55);
+  background-color: var(--bs-dark);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(var(--bs-danger-rgb), 0.08),
+    rgba(var(--bs-danger-rgb), 0.08) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+.flow-step--locked .flow-step__title,
+.flow-step--locked .flow-step__hint {
+  text-decoration: line-through;
+  color: rgba(var(--bs-danger-rgb), 0.9);
+}
+
+.flow-step--locked .flow-step__hint {
+  opacity: 0.85;
+}
+
+.flow-step--active:not(.flow-step--locked) {
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.55);
+  box-shadow: 0 0 0 1px rgba(var(--bs-primary-rgb), 0.12);
+}
+
+.flow-step--done:not(.flow-step--locked) {
+  border: 1px solid rgba(var(--bs-success-rgb), 0.45);
+}
+
+.flow-step--done:not(.flow-step--locked) .flow-step__title {
+  color: rgba(var(--bs-success-rgb), 0.95);
+  text-decoration: none;
+}
+
+.register-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 14rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.register-btn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.75rem;
+}
+
+.register-btn--with-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.register-btn__spinner {
+  flex-shrink: 0;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  animation: register-btn-spin 0.65s linear infinite;
+}
+
+.register-btn.btn-primary .register-btn__spinner {
+  border-color: rgba(0, 0, 0, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.95);
+}
+
+@keyframes register-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.register-wallet {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.register-actions--stack {
+  margin-top: 0.15rem;
+}
+
+.register-sig--static {
+  min-height: 3.25rem;
+  text-align: left;
+}
+
+.register-sig .register-label {
+  margin-bottom: 0.25rem;
+}
+
+.register-sig-value {
+  font-size: 0.65rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.register-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1060;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  box-shadow: 0 0.35rem 1.25rem rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.register-toast__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.register-toast__close {
+  flex-shrink: 0;
+  margin: -0.15rem -0.1rem 0 0;
+  padding: 0 0.2rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  opacity: 0.7;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.register-toast--error {
+  background: rgba(114, 28, 36, 0.95);
+  color: #f8d7da;
+}
+
+.register-toast--info {
+  background: rgba(12, 84, 96, 0.95);
+  color: #d1ecf1;
+}
+
+.register-toast--success {
+  background: rgba(21, 87, 36, 0.95);
+  color: #d4edda;
+}
+
+.register-success-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1055;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.register-success-modal__card {
+  position: relative;
+  width: min(32rem, 100%);
+  border: 2px solid rgba(var(--bs-primary-rgb), 0.85);
+  border-radius: 0.5rem;
+  background-color: var(--bs-dark);
+  background-image: none;
+  padding: 1.25rem 2.75rem 1.25rem 1.25rem;
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.35);
+}
+
+.register-success-modal__dismiss {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  margin: 0;
+  padding: 0.1rem 0.4rem;
+  border: none;
+  background: transparent;
+  color: var(--bs-danger);
+  font-size: 1.65rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.95;
+
+  &:hover {
+    opacity: 1;
+    color: #ff6b7a;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-danger-rgb), 0.6);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.register-success-modal__eyebrow {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(var(--bs-success-rgb), 0.95);
+  font-weight: 700;
+}
+
+.register-success-modal__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
+}
+
+.register-success-modal__text {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.5;
+}
+
+.register-success-modal__meta {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.375rem;
+  padding: 0.7rem 0.75rem;
+  background-color: var(--bs-light);
+  background-image: none;
+}
+
+.register-success-modal__label {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  font-weight: 700;
+}
+
+.register-success-modal__value {
+  font-size: 0.72rem;
+  color: var(--bs-body-color);
+  opacity: 1;
+}
+
+.register-success-modal__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.register-success-modal__btn {
+  min-width: 8rem;
+}
+
+.register-success-modal__copy-btn {
+  min-width: 7.5rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 575.98px) {
+  .register-actions {
+    max-width: none;
+  }
+}

@@ -21,25 +21,25 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { NgxTypedJsModule } from 'ngx-typed-js';
 
 import { NavigationComponent } from './modules/global/navigation/navigation.component';
-import { DashboardComponent } from './modules/pages/dashboard/dashboard.component';
 import { ShortenAddressPipe } from './pipes/shorten-address.pipe';
-import { FormatNumberPipe } from './pipes/format-number.pipe';
-import { CurrencyFormatPipe } from './pipes/currency-format.pipe';
-import { NgChartsModule } from 'ng2-charts';
 import { FooterComponent } from './modules/global/footer/footer.component';
 import { HomeComponent } from './modules/pages/home/home.component';
-import { SocialsComponent } from './modules/global/socials/socials.component';
-import { TotalValueChartComponent } from './modules/dashboard-sections/total-value-chart/total-value-chart.component';
 import { GasNavComponent } from './modules/global/gas-nav/gas-nav.component';
-import { TokenStatsComponent } from './modules/dashboard-sections/token-stats/token-stats.component';
-import { CalculatorComponent } from './modules/dashboard-sections/calculator/calculator.component';
-import { HoldingsComponent } from './modules/dashboard-sections/holdings/holdings.component';
-import { MintNftComponent } from './modules/dashboard-sections/mint-nft/mint-nft.component';
-import { MintNftPopupComponent } from './modules/dashboard-sections/mint-nft-popup/mint-nft-popup.component';
-import { ConnectWalletPopupComponent } from './modules/dashboard-sections/connect-wallet-popup/connect-wallet-popup.component';
 import { TermsComponent } from './modules/pages/terms/terms.component';
 import { PrivacyComponent } from './modules/pages/privacy/privacy.component';
 import { LandingComponent } from './modules/pages/landing/landing.component';
+import { RegisterComponent } from './modules/pages/register/register.component';
+import { LoginComponent } from './modules/pages/login/login.component';
+import { AccountSettingsComponent } from './modules/pages/account-settings/account-settings.component';
+import { ReferralRankingComponent } from './modules/pages/referral-ranking/referral-ranking.component';
+import { ClaimyTokenComponent } from './modules/pages/claimy-token/claimy-token.component';
+import { DevelopersPageComponent } from './modules/pages/developers-page/developers-page.component';
+import { PlayhouseComponent } from './modules/pages/playhouse/playhouse.component';
+import { FlowerpokerComponent } from './modules/pages/flowerpoker/flowerpoker.component';
+import { BlackjackComponent } from './modules/pages/blackjack/blackjack.component';
+import { DiceComponent } from './modules/pages/dice/dice.component';
+import { HiLowComponent } from './modules/pages/hi-low/hi-low.component';
+import { WalletDepositModalComponent } from './modules/global/wallet-deposit-modal/wallet-deposit-modal.component';
 import { BlankLayoutRouterComponent } from './modules/layouts/blank-layout-router/blank-layout-router.component';
 import { MainLayoutRouterComponent } from './modules/layouts/main-layout-router/main-layout-router.component';
 
@@ -48,24 +48,25 @@ import { MainLayoutRouterComponent } from './modules/layouts/main-layout-router/
   declarations: [
     AppComponent,
     NavigationComponent,
-    DashboardComponent,
     ShortenAddressPipe,
-    FormatNumberPipe,
-    CurrencyFormatPipe,
-    TotalValueChartComponent,
     FooterComponent,
     HomeComponent,
-    SocialsComponent,
     GasNavComponent,
-    TokenStatsComponent,
-    CalculatorComponent,
-    HoldingsComponent,
-    MintNftComponent,
-    MintNftPopupComponent,
-    ConnectWalletPopupComponent,
     TermsComponent,
     PrivacyComponent,
     LandingComponent,
+    RegisterComponent,
+    LoginComponent,
+    AccountSettingsComponent,
+    ReferralRankingComponent,
+    ClaimyTokenComponent,
+    DevelopersPageComponent,
+    PlayhouseComponent,
+    FlowerpokerComponent,
+    BlackjackComponent,
+    DiceComponent,
+    HiLowComponent,
+    WalletDepositModalComponent,
     BlankLayoutRouterComponent,
     MainLayoutRouterComponent
   ],
@@ -85,7 +86,6 @@ import { MainLayoutRouterComponent } from './modules/layouts/main-layout-router/
     MatSelectModule,
     NgxTypedJsModule,
     ClipboardModule,
-    NgChartsModule,
     MatProgressBarModule,
     MatDialogModule,
     MatTooltipModule

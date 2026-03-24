@@ -1,0 +1,283 @@
+<header class="playhouse-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="playhouse-title text-center mb-0">
+    <ngx-typed-js [strings]="['THE PLAYHOUSE']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
+      <span class="typing"></span>
+    </ngx-typed-js>
+  </h1>
+</header>
+
+<div class="c-playhouse-page">
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <div class="card playhouse-card playhouse-card--hero">
+        <div class="card-body p-3 p-lg-5">
+          <h2 class="playhouse-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">
+            Casino energy, Claimy style
+          </h2>
+          <p class="playhouse-body mb-3">
+            Welcome to <strong>The Playhouse</strong>: our online casino-style hub designed around Claimy credits and
+            on-chain-friendly flows. This page sets the theme and game lineup while mechanics are finalized.
+          </p>
+          <p class="playhouse-body mb-0">
+            We are launching focused and polished with <strong>four core games</strong> first, then expanding once each
+            mode is fully tested and balanced.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <h2 class="playhouse-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">
+        Initial game lineup
+      </h2>
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 col-xl-3" *ngFor="let game of games">
+          <article class="playhouse-game h-100">
+            <h3 class="playhouse-game__title">{{ game.title }}</h3>
+            <p class="playhouse-game__body mb-3">{{ game.blurb }}</p>
+            <button type="button" class="playhouse-game__cta w-100" [routerLink]="game.route">
+              Play {{ game.title }} now!
+            </button>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-5">
+    <div class="col-12 col-xl-11">
+      <div class="card playhouse-card">
+        <div class="card-body p-3 p-lg-4">
+          <div class="playhouse-console-head mb-3 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h2 class="playhouse-section-title text-primary mb-0 text-uppercase fw-semibold c-text-glow">
+                Recent bets
+              </h2>
+              <span class="playhouse-live-pill" aria-label="Live bet feed">
+                <span class="playhouse-live-pill__dot" aria-hidden="true"></span>
+                LIVE
+              </span>
+            </div>
+            <div class="playhouse-console-filters ms-lg-auto" *ngIf="walletAuth.isLoggedIn">
+              <div class="form-check form-check-inline mb-0">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="playhouseMyBets"
+                  [(ngModel)]="myBetsOnly"
+                  (change)="onMyBetsToggle()"
+                  [disabled]="betsLoading"
+                />
+                <label class="form-check-label small" for="playhouseMyBets">My bets only</label>
+              </div>
+            </div>
+          </div>
+
+          <p class="playhouse-console-subtext mb-3">
+            Settled Flowerpoker rounds from the database (all players). Open <strong>Provably Fair</strong>
+            for seeds, hands, and browser verification.
+          </p>
+
+          <div class="alert alert-warning py-2 px-3 small mb-3" *ngIf="betsError">{{ betsError }}</div>
+
+          <div class="playhouse-console-wrap position-relative">
+            <div class="playhouse-console-loading" *ngIf="betsLoading" aria-busy="true">
+              <span class="playhouse-console-loading__spinner" aria-hidden="true"></span>
+              <span>Loading bets…</span>
+            </div>
+            <div class="table-responsive" [class.playhouse-console-wrap--dim]="betsLoading">
+              <table class="table table-sm playhouse-console-table mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col">Player</th>
+                    <th scope="col">Game</th>
+                    <th scope="col">Result</th>
+                    <th scope="col">Stake</th>
+                    <th scope="col">Payout</th>
+                    <th scope="col">Settled (UTC)</th>
+                    <th scope="col">Provably Fair</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="!betsLoading && bets.length === 0 && !betsError">
+                    <td colspan="7" class="text-center text-secondary py-4 small">
+                      No settled Flowerpoker bets yet — be the first to finish a round.
+                    </td>
+                  </tr>
+                  <tr *ngFor="let bet of bets">
+                    <td class="text-break">{{ bet.username || '—' }}</td>
+                    <td>{{ gameLabel(bet.gameKey) }}</td>
+                    <td
+                      [class.playhouse-console-table__result--win]="resultLabel(bet) === 'Win'"
+                      [class.playhouse-console-table__result--loss]="resultLabel(bet) === 'Loss'"
+                      [class.playhouse-console-table__result--tie]="resultLabel(bet) === 'Tie'"
+                    >
+                      {{ resultLabel(bet) }}
+                    </td>
+                    <td>{{ formatClaimy(bet.stakeAmount) }}</td>
+                    <td>{{ formatClaimy(bet.payoutAmount) }}</td>
+                    <td class="text-nowrap small">{{ bet.settledAt | date : 'medium' }}</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="playhouse-console-table__fair-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#playhouseProvablyFairModal"
+                        (click)="openProvablyFair(bet)"
+                      >
+                        Provably Fair
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <nav
+            class="playhouse-pager d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3"
+            *ngIf="!betsLoading && total > 0"
+            aria-label="Bet history pages"
+          >
+            <span class="playhouse-pager__meta small text-secondary">
+              {{ total }} bet<span *ngIf="total !== 1">s</span>
+              · Page {{ page }} / {{ totalPages }}
+            </span>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="goPrev()"
+                [disabled]="betsLoading || page <= 1"
+              >
+                Previous
+              </button>
+              <div class="d-flex align-items-center gap-1">
+                <label class="small mb-0 text-secondary" for="playhousePageInput">Go to</label>
+                <input
+                  id="playhousePageInput"
+                  type="number"
+                  min="1"
+                  class="form-control form-control-sm playhouse-pager__input"
+                  [(ngModel)]="pageInput"
+                  [disabled]="betsLoading"
+                />
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="goToPageInput()" [disabled]="betsLoading">
+                  Go
+                </button>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="goNext()"
+                [disabled]="betsLoading || page >= totalPages"
+              >
+                Next
+              </button>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="playhouseProvablyFairModal"
+  tabindex="-1"
+  aria-labelledby="playhouseProvablyFairModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content playhouse-fair-modal">
+      <div class="modal-header border-secondary-subtle">
+        <h2 class="modal-title fs-6 text-uppercase fw-semibold text-primary" id="playhouseProvablyFairModalLabel">
+          Provably fair
+        </h2>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          (click)="onFairModalHidden()"
+        ></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedBet as bet">
+        <p class="mb-2 small text-secondary text-uppercase fw-semibold">Bet snapshot</p>
+        <ul class="playhouse-fair-modal__meta list-unstyled mb-3">
+          <li><span>Player:</span> {{ bet.username || '—' }}</li>
+          <li><span>Game:</span> {{ gameLabel(bet.gameKey) }}</li>
+          <li><span>Winner:</span> {{ bet.winner }}</li>
+          <li><span>Your result:</span> {{ resultLabel(bet) }}</li>
+          <li><span>Hands:</span> {{ bet.playerHand || '—' }} vs {{ bet.houseHand || '—' }}</li>
+          <li><span>Stake:</span> {{ formatClaimy(bet.stakeAmount) }}</li>
+          <li><span>Payout:</span> {{ formatClaimy(bet.payoutAmount) }}</li>
+          <li><span>Settled:</span> {{ bet.settledAt | date : 'medium' }}</li>
+          <li><span>Game id:</span> <span class="playhouse-fair-modal__mono">{{ bet.id }}</span></li>
+        </ul>
+
+        <ng-container *ngIf="fairSnapshotForSelected as fs">
+          <p class="mb-2 small text-secondary text-uppercase fw-semibold">Fairness fields</p>
+          <ul class="playhouse-fair-modal__meta list-unstyled mb-3">
+            <li><span>Server seed hash:</span> <span class="playhouse-fair-modal__mono">{{ fs.serverSeedHash }}</span></li>
+            <li><span>Client seed:</span> <span class="playhouse-fair-modal__mono">{{ fs.clientSeed }}</span></li>
+            <li><span>Sub-round:</span> {{ fs.subRoundIndex ?? '—' }}</li>
+            <li><span>Roll digest:</span> <span class="playhouse-fair-modal__mono">{{ fs.rollDigest }}</span></li>
+            <li>
+              <span>Server seed (revealed):</span>
+              <span class="playhouse-fair-modal__mono playhouse-fair-modal__mono--wrap">{{
+                fs.serverSeedReveal || '—'
+              }}</span>
+            </li>
+          </ul>
+        </ng-container>
+
+        <div class="d-flex flex-wrap gap-2 mb-3" *ngIf="canVerifySelected()">
+          <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            (click)="runVerify()"
+            [disabled]="verifying"
+          >
+            {{ verifying ? 'Verifying…' : 'Verify in browser' }}
+          </button>
+        </div>
+        <p class="small text-secondary mb-2" *ngIf="!canVerifySelected() && bet.fairSnapshot">
+          Verification needs a revealed server seed and full flower rows (older rows may be incomplete).
+        </p>
+
+        <div class="playhouse-verify-report" *ngIf="verifyReport as rep">
+          <p class="playhouse-verify-summary mb-2" [class.text-success]="rep.ok" [class.text-danger]="!rep.ok" *ngIf="rep.summary">
+            {{ rep.summary }}
+          </p>
+          <div class="playhouse-verify-block" *ngFor="let c of rep.comparisons">
+            <div class="playhouse-verify-block-head">
+              <span class="playhouse-verify-block-title">{{ c.title }}</span>
+              <span
+                class="playhouse-verify-badge"
+                [class.playhouse-verify-badge--ok]="c.match"
+                [class.playhouse-verify-badge--bad]="!c.match"
+              >
+                {{ c.match ? 'Match' : 'Mismatch' }}
+              </span>
+            </div>
+            <div class="playhouse-verify-compare">
+              <div class="playhouse-verify-col">
+                <span class="playhouse-verify-cap">{{ c.leftCaption }}</span>
+                <pre class="playhouse-verify-pre">{{ c.leftValue }}</pre>
+              </div>
+              <div class="playhouse-verify-col">
+                <span class="playhouse-verify-cap">{{ c.rightCaption }}</span>
+                <pre class="playhouse-verify-pre">{{ c.rightValue }}</pre>
+              </div>
+            </div>
+            <p class="playhouse-verify-detail mb-0" *ngIf="c.detail">{{ c.detail }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

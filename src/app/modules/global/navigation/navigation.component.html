@@ -1,57 +1,178 @@
-<nav class="navbar navbar-expand-lg bg-body border-bottom border-primary py-3">
-    <div class="container">
+<nav class="navbar bg-body border-bottom border-primary py-3">
+    <div class="container nav-shell">
+        <!-- Mobile: credits full width above row -->
+        <ng-container *ngIf="walletAuth.isLoggedIn && hasMintConfigured">
+            <div class="nav-shell__credits-mobile d-lg-none w-100 text-center mb-2 px-1">
+                <ng-container *ngTemplateOutlet="creditsChipTpl"></ng-container>
+            </div>
+        </ng-container>
 
+        <div class="nav-shell__grid">
+            <div class="nav-shell__col nav-shell__col--left">
+                <div class="nav-left-actions">
+                    <div class="dropdown nav-site-menu">
+                        <button
+                            type="button"
+                            class="btn nav-site-menu__toggle dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            data-bs-display="static"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            aria-label="Open site menu"
+                        >
+                            <span class="material-icons nav-site-menu__icon" aria-hidden="true">menu</span>
+                            <span class="nav-site-menu__label">Menu</span>
+                        </button>
+                        <ul class="dropdown-menu nav-site-menu__panel shadow">
+                            <li>
+                                <a
+                                    routerLink="/home"
+                                    routerLinkActive="active"
+                                    [routerLinkActiveOptions]="{ exact: true }"
+                                    class="dropdown-item nav-site-menu__item d-flex align-items-center gap-2"
+                                >
+                                    <span class="material-icons nav-site-menu__item-icon" aria-hidden="true">home</span>
+                                    Home
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    routerLink="/referrals"
+                                    routerLinkActive="active"
+                                    class="dropdown-item nav-site-menu__item d-flex align-items-center gap-2"
+                                >
+                                    <span class="material-icons nav-site-menu__item-icon" aria-hidden="true">groups</span>
+                                    Referrals
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    routerLink="/developers"
+                                    routerLinkActive="active"
+                                    class="dropdown-item nav-site-menu__item d-flex align-items-center gap-2"
+                                >
+                                    <span class="material-icons nav-site-menu__item-icon" aria-hidden="true">terminal</span>
+                                    For developers
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    class="dropdown-item nav-site-menu__item d-flex align-items-center gap-2"
+                                    href="{{ configService.githubLink }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <span class="material-icons nav-site-menu__item-icon" aria-hidden="true">code</span>
+                                    GitHub
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    routerLink="/claimy-token"
+                                    routerLinkActive="active"
+                                    class="dropdown-item nav-site-menu__item d-flex align-items-center gap-2"
+                                >
+                                    <span class="material-icons nav-site-menu__item-icon" aria-hidden="true">monetization_on</span>
+                                    The Claimy Token
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <a routerLink="/playhouse" routerLinkActive="active" class="btn nav-playhouse-btn text-uppercase fw-bold">
+                        <span class="nav-playhouse-btn__label">The Playhouse</span>
+                    </a>
+                </div>
+            </div>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link link-offset-3" routerLink="/home" routerLinkActive="active"
-                        ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{exact: true}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-offset-3" routerLink="/dashboard" routerLinkActive="active">Dashboard &
-                        Statistics</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-offset-3" href="{{ configService.githubLink }}" target="_blank">Git
-                        Documentation</a>
-                </li>
-            </ul>
+            <!-- Desktop: true center of header (grid column 2); empty when not logged / no mint -->
+            <div
+                class="nav-shell__col nav-shell__col--center d-none d-lg-flex justify-content-center align-items-center min-w-0"
+            >
+                <ng-container *ngIf="walletAuth.isLoggedIn && hasMintConfigured">
+                    <ng-container *ngTemplateOutlet="creditsChipTpl"></ng-container>
+                </ng-container>
+            </div>
 
+            <div class="nav-shell__col nav-shell__col--right d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end nav-auth">
+                <ng-container *ngIf="!walletAuth.isLoggedIn">
+                    <a routerLink="/login" class="btn btn-outline-secondary py-2 px-3 text-uppercase fw-bold">Login</a>
+                    <a routerLink="/register" class="btn btn-primary py-2 px-4 text-uppercase fw-bold">Register now</a>
+                </ng-container>
 
+                <button
+                    *ngIf="walletAuth.isLoggedIn"
+                    type="button"
+                    class="btn nav-wallet-btn text-uppercase fw-bold"
+                    data-bs-toggle="modal"
+                    data-bs-target="#claimyWalletModal"
+                    aria-label="Your wallet"
+                >
+                    Your wallet
+                </button>
+
+                <div class="dropdown nav-account" *ngIf="walletAuth.isLoggedIn">
+                    <button
+                        type="button"
+                        class="btn nav-account__toggle dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        data-bs-display="static"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        [attr.aria-label]="'Account menu for ' + (walletAuth.username || 'user')"
+                    >
+                        <span class="nav-account__avatar" aria-hidden="true">{{
+                            accountInitial(walletAuth.username)
+                        }}</span>
+                        <span class="nav-account__meta">
+                            <span class="nav-account__label">Signed in</span>
+                            <span class="nav-account__name">{{ walletAuth.username }}</span>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end nav-account__menu shadow">
+                        <li class="px-3 py-2 nav-account__menu-head">
+                            <span class="nav-account__menu-label">Account</span>
+                            <span class="nav-account__menu-name text-break">{{ walletAuth.username }}</span>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider nav-account__divider" />
+                        </li>
+                        <li>
+                            <a routerLink="/account-settings" class="dropdown-item nav-account__item"
+                                >Account settings</a
+                            >
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider nav-account__divider" />
+                        </li>
+                        <li>
+                            <button
+                                type="button"
+                                class="dropdown-item nav-account__item nav-account__item--logout"
+                                (click)="logout()"
+                            >
+                                Log out
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <app-gas-nav [showEthPrice]="false"></app-gas-nav>
-        <div class="d-flex flex-row align-items-center mx-3 gap-1">
-            <a href="{{ configService.twitterLink }}" target=" _blank"
-                class="btn btn-outline-secondary rounded-circle p-2 d-inline-flex align-items-center justify-content-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32">
-                    <g fill="currentColor">
-                        <polygon points="14.457 20.202 5.876 30 1.123 30 12.237 17.304 14.457 20.202"></polygon>
-                        <polygon points="17.051 10.988 24.908 2 29.658 2 19.251 13.902 17.051 10.988"></polygon>
-                        <path
-                            d="M31.488,30h-9.559L.512,2H10.313L31.488,30Zm-8.248-2.843h2.632L8.883,4.694h-2.824L23.241,27.157Z">
-                        </path>
-                    </g>
-                </svg>
-
-            </a>
-            <a href="{{ configService.telegramLink }}" target=" _blank"
-                class="btn btn-outline-secondary rounded-circle p-2 d-inline-flex align-items-center justify-content-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                    <g fill="currentColor">
-                        <path
-                            d="M15.968,1.684a.338.338,0,0,0-.232-.253,1.192,1.192,0,0,0-.63.045S1.087,6.514.286,7.072c-.172.121-.23.19-.259.272-.138.4.293.573.293.573L3.933,9.094a.388.388,0,0,0,.183-.011c.822-.519,8.27-5.222,8.7-5.38.068-.02.118,0,.1.049-.172.6-6.606,6.319-6.641,6.354a.138.138,0,0,0-.049.118l-.337,3.528s-.142,1.1.956,0c.779-.779,1.527-1.425,1.9-1.738,1.242.858,2.579,1.806,3.156,2.3a1,1,0,0,0,.732.283.825.825,0,0,0,.7-.622S15.894,3.7,15.979,2.317C15.987,2.182,16,2.1,16,2A1.177,1.177,0,0,0,15.968,1.684Z">
-                        </path>
-                    </g>
-                </svg>
-            </a>
-        </div>
-
-        <a href="https://app.uniswap.org/tokens/ethereum/{{ configService.TokenContractAddress }}" target="_blank"
-            rel="noreferrer noopener" class="btn btn-primary py-2 px-4 text-uppercase fw-bold">Buy $Claimy</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
     </div>
 </nav>
+
+<ng-template #creditsChipTpl>
+    <div class="nav-credits-chip" role="status" aria-live="polite">
+        <span class="material-icons nav-credits-chip__icon" aria-hidden="true">account_balance_wallet</span>
+        <span class="nav-credits-chip__copy">
+            <span class="nav-credits-chip__label">Claimy Credits:</span>
+            <span class="nav-credits-chip__value">
+                <ng-container *ngIf="walletAuth.claimyCreditsBalance !== null; else creditsDashTpl">
+                    {{ walletAuth.claimyCreditsBalance | number : '1.0-8' }}
+                </ng-container>
+                <ng-template #creditsDashTpl>—</ng-template>
+            </span>
+        </span>
+    </div>
+</ng-template>
+
+<app-wallet-deposit-modal></app-wallet-deposit-modal>

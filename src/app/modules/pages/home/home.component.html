@@ -2,66 +2,97 @@
     class="border-primary border p-4 p-md-5 rounded-4 c-home-header d-flex flex-column flex-md-row align-items-center justify-content-between mb-4 mb-lg-5">
     <div class="d-flex flex-column my-5">
 
-        <h1 class="fw-bolder">
-            <ngx-typed-js [strings]="['A NEW FRONTIER.']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
-                <span class="typing"></span>
-            </ngx-typed-js>
-        </h1>
+        <div class="c-home-hero-title-slot">
+            <h1 class="fw-bolder mb-0">
+                <ngx-typed-js [strings]="['A DECENTRALIZED PLAYHOUSE.']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
+                    <span class="typing"></span>
+                </ngx-typed-js>
+            </h1>
+        </div>
         <div class="d-flex flex-column flex-xl-row text-uppercase">
-            <p class="h5 mb-0 fw-bold me-2">Ready to claim your spot?</p>
-            <a href="/dashboard" class="h5 text-decoration-underline link-offset-3 mb-0 fw-bold">LEARN MORE</a>
+            <p class="c-home-hero-tagline mb-0 fw-semibold me-2">
+                Your turn at the table.
+                <a routerLink="/playhouse" class="c-home-hero-tagline__play">play now.</a>
+            </p>
+        </div>
+        <div class="c-home-token-strip mt-3" *ngIf="config.claimyTokenMint as mint">
+            <span class="c-home-token-strip__label">$CLAIMY Token:</span>
+            <span class="c-home-token-strip__addr">{{ mint | shortenAddress }}</span>
+            <button
+                type="button"
+                class="c-home-token-strip__copy"
+                (click)="copyTokenAddress()"
+                aria-label="Copy token address"
+            >
+                <span class="material-icons" aria-hidden="true">content_copy</span>
+            </button>
         </div>
 
     </div>
     <div class="c-home-header__clip-container h-100 w-auto overflow-hidden">
-        <video src="./assets/header-clip.mp4" class="c-home-header__clip h-100 w-100 object-fit-cover" autoplay
-            loop></video>
+        <video
+            src="./assets/header-clip.mp4"
+            class="c-home-header__clip h-100 w-100 object-fit-cover"
+            autoplay
+            muted
+            playsinline
+            loop
+            aria-hidden="true"></video>
     </div>
 
 
 </header>
 
-<div class="row justify-content-between align-items-center  gy-2 gy-lg-0">
-    <div class="col-12 col-lg-6 col-xl-5">
-        <app-socials />
-    </div>
-    <div class="col-12 col-lg-6 col-xl-5">
-        <p class="mb-0">Explore the frontier of decentralized finance with CLAIMY, the ERC20 token engineered for
-            precision and periodicity.</p>
+<div class="c-home-below-hero">
+
+<div class="row justify-content-center mb-4 mb-lg-5">
+    <div class="col-12 col-xl-10">
+        <section class="c-home-content-block">
+            <h2 class="c-home-block-heading text-primary text-uppercase fw-semibold c-text-glow">What is Claimy?</h2>
+            <p class="c-home-block-text mb-3">
+                Claimy is a <strong>decentralized Playhouse</strong> on Solana: games and rewards built around our SPL
+                token — not a traditional casino. Stakes and payouts use <strong>Claimy credits</strong> tied to real
+                on-chain deposits and withdrawals.
+            </p>
+            <p class="c-home-block-text mb-0">
+                Create an account with your wallet, fund your custodial deposit address, and your balance stays in sync
+                with the chain and our database — so you can top up, cash out, and review your history in one place.
+            </p>
+        </section>
     </div>
 </div>
 
 
 <div class="row my-4 my-lg-5 gy-2 gy-md-0">
     <div class="col-12 col-sm-6 col-md-3">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="text-primary mb-1 text-center fw-bold c-text-glow">1,000,000,000</h5>
-                <p class="mb-0 text-center">Total Supply</p>
+                <h6 class="c-home-card-title text-primary mb-1 text-center fw-semibold c-text-glow">Solana + SPL</h6>
+                <p class="mb-0 text-center small">Deposits &amp; withdrawals settled on-chain with ledger-backed credits</p>
             </div>
         </div>
     </div>
     <div class="col-12 col-sm-6 col-md-3">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="text-primary mb-1 text-center fw-bold c-text-glow">No restrictions</h5>
-                <p class="mb-0 text-center">For all users</p>
+                <h6 class="c-home-card-title text-primary mb-1 text-center fw-semibold c-text-glow">Wallet accounts</h6>
+                <p class="mb-0 text-center small">Sign in with Phantom, custodial deposit address per user</p>
             </div>
         </div>
     </div>
     <div class="col-12 col-sm-6 col-md-3">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="text-primary mb-1 text-center fw-bold c-text-glow">Locked liquidity</h5>
-                <p class="mb-0 text-center">360 Days Lockup</p>
+                <h6 class="c-home-card-title text-primary mb-1 text-center fw-semibold c-text-glow">Full trail</h6>
+                <p class="mb-0 text-center small">Transaction history: deposits, syncs, withdrawals — in the app</p>
             </div>
         </div>
     </div>
     <div class="col-12 col-sm-6 col-md-3">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="text-primary mb-1 text-center fw-bold c-text-glow">1%</h5>
-                <p class="mb-0 text-center">Transaction Fees</p>
+                <h6 class="c-home-card-title text-primary mb-1 text-center fw-semibold c-text-glow">Native token play</h6>
+                <p class="mb-0 text-center small">Play and bet with Claimy — not fiat rails</p>
             </div>
         </div>
     </div>
@@ -71,78 +102,210 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body p-3 p-lg-5">
-                <h2 class="text-primary mb-3 mb-lg-4 text-uppercase fw-bold c-text-glow">
-                    <ngx-typed-js [strings]="['// WHAT IS CLAIMY?']" [typeSpeed]="100" [startDelay]="250"
+                <h2 class="c-home-section-title c-home-section-title--typed text-primary mb-3 mb-lg-4 text-uppercase fw-semibold c-text-glow">
+                    <ngx-typed-js [strings]="['WHAT IS THE PLAYHOUSE?']" [typeSpeed]="100" [startDelay]="250"
                         [showCursor]="false">
                         <span class="typing"></span>
                     </ngx-typed-js>
                 </h2>
-                <p class="mb-0">Welcome to the next frontier of decentralized rewards. Introducing CLAIMY, an ERC20
-                    token designed
-                    for crypto enthusiasts who understand the power of time and loyalty. With our innovative ideas, we
-                    reward holders of CLAIMY by allowing them to unlock periodic rewards, creating a seamless and
-                    rewarding experience for those committed to the evolution of decentralized finance.</p>
+                <section class="c-home-content-block mb-4">
+                    <h3 class="c-home-block-subheading text-primary fw-semibold">Fun on your terms</h3>
+                    <p class="c-home-block-text mb-0">
+                        We call it a <strong>Playhouse</strong> on purpose: it’s built for fun, competition, and rewards
+                        using <strong>Claimy</strong> as the in-app currency. That keeps the experience distinct from
+                        old-school gambling — everything runs on our <strong>native token economy</strong>, with balances
+                        you can see and move on Solana.
+                    </p>
+                </section>
+                <section class="c-home-content-block">
+                    <h3 class="c-home-block-subheading text-primary fw-semibold">Credits under the hood</h3>
+                    <p class="c-home-block-text mb-0">
+                        Under the hood, we combine <strong>on-chain SPL</strong> with a <strong>database ledger</strong> so
+                        your playable balance stays consistent: register and log in with your wallet, deposit tokens to your
+                        generated address, refresh to sync what landed on-chain, withdraw back to your wallet when you’re
+                        ready, and use <strong>transaction history</strong> to see what changed. More games and mechanics are
+                        on the way — the foundation is live today.
+                    </p>
+                </section>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row my-4 my-lg-5">
-    <div class="col-12 col-lg-6">
-        <div class="card h-100">
-            <div class="card-body p-3 p-lg-5 d-flex flex-column align-items-start justify-content-center">
-                <h2 class="text-primary mb-3 mb-lg-4 text-uppercase fw-bold c-text-glow">
-                    <ngx-typed-js [strings]="['// NFT MINTING']" [typeSpeed]="100" [startDelay]="500"
-                        [showCursor]="false">
-                        <span class="typing"></span>
-                    </ngx-typed-js>
-                </h2>
-                <p class="mb-3">Visit our NFT minting page and claim your exclusive piece of the digital frontier of
-                    CLAIMY. Be on time, as there's only 500 ever to be created.</p>
-                <a href="/dashboard#mint" class="btn btn-primary text-uppercase fw-bold px-4 py-2"> Mint
-                    your
-                    own NFT</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
+    <div class="col-12">
         <div class="card">
-            <div class="card-body p-3 p-lg-4">
-                <div class="row g-2">
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/1.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
+            <div class="card-body p-3 p-lg-5">
+                <h2 class="c-home-section-title text-primary mb-2 text-uppercase fw-semibold c-text-glow">
+                    Games in the Playhouse
+                </h2>
+                <p class="c-home-block-text c-home-games-intro mb-4">
+                    We’re building <strong>four</strong> games around the same credit model: each has a page in the app, and
+                    real-money play will call into Supabase Edge Functions and Postgres so bets, sessions, and payouts stay
+                    auditable. Here’s where each one stands and how the pieces fit together.
+                </p>
+
+                <div class="row g-3 g-lg-4">
+                    <div class="col-12 col-md-6">
+                        <article class="c-home-game-tile h-100">
+                            <h3 class="c-home-game-tile__title mb-2">
+                                <a routerLink="/flowerpoker" class="c-home-game-tile__link">Flowerpoker</a>
+                            </h3>
+                            <p class="c-home-game-tile__lede small mb-3">
+                                Five seeds, two rows, poker-style hands — black or white flowers force a reroll.
+                            </p>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">In the app</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Angular UI for bet input, planting seeds left-to-right, and displaying the round the
+                                    server sent — no local dice rolls; refresh resumes via saved planted count.
+                                </p>
+                            </div>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">On the server</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Edge <code>flowerpoker-game</code>: HMAC-SHA256 rolls from a committed server seed +
+                                    your client seed, black/white rerolls, sessions in <code>claimy_game_sessions</code>,
+                                    settlement and payouts via <code>claimy_apply_credit_delta</code>.
+                                </p>
+                            </div>
+                        </article>
                     </div>
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/2.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
+                    <div class="col-12 col-md-6">
+                        <article class="c-home-game-tile h-100">
+                            <h3 class="c-home-game-tile__title mb-2">
+                                <a routerLink="/blackjack" class="c-home-game-tile__link">Blackjack</a>
+                            </h3>
+                            <p class="c-home-game-tile__lede small mb-3">
+                                Classic 21-style play against the house — hit, stand, and settle hands.
+                            </p>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">In the app</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Placeholder page today; the plan is a table UI with shoe/deck visuals, bet controls,
+                                    and clear hand outcome messaging wired to the same wallet session.
+                                </p>
+                            </div>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">On the server</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Dedicated Edge + session flow (deal, hit, stand, settle) will mirror the Flowerpoker
+                                    pattern: locked stakes, game rows in Postgres, atomic credit updates.
+                                </p>
+                            </div>
+                        </article>
                     </div>
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/3.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
+                    <div class="col-12 col-md-6">
+                        <article class="c-home-game-tile h-100">
+                            <h3 class="c-home-game-tile__title mb-2">
+                                <a routerLink="/dice" class="c-home-game-tile__link">Dice</a>
+                            </h3>
+                            <p class="c-home-game-tile__lede small mb-3">
+                                Roll-based outcomes with configurable targets and payout multipliers.
+                            </p>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">In the app</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Placeholder page; frontend will expose roll animation, bet amount, target range,
+                                    and history for the current session.
+                                </p>
+                            </div>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">On the server</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Server-side RNG or verifiable roll commitment, bet settlement, and balance updates
+                                    through the same credits RPCs — implementation TBD alongside game rules.
+                                </p>
+                            </div>
+                        </article>
                     </div>
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/4.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
-                    </div>
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/5.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
-                    </div>
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/6.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
-                    </div>
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/7.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
-                    </div>
-                    <div class="col-4 col-sm-3 col-md-3">
-                        <img src="../assets/images/nfts/8.jpg"
-                            class="object-fit-cover w-100 border border-primary rounded-3 m-0">
+                    <div class="col-12 col-md-6">
+                        <article class="c-home-game-tile h-100">
+                            <h3 class="c-home-game-tile__title mb-2">
+                                <a routerLink="/hi-low" class="c-home-game-tile__link">Hi-low</a>
+                            </h3>
+                            <p class="c-home-game-tile__lede small mb-3">
+                                Predict whether the next value is higher or lower — streak-friendly, fast rounds.
+                            </p>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">In the app</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Placeholder page; UI will focus on the current card/value, higher/lower actions,
+                                    and round-by-round feedback.
+                                </p>
+                            </div>
+                            <div class="c-home-game-tile__pair">
+                                <span class="c-home-game-tile__label">On the server</span>
+                                <p class="c-home-game-tile__body mb-0">
+                                    Backend will generate the sequence, enforce bet rules, and record outcomes to credits —
+                                    same ledger discipline as the rest of the Playhouse.
+                                </p>
+                            </div>
+                        </article>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<div class="row my-4 my-lg-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-3 p-lg-5">
+                <h2 class="c-home-section-title c-home-section-title--typed c-home-section-title--fair text-primary mb-3 mb-lg-4 text-uppercase fw-semibold c-text-glow">
+                    <ngx-typed-js [strings]="['FAIR ODDS — NOT A STACKED HOUSE']" [typeSpeed]="100" [startDelay]="3200"
+                        [showCursor]="false">
+                        <span class="typing"></span>
+                    </ngx-typed-js>
+                </h2>
+                <section class="c-home-content-block mb-4">
+                    <h3 class="c-home-block-subheading text-primary fw-semibold">Design goal</h3>
+                    <p class="c-home-block-text mb-0">
+                        We’re aiming to work <strong>differently from a typical casino</strong>: our games will use
+                        <strong>50/50 win chances</strong> — real coin-flip fairness — and the house only takes a
+                        <strong>small cut of the potential payout</strong>, not a hidden edge baked into the rules.
+                        Games that ship with a heavy built-in “game edge” can feel unfair; we’d rather keep odds
+                        transparent and modest.
+                    </p>
+                </section>
+                <section class="c-home-content-block mb-4">
+                    <h3 class="c-home-block-subheading text-primary fw-semibold">Example payout</h3>
+                    <p class="c-home-block-text mb-0">
+                        <strong>Example:</strong> you bet <strong>10 Claimy</strong> on a round with a <strong>50/50</strong>
+                        shot to win. If you win, you might receive <strong>19 Claimy</strong> back — the fair double would be
+                        20; we keep a small slice (here, 1 Claimy) so the model is sustainable without crushing the player.
+                        The exact numbers can vary by game, but the idea is the same: <strong>fair odds</strong> plus a
+                        <strong>light fee on the upside</strong>, not a rigged table.
+                    </p>
+                </section>
+                <section class="c-home-content-block mb-4">
+                    <h3 class="c-home-block-subheading text-primary fw-semibold">Future: PDA vault &amp; $CLAIMY liquidity</h3>
+                    <p class="c-home-block-text mb-3">
+                        <strong>Today</strong> we’re not yet on the full <strong>PDA vault</strong> path — that’s a
+                        Solana-native, program-controlled vault we plan for later. When <strong>$CLAIMY</strong> goes live,
+                        we intend to purchase <strong>5% of total supply</strong> on the <strong>developer wallet</strong>
+                        and route that allocation into a <strong>dedicated vault</strong> meant to help fund
+                        <strong>payouts</strong> to players as volume grows.
+                    </p>
+                    <p class="c-home-block-text mb-0">
+                        <strong>Is 5% enough to cover every bet forever?</strong> No — not without limits. That’s why at the
+                        start we’ll need <strong>scaling and a max bet</strong>: so that if probability does what it does
+                        over the long run, we always keep enough <strong>margin</strong> to pay out our supporters. Bet caps
+                        are a <strong>safety rail</strong> for the treasury, not a trick — they help us stay solvent while
+                        the Playhouse and liquidity mature.
+                    </p>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- NFT minting section removed: project no longer uses NFTs. -->
+
+<div *ngIf="toast as t" class="home-toast home-toast--success" role="status">
+  <span class="home-toast__text">{{ t.message }}</span>
+  <button type="button" class="home-toast__close" aria-label="Dismiss" (click)="dismissToast()">×</button>
 </div>

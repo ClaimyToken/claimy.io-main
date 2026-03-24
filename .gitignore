@@ -1,5 +1,9 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+# Rust / Anchor (on-chain program)
+**/target/
+.anchor/
+
 # Compiled output
 /dist
 /tmp
@@ -27,6 +31,10 @@ yarn-error.log
 !.vscode/launch.json
 !.vscode/extensions.json
 .history/*
+
+# Local secrets — copy env.template to .env or claimy.env and fill in
+.env
+claimy.env
 
 # Miscellaneous
 /.angular/cache

@@ -1,0 +1,133 @@
+<header class="referral-page-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="referral-page-title text-center mb-0">
+    <ngx-typed-js [strings]="['REFERRALS']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
+      <span class="typing"></span>
+    </ngx-typed-js>
+  </h1>
+</header>
+
+<div class="c-referral-page">
+  <div class="row my-3 my-lg-4 mb-5">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-3 p-lg-5">
+          <h2 class="c-referral-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">
+            Referral leaderboard
+          </h2>
+          <p class="c-referral-body mb-2">
+            Top <strong>{{ leaderboardMax }}</strong> accounts by referrals — only people with
+            <strong>at least 1</strong> successful referral are listed. Everyone with
+            <strong>0</strong> referrals is hidden so the board stays meaningful.
+          </p>
+          <p class="c-referral-body mb-3 c-referral-muted">
+            When someone registers with your code, you get <strong>+1</strong>. Open rows below are empty
+            slots (not “zero” users — those are intentionally omitted).
+          </p>
+
+          <div *ngIf="referralLoading" class="c-referral-muted mb-0">Loading leaderboard…</div>
+          <div *ngIf="!referralLoading && referralError" class="text-warning mb-3">{{ referralError }}</div>
+
+          <div *ngIf="!referralLoading && !referralError" class="table-responsive">
+            <table class="table table-sm table-borderless c-referral-table mb-3">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Account</th>
+                  <th scope="col" class="text-end">Referrals</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let slot of leaderboardSlots; let i = index" [class.c-referral-row--empty]="slot.kind === 'empty'">
+                  <td>{{ i + 1 }}</td>
+                  <ng-container *ngIf="slot.kind === 'user'">
+                    <td>{{ slot.username }}</td>
+                    <td class="text-end">{{ slot.referralCount }}</td>
+                  </ng-container>
+                  <ng-container *ngIf="slot.kind === 'empty'">
+                    <td colspan="2" class="c-referral-slot-empty">
+                      Open — accounts with 0 referrals are hidden from this list
+                    </td>
+                  </ng-container>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="c-referral-cta border-top border-secondary border-opacity-25 pt-3 mt-2">
+            <p class="c-referral-body mb-2 fw-semibold">Want to do it yourself?</p>
+            <p class="c-referral-body mb-2">
+              Get your personal referral code and share it with friends. They can paste it when they
+              <a routerLink="/register" class="c-referral-link">register</a>.
+            </p>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary referral-code-open-btn"
+              [disabled]="walletAuth.isLoggedIn && referralButtonLoading"
+              (click)="openReferralModal()"
+            >
+              <span
+                *ngIf="walletAuth.isLoggedIn && referralButtonLoading"
+                class="referral-code-open-btn__spinner"
+                aria-hidden="true"
+              ></span>
+              {{
+                !walletAuth.isLoggedIn
+                  ? 'Sign in to see your code'
+                  : referralButtonLoading
+                    ? 'Opening…'
+                    : 'Show my referral code'
+              }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Referral code modal -->
+<div
+  *ngIf="showReferralModal"
+  class="referral-code-modal"
+  (click)="closeReferralModal()"
+  role="presentation"
+>
+  <div class="referral-code-modal__card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
+    aria-labelledby="referralModalTitle">
+    <button type="button" class="referral-code-modal__close" aria-label="Close" (click)="closeReferralModal()">×</button>
+    <p class="referral-code-modal__eyebrow mb-1">Your code</p>
+    <h3 id="referralModalTitle" class="referral-code-modal__title mb-2">Share Claimy</h3>
+    <p class="c-referral-body mb-3">
+      Friends enter this code when they register. You’ll get <strong>+1 referral</strong> each time a new account is
+      created with your code.
+    </p>
+
+    <div
+      class="referral-code-modal__code-slot mb-3"
+      [class.referral-code-modal__code-slot--ready]="!modalLoading"
+      aria-live="polite"
+    >
+      <div *ngIf="modalLoading" class="referral-code-modal__generating">
+        <span class="referral-code-modal__spinner referral-code-modal__spinner--lg" aria-hidden="true"></span>
+        <span class="referral-code-modal__generating-text">Generating your code</span>
+      </div>
+      <ng-container *ngIf="!modalLoading">
+        <div *ngIf="modalError" class="text-warning mb-0">{{ modalError }}</div>
+        <div *ngIf="!modalError && modalCode" class="referral-code-modal__code text-break">{{ modalCode }}</div>
+        <div *ngIf="!modalError && !modalCode" class="c-referral-muted mb-0">No code available.</div>
+      </ng-container>
+    </div>
+
+    <div class="mb-3" *ngIf="!modalLoading && modalCode && !modalError">
+      <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="copyReferralCode()">
+        {{ copiedCode ? 'Copied' : 'Copy code' }}
+      </button>
+    </div>
+    <p
+      class="c-referral-body mb-0 c-referral-muted referral-code-modal__count"
+      *ngIf="!modalLoading && !modalError && modalCount !== null"
+    >
+      Referrals collected: <strong>{{ modalCount }}</strong>
+    </p>
+  </div>
+</div>

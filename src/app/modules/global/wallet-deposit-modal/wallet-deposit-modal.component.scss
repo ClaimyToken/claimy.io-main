@@ -1,0 +1,677 @@
+.deposit-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.deposit-lead {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--bs-secondary-color);
+
+  &--center {
+    text-align: center;
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.deposit-panel {
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+  border-radius: 0.375rem;
+  padding: 0.85rem 1rem;
+  background: rgba(0, 0, 0, 0.15);
+
+  &--warn {
+    border-color: rgba(var(--bs-warning-rgb), 0.45);
+  }
+}
+
+.deposit-stat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.deposit-stat__label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+}
+
+.deposit-stat__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--bs-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deposit-spinner {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--bs-primary);
+  border-radius: 50%;
+  animation: deposit-spin 0.7s linear infinite;
+
+  &--inline {
+    vertical-align: -0.2em;
+    margin-right: 0.25rem;
+  }
+}
+
+@keyframes deposit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.deposit-mint-hint {
+  font-size: 0.7rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.45;
+
+  &--center {
+    text-align: center;
+    max-width: 34rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.deposit-code {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.deposit-row {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(var(--bs-border-color-rgb), 0.45);
+
+  &--flush-top {
+    padding-top: 0;
+  }
+
+  &--last {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.deposit-label {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.35rem;
+}
+
+.wallet-modal-section-heading {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: var(--bs-primary);
+}
+
+.deposit-value {
+  font-size: 0.78rem;
+  color: var(--bs-body-color);
+  line-height: 1.45;
+
+  &--mono {
+    font-family: 'Space Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.88);
+  }
+}
+
+.deposit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.deposit-link-btn {
+  align-self: flex-start;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.claimy-wallet-modal__content {
+  background: var(--bs-dark);
+  border: 2px solid var(--bs-primary);
+  color: var(--bs-body-color);
+  box-shadow: none;
+}
+
+.claimy-wallet-modal__title {
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  margin: 0;
+}
+
+.wallet-deposit-modal-root {
+  display: contents;
+}
+
+/* Viewport-fixed; does not affect modal layout */
+.wallet-modal-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1080;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  max-width: min(24rem, calc(100vw - 2rem));
+  max-height: min(40vh, 16rem);
+  overflow-y: auto;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  box-shadow: 0 0.35rem 1.25rem rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &__close {
+    flex-shrink: 0;
+    margin: -0.15rem -0.1rem 0 0;
+    padding: 0 0.2rem;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    opacity: 0.7;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &--error {
+    background: rgba(60, 18, 24, 0.96);
+    color: #f8b4bd;
+    border-color: rgba(220, 53, 69, 0.45);
+  }
+
+  &--success {
+    background: rgba(21, 87, 36, 0.96);
+    color: #d4edda;
+    border-color: rgba(25, 135, 84, 0.45);
+  }
+
+  &--info {
+    background: rgba(13, 44, 84, 0.96);
+    color: rgba(255, 255, 255, 0.92);
+    border-color: rgba(13, 110, 253, 0.4);
+  }
+}
+
+.wallet-modal-credits-panel {
+  position: relative;
+}
+
+.wallet-modal-credits-refresh-btn {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  margin: 0;
+  border: none;
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--bs-primary);
+  cursor: pointer;
+  line-height: 0;
+  transition: background 0.15s ease, opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(var(--bs-primary-rgb), 0.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.wallet-modal-credits-refresh-icon {
+  display: block;
+
+  &--spinning {
+    animation: wallet-credits-refresh-spin 0.75s linear infinite;
+  }
+}
+
+@keyframes wallet-credits-refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wallet-modal-credits-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+}
+
+.wallet-modal-credits-title {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+}
+
+.wallet-modal-credits-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--bs-primary);
+  min-height: 1.35em;
+
+  &--loading {
+    color: var(--bs-secondary-color);
+    letter-spacing: 0.05em;
+  }
+}
+
+.wallet-modal-mint-copy {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--bs-secondary-color);
+}
+
+.wallet-modal-mint-center {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.5rem;
+  text-align: center;
+}
+
+.wallet-modal-mint-address {
+  max-width: 100%;
+}
+
+.wallet-modal-address-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.5rem;
+  width: 100%;
+  text-align: center;
+
+  .deposit-value {
+    text-align: center;
+  }
+}
+
+.wallet-modal-copy-ico {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  margin: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--bs-primary);
+  cursor: pointer;
+  line-height: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--bs-primary-rgb), 0.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+  }
+
+  &--deposit {
+    color: var(--bs-primary);
+  }
+}
+
+.wallet-modal-verify-block {
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.wallet-modal-verify-pubkey-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.wallet-modal-verify-pubkey {
+  max-width: 100%;
+  text-align: center;
+  word-break: break-all;
+}
+
+// Reserve vertical space for ~2 lines so “tap to verify” (1 line) → verified (often 2 lines) doesn’t resize the modal.
+.wallet-modal-verify-status {
+  --wallet-verify-status-line: calc(0.68rem * 1.45);
+  margin-top: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(var(--wallet-verify-status-line) * 2 + 0.15rem);
+}
+
+.wallet-modal-verify-inline-success {
+  font-size: 0.68rem;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: #9ee6bd;
+  text-align: center;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wallet-modal-verify-inline-checking {
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--bs-secondary-color);
+  text-align: center;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wallet-modal-verify-inline-warn {
+  font-size: 0.68rem;
+  line-height: 1.45;
+  text-align: center;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wallet-modal-verify-inline-warn-prefix {
+  color: #ffc107;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.wallet-modal-verify-tap {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--bs-primary);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+
+  &:not(:disabled):hover {
+    filter: brightness(1.12);
+  }
+}
+
+.wallet-modal-verify-label {
+  display: block;
+  width: 100%;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.35rem;
+  text-align: center;
+}
+
+.wallet-modal-verify-hint {
+  line-height: 1.4;
+}
+
+.wallet-modal-withdraw-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.wallet-modal-withdraw-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+  text-align: center;
+  width: 100%;
+}
+
+.wallet-modal-withdraw-input {
+  width: 100%;
+  max-width: 12rem;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(var(--bs-primary-rgb), 0.35);
+  color: var(--bs-body-color);
+}
+
+.wallet-modal-withdraw-cta {
+  min-width: 12rem;
+}
+
+.wallet-modal-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.wallet-modal-accordion__panel.deposit-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.wallet-modal-accordion__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0;
+  background: rgba(var(--bs-primary-rgb), 0.08);
+  color: var(--bs-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--bs-primary-rgb), 0.14);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: -2px;
+  }
+}
+
+.wallet-modal-accordion__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.wallet-modal-accordion__chev {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--bs-primary);
+  transition: transform 0.2s ease;
+
+  &--open {
+    transform: rotate(180deg);
+  }
+
+  svg {
+    display: block;
+  }
+}
+
+.wallet-modal-accordion__body {
+  padding: 0.65rem 1rem 0.85rem;
+  border-top: 1px solid rgba(var(--bs-border-color-rgb), 0.35);
+}
+
+.wallet-modal-ledger-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.wallet-modal-ledger-filter {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+  background: transparent;
+  color: var(--bs-secondary-color);
+
+  &--active {
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), 0.12);
+  }
+
+  &:hover:not(.wallet-modal-ledger-filter--active) {
+    color: var(--bs-body-color);
+    border-color: rgba(var(--bs-border-color-rgb), 0.6);
+  }
+}
+
+.wallet-modal-ledger-refresh {
+  margin-left: auto;
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.wallet-modal-ledger-table-wrap {
+  overflow-x: auto;
+  max-height: min(50vh, 22rem);
+  overflow-y: auto;
+  border: 1px solid rgba(var(--bs-border-color-rgb), 0.35);
+  border-radius: 0.35rem;
+}
+
+.wallet-modal-ledger-table {
+  width: 100%;
+  font-size: 0.68rem;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.35rem 0.45rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(var(--bs-border-color-rgb), 0.25);
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--bs-secondary-color);
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+.wallet-modal-ledger__when {
+  white-space: nowrap;
+}
+
+.wallet-modal-ledger__delta {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+
+  &--in {
+    color: #9ee6bd;
+  }
+
+  &--out {
+    color: #f8b4bd;
+  }
+}
+
+.wallet-modal-ledger__ref {
+  max-width: 8rem;
+  word-break: break-all;
+}
+
+.wallet-modal-ledger-tx-link {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+

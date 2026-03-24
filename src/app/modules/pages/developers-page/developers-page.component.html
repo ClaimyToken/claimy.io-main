@@ -1,0 +1,309 @@
+<header class="dev-doc__header border-primary border rounded-3 my-3 my-lg-4 p-3 p-md-4">
+  <h1 class="dev-doc__title text-center mb-2">
+    <ngx-typed-js [strings]="['FOR DEVELOPERS']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
+      <span class="typing"></span>
+    </ngx-typed-js>
+  </h1>
+  <p class="dev-doc__lead text-center mb-0 px-md-4">
+    Run Claimy locally, wire your own Supabase project and SPL mint, and explore how registration, custodial deposits,
+    credits, and withdrawals fit together — without ever committing secrets to git.
+  </p>
+</header>
+
+<div class="dev-doc pb-5 mb-4 px-2 px-sm-0">
+  <div class="card dev-doc__card mb-4">
+    <div class="card-body">
+      <p class="mb-3">
+        This page is a practical overview. The repository also ships detailed markdown under
+        <code>DEVELOPERWORK/</code> and <code>supabase/functions/README.md</code> — use those as the source of truth for
+        SQL, Edge Function code, and vault architecture.
+      </p>
+      <p class="small text-secondary mb-2 text-uppercase fw-semibold letter-spacing-tight">On this page</p>
+      <ul class="dev-doc__toc small mb-0">
+        <li><a href="#philosophy">Open source &amp; secrets</a></li>
+        <li><a href="#stack">Stack overview</a></li>
+        <li><a href="#prereqs">Prerequisites</a></li>
+        <li><a href="#clone">Clone &amp; install</a></li>
+        <li><a href="#env-local">Local <code>.env</code></a></li>
+        <li><a href="#supabase">Supabase setup</a></li>
+        <li><a href="#flows">Registration, login, credits, withdrawals</a></li>
+        <li><a href="#own-token">Your own SPL mint</a></li>
+        <li><a href="#scripts">npm scripts</a></li>
+        <li><a href="#docs">Further reading</a></li>
+        <li><a href="#security">Security checklist</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="philosophy">Open source, secrets elsewhere</h2>
+  <p>
+    The Angular app and Edge Function <em>sources</em> are meant to be forked and studied. Anything that must stay private
+    — Supabase <strong>service role</strong> keys, wallet <strong>encryption</strong> material, <strong>relayer</strong>
+    private keys, RPC keys with billing — belongs in <strong>Supabase Edge Function secrets</strong> or your local
+    <code>.env</code> file, which is <strong>gitignored</strong>. Never paste those into the frontend bundle.
+  </p>
+  <div class="dev-doc__note">
+    Rule of thumb: if it can move money or read every row in your database, it is <strong>not</strong> in the repo and
+    not in <code>environment.prod.ts</code> as a secret — only as server-side configuration.
+  </div>
+
+  <h2 id="stack">What you are running</h2>
+  <p>
+    Claimy is a <strong>Solana</strong>-oriented web app (<strong>Angular</strong>) that talks to
+    <strong>Supabase</strong> (Postgres + Edge Functions) for accounts, custodial deposit addresses, playable credits, and
+    withdrawal orchestration. Optional pieces include an <strong>Anchor</strong> on-chain vault program under
+    <code>programs/claimy-vault/</code> for PDA-based withdrawals, depending on how you configure the stack.
+  </p>
+  <div class="dev-doc__table-wrap">
+    <table class="table table-dark table-striped table-sm mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Layer</th>
+          <th scope="col">Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Angular SPA</td>
+          <td>Wallet UX, registration/login flows, deposit modal, credits display, calls to Edge Functions over HTTPS.</td>
+        </tr>
+        <tr>
+          <td>Supabase Postgres</td>
+          <td>Users, nonces, referral data, playable credit ledger — applied via SQL migrations in <code>DEVELOPERWORK/migrations/</code>.</td>
+        </tr>
+        <tr>
+          <td>Edge Functions</td>
+          <td>Register (custodial deposit keypair encrypted server-side), login lookup, credits sync, withdrawals, referrals, etc.</td>
+        </tr>
+        <tr>
+          <td>Solana RPC</td>
+          <td>Read balances, send SPL transfers from your vault / relayer — configured in Edge secrets + local <code>.env</code> for the app.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="prereqs">Prerequisites</h2>
+  <ul>
+    <li><strong>Node.js</strong> compatible with Angular 16 (LTS 18.x or 20.x is a safe choice).</li>
+    <li><strong>npm</strong> at the repo root for <code>npm install</code>.</li>
+    <li>A <strong>Supabase</strong> project where you can run SQL and deploy Edge Functions.</li>
+    <li>An SPL <strong>token mint</strong> on the same cluster as your RPC (mainnet vs devnet — stay consistent).</li>
+    <li><strong>Phantom</strong> (or compatible) for the same cluster when testing wallet flows in the browser.</li>
+  </ul>
+  <p>
+    For building the on-chain program, see Anchor + Rust; on Windows, many teams use <strong>WSL2</strong> for Solana
+    tooling. The web app itself runs fine on Windows with Node alone.
+  </p>
+
+  <h2 id="clone">Clone and install</h2>
+  <pre class="dev-doc__pre mb-0" tabindex="0"><code>git clone &lt;your-fork-or-upstream-url&gt;
+cd claimy.io-main   # or your repo folder name
+npm install</code></pre>
+
+  <h2 id="env-local">Local environment (<code>.env</code>)</h2>
+  <p>
+    Copy <code>env.template</code> to <code>.env</code> in the project root (next to <code>package.json</code>). Fill in
+    at least:
+  </p>
+  <ul>
+    <li><code>CLAIMY_SUPABASE_URL</code> — your project URL from Supabase (no trailing slash).</li>
+    <li><code>CLAIMY_SOLANA_RPC_URL</code> — HTTPS JSON-RPC for the same cluster as your mint.</li>
+    <li><code>CLAIMY_SPL_MINT</code> — base58 mint address of <strong>your</strong> SPL token (replace Claimy’s mint when experimenting).</li>
+  </ul>
+  <p>
+    Run <code>npm run env:sync</code> (or let <code>npm start</code> run it first). That regenerates
+    <code>src/environments/env.overrides.ts</code> so Angular reads your values during <code>ng serve</code>. The
+    <code>start</code> script in <code>package.json</code> is: sync env, then serve.
+  </p>
+  <pre class="dev-doc__pre mb-0" tabindex="0"><code>npm run env:sync
+npx ng serve
+# open http://localhost:4200/</code></pre>
+  <div class="dev-doc__note">
+    Production builds use <code>environment.prod.ts</code> — not <code>.env</code>. Set public URLs and mint there in
+    CI/CD or your host’s config. See <code>DEVELOPERWORK/FRONTEND_AND_ENV.md</code>.
+  </div>
+
+  <h2 id="supabase">Supabase: database then functions</h2>
+  <h3>Schema and migrations</h3>
+  <p>
+    In Supabase <strong>SQL Editor</strong>, run the schema and migrations from the repo in a sensible order. The
+    handoff checklist starts with <code>DEVELOPERWORK/supabase-schema.sql</code>, then add tables from
+    <code>DEVELOPERWORK/migrations/</code> (for example playable credits, referrals, deposit snapshots) as your feature
+    set requires. Always review <code>DROP</code> / destructive blocks before running against anything important.
+  </p>
+  <h3>Edge Function secrets</h3>
+  <p>
+    In <strong>Project Settings → Edge Functions → Secrets</strong>, configure everything your functions need: Supabase
+    URL, service role, Solana RPC, SPL mint, encryption key for deposit wallets, relayer keys for withdrawals, etc. The
+    full list and semantics are documented in <code>DEVELOPERWORK/EDGE_FUNCTIONS.md</code> and
+    <code>DEVELOPERWORK/SUPABASE_SETUP.md</code>.
+  </p>
+  <h3>Deploy functions</h3>
+  <p>
+    Deploy each function (Dashboard paste or <code>supabase functions deploy</code>) so the slug matches what the
+    Angular app calls. URLs are always:
+  </p>
+  <pre class="dev-doc__pre mb-0" tabindex="0"><code>{{ '{' }}supabaseUrl{{ '}' }}/functions/v1/{{ '{' }}slug{{ '}' }}</code></pre>
+  <p class="mt-3 mb-0">
+    Slugs include <code>check-username</code>, <code>register-phantom</code>, <code>wallet-login</code>,
+    <code>account-linked-wallet</code>, <code>claimy-credits</code>, <code>claimy-profile</code>,
+    <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, and others listed in
+    <code>supabase/functions/README.md</code> and <code>DEVELOPERWORK/README.md</code>.
+  </p>
+
+  <h2 id="flows">How the main flows work</h2>
+  <h3>Registration</h3>
+  <p>
+    The register flow checks username availability, then calls <strong>register-phantom</strong>, which creates a
+    <strong>custodial deposit keypair</strong> for the user, encrypts the secret with a server-only key, and stores the
+    public address and ciphertext in Postgres. Users send SPL to that deposit address; the app never holds the
+    private key in the browser.
+  </p>
+  <div class="dev-doc__note">
+    Wallets flow (high level). The diagram focuses on how your deposit address is generated, where it is stored in the
+    database, how credits get reconciled from chain, and how withdrawals are executed from the vault.
+  </div>
+  <section class="dev-wallet-flow" aria-label="Wallet deposit and withdrawal flow diagram" role="img">
+    <div class="dev-wallet-flow__lane">
+      <div class="dev-wallet-flow__node">1. User wallet (Phantom)</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node">2. Angular register / login</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node dev-wallet-flow__node--edge">3. Edge: register-phantom / wallet-login</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node dev-wallet-flow__node--db">
+        4. Supabase Postgres stores deposit public key + encrypted secret
+      </div>
+    </div>
+
+    <div class="dev-wallet-flow__drop">
+      <div class="dev-wallet-flow__drop-arrow">↓</div>
+      <div class="dev-wallet-flow__drop-label">Return deposit address to frontend</div>
+    </div>
+
+    <div class="dev-wallet-flow__lane">
+      <div class="dev-wallet-flow__node">5. User sends SPL to deposit address</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node dev-wallet-flow__node--edge">6. Edge: claimy-credits sync_from_chain</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node dev-wallet-flow__node--db">7. DB updates ledger + playable balance</div>
+    </div>
+
+    <div class="dev-wallet-flow__drop">
+      <div class="dev-wallet-flow__drop-arrow">↓</div>
+      <div class="dev-wallet-flow__drop-label">Withdraw requested in app</div>
+    </div>
+
+    <div class="dev-wallet-flow__lane">
+      <div class="dev-wallet-flow__node">8. Angular withdraw action</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node dev-wallet-flow__node--edge">9. Edge: withdraw-spl server-side signing</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node dev-wallet-flow__node--vault">10. Vault / relayer sends SPL</div>
+      <div class="dev-wallet-flow__arrow">→</div>
+      <div class="dev-wallet-flow__node">11. User wallet receives SPL</div>
+    </div>
+  </section>
+  <h3>Login</h3>
+  <p>
+    <strong>wallet-login</strong> returns session data for the connected wallet (username, deposit address, referral
+    fields, optional provably-fair <code>gamesClientSeed</code>, etc.). The UI uses this to show “Your wallet” and
+    credits. Linked-wallet verification uses
+    <code>account-linked-wallet</code> as documented in the repo.
+  </p>
+  <h3>Credits and deposits</h3>
+  <p>
+    Playable balance lives in the database and is reconciled with on-chain SPL on the custodial deposit ATA via
+    <strong>claimy-credits</strong> actions such as <code>sync_from_chain</code>. The deposit modal in the app shows the
+    deposit address; after you send tokens on-chain, refresh/sync updates the displayed balance when your backend is
+    configured correctly.
+  </p>
+  <h3>Withdrawals</h3>
+  <p>
+    Withdrawals are initiated from the app but executed by <strong>withdraw-spl</strong> using server-side signing keys.
+    That can be a hot wallet (“simple vault”) or a PDA program path, depending on your deployment and
+    <code>DEVELOPERWORK/CLAIMY_VAULT.md</code>. Fund the vault / relayer with SOL for fees and SPL tokens as needed.
+  </p>
+
+  <h2 id="own-token">Using your own SPL token</h2>
+  <p>
+    Point <code>CLAIMY_SPL_MINT</code> (and Supabase secrets) at <strong>your</strong> mint. Create a mint on the
+    cluster you use, note decimals, fund user ATAs and vault ATAs as required, and ensure the same mint appears in
+    Edge secrets and the Angular env. Mismatch between cluster, mint, or RPC is the most common source of “nothing
+    syncs” or “withdraw fails” in local experiments.
+  </p>
+
+  <h2 id="scripts">Helpful npm scripts</h2>
+  <div class="dev-doc__table-wrap">
+    <table class="table table-dark table-striped table-sm mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Command</th>
+          <th scope="col">Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npm start</code></td>
+          <td>Runs <code>env:sync</code> then <code>ng serve</code>.</td>
+        </tr>
+        <tr>
+          <td><code>npm run env:sync</code></td>
+          <td>Regenerates <code>env.overrides.ts</code> from <code>.env</code>.</td>
+        </tr>
+        <tr>
+          <td><code>npm run check-deposit</code></td>
+          <td>Helper script to inspect deposit balances (see <code>DEVELOPERWORK/TESTING_DEPOSITS.md</code>).</td>
+        </tr>
+        <tr>
+          <td><code>npm run vault:pdas -- &lt;PROGRAM_ID&gt; &lt;MINT&gt;</code></td>
+          <td>Derives PDA addresses for the optional Anchor vault program.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="docs">Where to read next</h2>
+  <p>
+    The following docs in the repository go deeper than this page:
+  </p>
+  <ul>
+    <li>
+      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/README.md'" target="_blank" rel="noopener noreferrer"
+        >DEVELOPERWORK/README.md</a
+      >
+      — ordered checklist (DB → secrets → functions → optional Anchor → frontend).
+    </li>
+    <li>
+      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/SUPABASE_SETUP.md'" target="_blank" rel="noopener noreferrer"
+        >DEVELOPERWORK/SUPABASE_SETUP.md</a
+      >
+      — Edge Function sources and SQL notes.
+    </li>
+    <li>
+      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/CLAIMY_VAULT.md'" target="_blank" rel="noopener noreferrer"
+        >DEVELOPERWORK/CLAIMY_VAULT.md</a
+      >
+      — vault architecture, credits, custodial deposits, PDA path.
+    </li>
+    <li>
+      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/FRONTEND_AND_ENV.md'" target="_blank" rel="noopener noreferrer"
+        >DEVELOPERWORK/FRONTEND_AND_ENV.md</a
+      >
+      — what the SPA exposes vs what stays server-only.
+    </li>
+    <li>
+      <a [href]="config.githubLink + '/blob/main/README.md'" target="_blank" rel="noopener noreferrer">Root README.md</a>
+      — links to testing deposits, playable credits, and the program folder.
+    </li>
+  </ul>
+
+  <h2 id="security">Security checklist</h2>
+  <ul>
+    <li>Do not commit <code>.env</code> or service role keys.</li>
+    <li>Do not put relayer keys or encryption secrets in Angular environments.</li>
+    <li>Rotate RPC keys if they leak; treat browser-exposed RPC URLs as public.</li>
+    <li>Review Supabase RLS and function policies for your production project.</li>
+  </ul>
+</div>

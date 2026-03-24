@@ -1,0 +1,213 @@
+.account-settings-page-header {
+  padding: 0.75rem 1rem;
+}
+
+.account-settings-page-title {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.account-settings-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.account-settings-lead {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--bs-secondary-color);
+}
+
+.account-settings-panel {
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+  border-radius: 0.375rem;
+  padding: 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.account-settings-row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 10rem) 1fr;
+  gap: 0.75rem 1rem;
+  align-items: start;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(var(--bs-border-color-rgb), 0.45);
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+}
+
+.account-settings-row--last {
+  border-bottom: none;
+}
+
+.account-settings-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+  padding-top: 0.15rem;
+}
+
+.account-settings-note {
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--bs-secondary-color);
+  margin-top: 0.35rem;
+  max-width: 36rem;
+}
+
+.account-settings-value {
+  font-size: 0.8125rem;
+  color: var(--bs-body-color);
+  line-height: 1.45;
+}
+
+.account-settings-value--mono {
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.account-settings-value--muted {
+  color: var(--bs-secondary-color);
+}
+
+.account-settings-deposit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.account-settings-deposit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.account-settings-btn {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  line-height: 1.2;
+}
+
+.account-settings-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+  vertical-align: middle;
+}
+
+.account-settings-foot {
+  text-align: center;
+}
+
+.account-settings-back {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bs-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.account-settings-seed {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.account-settings-seed-input {
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  max-width: min(22rem, 100%);
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(var(--bs-primary-rgb), 0.35);
+  color: var(--bs-body-color);
+  cursor: default;
+
+  &[readonly] {
+    opacity: 0.95;
+  }
+}
+
+.account-settings-seed-actions {
+  margin-top: 0.5rem;
+}
+
+.account-settings-inline-link {
+  color: var(--bs-primary);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 0.25rem;
+  font-size: inherit;
+  vertical-align: baseline;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--bs-primary);
+  }
+}
+
+.account-settings-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1060;
+  max-width: min(22rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.38rem;
+  border: 1px solid rgba(55, 201, 120, 0.7);
+  background: rgba(15, 42, 27, 0.96);
+  color: #b8ffd4;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+  box-shadow: 0 0.35rem 1.25rem rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.account-settings-toast--error {
+  border-color: rgba(255, 138, 128, 0.75);
+  background: rgba(48, 18, 18, 0.95);
+  color: #ffd6d2;
+}
+
+.account-settings-credits-spinner {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--bs-primary);
+  border-radius: 50%;
+  animation: account-credits-spin 0.65s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes account-credits-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

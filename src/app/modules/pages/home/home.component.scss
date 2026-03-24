@@ -5,6 +5,7 @@
 
     h1 {
         font-size: 4rem;
+        line-height: 1.12;
     }
 
     @media only screen and (max-width: 600px) {
@@ -18,6 +19,21 @@
         }
     }
 }
+
+/** Reserves space for two title lines so tagline + token strip do not jump when typewriter wraps. */
+.c-home-hero-title-slot {
+    flex-shrink: 0;
+    /* 2 lines × line-height 1.12 × h1 font-size at each breakpoint */
+    min-height: 9rem;
+
+    @media only screen and (max-width: 600px) {
+        min-height: 6.75rem;
+    }
+
+    @media only screen and (max-width: 480px) {
+        min-height: 5.65rem;
+    }
+}
 .c-home-header__clip {
     mix-blend-mode: screen;
     height: 100%;
@@ -26,4 +42,258 @@
 .c-home-header__clip-container {
     max-height: max-content;
     max-width: 700px;
+}
+
+/** Tagline directly under the main hero title — smaller than former `h5`. */
+.c-home-hero-tagline {
+    font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+    letter-spacing: 0.1em;
+}
+
+.c-home-hero-tagline__play {
+    color: var(--bs-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    margin-left: 0.2rem;
+
+    &:hover {
+        color: #ffab6f;
+    }
+}
+
+.c-home-token-strip {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.5rem;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: clamp(0.78rem, 1.5vw, 0.88rem);
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.c-home-token-strip__label {
+    color: var(--bs-secondary-color);
+    letter-spacing: 0.04em;
+}
+
+.c-home-token-strip__addr {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: var(--bs-primary);
+    font-weight: 700;
+}
+
+.c-home-token-strip__copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem;
+    margin: 0;
+    border: none;
+    border-radius: 0.25rem;
+    background: rgba(var(--bs-primary-rgb), 0.12);
+    color: var(--bs-primary);
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.15s ease;
+
+    .material-icons {
+        font-size: 1rem;
+    }
+
+    &:hover {
+        background: rgba(var(--bs-primary-rgb), 0.22);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px;
+    }
+}
+
+/** Everything below the hero: calmer type scale than default `lead` / `h2`. */
+.c-home-below-hero {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: inherit;
+
+    .c-home-lead {
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.65;
+        max-width: 52rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .c-home-content-block + .c-home-content-block {
+        margin-top: 1.25rem;
+    }
+
+    .c-home-block-heading {
+        font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+        letter-spacing: 0.06em;
+        line-height: 1.3;
+        margin-bottom: 0.85rem;
+    }
+
+    .c-home-block-subheading {
+        font-size: 0.92rem;
+        letter-spacing: 0.03em;
+        line-height: 1.35;
+        margin-bottom: 0.45rem;
+    }
+
+    .c-home-block-text {
+        margin-bottom: 0;
+    }
+
+    .c-home-games-intro {
+        max-width: 48rem;
+    }
+
+    .c-home-section-title {
+        font-size: clamp(1rem, 2.2vw, 1.2rem);
+        letter-spacing: 0.06em;
+        line-height: 1.35;
+    }
+
+    /** Typed section titles: reserve space so layout doesn’t jump (longer line for Fair odds). */
+    .c-home-section-title--typed {
+        display: block;
+        min-height: 2.85rem;
+
+        &.c-home-section-title--fair {
+            min-height: 3.4rem;
+        }
+    }
+
+    .c-home-card-title {
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+    }
+
+    .c-home-subsection-title {
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+        line-height: 1.35;
+    }
+
+    .c-home-game-tile {
+        border: 1px solid rgba(var(--bs-primary-rgb), 0.22);
+        border-radius: 0.42rem;
+        padding: 1rem 1.1rem;
+        background: rgba(0, 0, 0, 0.12);
+    }
+
+    .c-home-game-tile__title {
+        font-size: clamp(1rem, 2vw, 1.15rem);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .c-home-game-tile__link {
+        color: var(--bs-primary);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+        transition: color 0.15s ease, border-color 0.15s ease;
+
+        &:hover {
+            color: #ffab6f;
+            border-bottom-color: rgba(255, 171, 111, 0.55);
+        }
+    }
+
+    .c-home-game-tile__lede {
+        color: var(--bs-secondary-color);
+        line-height: 1.5;
+    }
+
+    .c-home-game-tile__pair {
+        margin-top: 0.75rem;
+
+        &:first-of-type {
+            margin-top: 0;
+        }
+    }
+
+    .c-home-game-tile__label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(var(--bs-primary-rgb), 0.95);
+        margin-bottom: 0.28rem;
+    }
+
+    .c-home-game-tile__body {
+        font-size: 0.84rem;
+        line-height: 1.58;
+        color: var(--bs-body-color);
+
+        code {
+            font-size: 0.78em;
+            padding: 0.05rem 0.2rem;
+            border-radius: 0.2rem;
+            background: rgba(0, 0, 0, 0.35);
+            color: var(--bs-primary);
+        }
+    }
+
+    .card-body p {
+        font-size: 0.9375rem;
+        line-height: 1.65;
+    }
+
+    .card-body .small {
+        font-size: 0.8rem !important;
+        line-height: 1.5;
+    }
+}
+
+.home-toast {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1060;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    max-width: min(22rem, calc(100vw - 2rem));
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    box-shadow: 0 0.35rem 1.25rem rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.home-toast__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.home-toast__close {
+    flex-shrink: 0;
+    margin: -0.15rem -0.1rem 0 0;
+    padding: 0 0.2rem;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    opacity: 0.7;
+    cursor: pointer;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.home-toast--success {
+    background: rgba(21, 87, 36, 0.95);
+    color: #d4edda;
 }

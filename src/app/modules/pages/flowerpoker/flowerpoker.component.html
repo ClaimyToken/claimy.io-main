@@ -1,0 +1,348 @@
+<header class="fp-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="fp-title text-center mb-0">FLOWERPOKER</h1>
+</header>
+
+<div class="fp-page pb-4">
+  <div class="row justify-content-center mb-3">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <div class="fp-how-card-head d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+            <h2 class="fp-section-title text-primary mb-0 text-uppercase fw-semibold c-text-glow">How this round works</h2>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" (click)="openFpDetailsModal()">
+              Detailed information
+            </button>
+          </div>
+          <ul class="fp-list mb-2">
+            <li>You and the house each plant 5 Mithril seeds.</li>
+            <li>Click seeds left-to-right to reveal both rows.</li>
+            <li>Black/white flowers trigger reroll of the whole round.</li>
+            <li>Best hand wins: Bust, 1 Pair, 2 Pair, 3 Kind, Full House, 4 Kind, 5 Kind.</li>
+          </ul>
+          <p class="mb-0 fp-note">Game instructions stay fixed here; live seed status appears in the board card below.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-3">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <div class="fp-betbar mb-3">
+            <div class="fp-betbar__left">
+              <label for="fpBetAmount" class="fp-betbar__label">Bet (CLAIMY)</label>
+              <input
+                id="fpBetAmount"
+                class="fp-betbar__input"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="10"
+                [(ngModel)]="betAmountInput"
+                [disabled]="placingBet || busy || settlingBet || gameSessionActive || resumingSession"
+              />
+              <span class="fp-betbar__meta">90% profit on win (10 bet returns 19).</span>
+            </div>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="placeBetAndStart()"
+              [disabled]="placingBet || busy || settlingBet || gameSessionActive || resumingSession"
+            >
+              {{ placingBet ? 'Starting...' : 'Place bet & start' }}
+            </button>
+          </div>
+          <p class="fp-note mb-2 small">Mithril seeds reveal your row and the house row together.</p>
+          <div class="fp-status" aria-live="polite">
+            {{ message }}
+          </div>
+          <div class="fp-board">
+            <h3 class="fp-row-title">Player</h3>
+            <div class="fp-row">
+              <button
+                *ngFor="let idx of slots"
+                type="button"
+                class="fp-slot-btn"
+                [class.fp-slot--matched]="playerMatched[idx]"
+                [disabled]="!gameSessionActive || busy || settlingBet || idx > plantedCount || idx < plantedCount || plantedCount >= slots.length"
+                (click)="plant(idx)"
+              >
+                <span class="fp-slot-index">{{ idx + 1 }}</span>
+                <div class="fp-slot-media" [class.is-revealed]="!!playerRow[idx]" [class.is-loading]="busy && revealingIndex === idx">
+                  <span class="fp-slot-loading" *ngIf="busy && revealingIndex === idx"></span>
+                  <img class="fp-slot-seed" [src]="seedImage" alt="Mithril seed" />
+                  <img
+                    class="fp-slot-flower"
+                    [src]="getFlowerMeta(playerRow[idx])?.image || ''"
+                    [alt]="getFlowerMeta(playerRow[idx])?.label || 'flower'"
+                    [style.visibility]="playerRow[idx] ? 'visible' : 'hidden'"
+                  />
+                </div>
+                <span class="fp-slot-label" *ngIf="playerRow[idx]">{{ getFlowerMeta(playerRow[idx])?.label }}</span>
+              </button>
+            </div>
+
+            <h3 class="fp-row-title mt-3">House</h3>
+            <div class="fp-row">
+              <div *ngFor="let idx of slots" class="fp-slot-view" [class.fp-slot--matched]="houseMatched[idx]">
+                <span class="fp-slot-index">{{ idx + 1 }}</span>
+                <div class="fp-slot-media" [class.is-revealed]="!!houseRow[idx]" [class.is-loading]="busy && revealingIndex === idx">
+                  <span class="fp-slot-loading" *ngIf="busy && revealingIndex === idx"></span>
+                  <img class="fp-slot-seed" [src]="seedImage" alt="Mithril seed" />
+                  <img
+                    class="fp-slot-flower"
+                    [src]="getFlowerMeta(houseRow[idx])?.image || ''"
+                    [alt]="getFlowerMeta(houseRow[idx])?.label || 'flower'"
+                    [style.visibility]="houseRow[idx] ? 'visible' : 'hidden'"
+                  />
+                </div>
+                <span class="fp-slot-label" *ngIf="houseRow[idx]">{{ getFlowerMeta(houseRow[idx])?.label }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-12 col-xl-11">
+      <div class="card fp-card">
+        <div class="card-body p-3 p-lg-4">
+          <h2 class="fp-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Round details</h2>
+          <div class="fp-grid">
+            <div class="fp-cell">
+              <span class="fp-k">Player hand</span>
+              <span class="fp-v">{{ playerHand?.label || '—' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">House hand</span>
+              <span class="fp-v">{{ houseHand?.label || '—' }}</span>
+            </div>
+            <div class="fp-cell fp-cell--wide">
+              <span class="fp-k">Winner</span>
+              <span class="fp-v fp-winner">{{ winnerName || '' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Server seed hash</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.serverSeedHash || '—' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Client seed</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.clientSeed || '—' }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Sub-round</span>
+              <span class="fp-v fp-mono">{{
+                fairSnapshot?.subRoundIndex ?? fairSnapshot?.nonce ?? '—'
+              }}</span>
+            </div>
+            <div class="fp-cell fp-cell--wide">
+              <span class="fp-k">Server seed (revealed at settlement)</span>
+              <span class="fp-v fp-mono fp-mono--wrap">{{
+                fairSnapshot?.serverSeedReveal
+                  ? fairSnapshot?.serverSeedReveal
+                  : '— (hidden until the hand settles)'
+              }}</span>
+            </div>
+            <div class="fp-cell">
+              <span class="fp-k">Roll digest</span>
+              <span class="fp-v fp-mono">{{ fairSnapshot?.rollDigest || '—' }}</span>
+            </div>
+          </div>
+          <div class="fp-verify-actions text-center mt-3">
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              (click)="verifyProvablyFair()"
+              [disabled]="verifyingRound || !fairSnapshot?.serverSeedReveal"
+            >
+              {{ verifyingRound ? 'Verifying…' : 'Verify round' }}
+            </button>
+            <p class="fp-note mb-0 mt-2 small" *ngIf="!fairSnapshot?.serverSeedReveal">
+              Verification needs the revealed server seed (shown after settlement).
+            </p>
+          </div>
+
+          <div class="fp-verify-report mt-3" *ngIf="verificationReport as rep">
+            <p class="fp-verify-summary mb-2" [class.text-success]="rep.ok" [class.text-danger]="!rep.ok">
+              {{ rep.summary }}
+            </p>
+            <div class="fp-verify-block" *ngFor="let c of rep.comparisons">
+              <div class="fp-verify-block-head">
+                <span class="fp-verify-block-title">{{ c.title }}</span>
+                <span class="fp-verify-badge" [class.fp-verify-badge--ok]="c.match" [class.fp-verify-badge--bad]="!c.match">
+                  {{ c.match ? 'Match' : 'Mismatch' }}
+                </span>
+              </div>
+              <div class="fp-verify-compare">
+                <div class="fp-verify-col">
+                  <span class="fp-verify-cap">{{ c.leftCaption }}</span>
+                  <pre class="fp-verify-pre">{{ c.leftValue }}</pre>
+                </div>
+                <div class="fp-verify-col">
+                  <span class="fp-verify-cap">{{ c.rightCaption }}</span>
+                  <pre class="fp-verify-pre">{{ c.rightValue }}</pre>
+                </div>
+              </div>
+              <p class="fp-verify-detail mb-0" *ngIf="c.detail">{{ c.detail }}</p>
+            </div>
+          </div>
+
+          <p class="mb-0 mt-3 fp-note">
+            After settlement, <strong>Verify round</strong>
+            runs only in your browser: you should see the committed hash equal SHA-256 of the revealed seed, the board equal HMAC-derived flowers, and the roll digest equal SHA-256 of the preimage string—so you are not relying on our word alone.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mechanics, odds, provably fair (matches server implementation) -->
+<div
+  *ngIf="showFpDetailsModal"
+  class="fp-details-modal"
+  (click)="closeFpDetailsModal()"
+  role="presentation"
+>
+  <div
+    class="fp-details-modal__card"
+    (click)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="fpDetailsModalTitle"
+  >
+    <button type="button" class="fp-details-modal__close" aria-label="Close" (click)="closeFpDetailsModal()">×</button>
+    <p class="fp-details-modal__eyebrow mb-1">Flowerpoker</p>
+    <h3 id="fpDetailsModalTitle" class="fp-details-modal__title text-primary mb-2">Rules, odds &amp; provably fair</h3>
+    <p class="fp-details-modal__lead mb-3">
+      This page mirrors the server Edge function: same weights, same HMAC recipe, same digest. Use
+      <strong>Verify round</strong>
+      after a hand settles to compare values in your browser.
+    </p>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">How a round plays</h4>
+      <ol class="fp-details-list">
+        <li>You choose a bet in Claimy credits and receive a round with five hidden flowers for you and five for the house.</li>
+        <li>
+          You pick a <strong>client seed</strong> (or the app generates one). The server commits to
+          <strong>SHA-256(server seed)</strong>
+          before any flowers are shown.
+        </li>
+        <li>Click each Mithril seed left to right; each click reveals the matching slot on <em>both</em> rows.</li>
+        <li>
+          If <strong>any</strong> of the ten flowers is black or white, the round is void for scoring and the game requests a
+          <strong>reroll</strong>
+          (new sub-round, same seeds — see server).
+        </li>
+        <li>Otherwise the best five-flower poker hand wins: bust → five of a kind as on OSRS flower games.</li>
+        <li>Win pays <strong>1.9×</strong> your stake (e.g. 10 bet → 19 returned including profit on a player win).</li>
+      </ol>
+    </section>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Hand strength (high card wins)</h4>
+      <p class="fp-details-muted mb-2">Ties on rank go to the next rule in the list; identical hands are a tie.</p>
+      <ul class="fp-details-list fp-details-list--compact">
+        <li><strong>5 of a kind</strong> — five matching colours</li>
+        <li><strong>4 of a kind</strong></li>
+        <li><strong>Full house</strong> — three + pair</li>
+        <li><strong>3 of a kind</strong></li>
+        <li><strong>2 pair</strong></li>
+        <li><strong>1 pair</strong></li>
+        <li><strong>Bust</strong> — no pair</li>
+      </ul>
+    </section>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Flower odds (each roll)</h4>
+      <p class="fp-details-muted mb-2">
+        Each flower slot is an independent draw. Weight
+        <span class="fp-mono">{{ totalFlowerWeight }}</span>
+        total — same table as
+        <code class="fp-details-inline-code">flowerpoker-game</code>
+        on the server.
+      </p>
+      <div class="table-responsive fp-details-table-wrap">
+        <table class="table table-sm table-borderless fp-details-table mb-0">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Flower</th>
+              <th scope="col" class="text-end">Weight</th>
+              <th scope="col" class="text-end">≈ Chance / roll</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of flowers">
+              <td class="fp-details-td-img">
+                <img [src]="f.image" [alt]="f.label" class="fp-details-flower-img" width="36" height="36" loading="lazy" />
+              </td>
+              <td>{{ f.label }}</td>
+              <td class="text-end fp-mono">{{ f.weight }}</td>
+              <td class="text-end fp-mono">{{ flowerChancePercent(f.weight) }}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fp-details-muted mt-2 mb-0 small">
+        Black and white are rare; they also force a full reroll when they appear, so they do not decide a normal win/loss
+        board.
+      </p>
+    </section>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Why it is provably fair</h4>
+      <ul class="fp-details-list">
+        <li>
+          The server picks a random 32-byte <strong>server seed</strong> and shows you only
+          <strong>SHA-256(seed)</strong>
+          until settlement.
+        </li>
+        <li>
+          Flowers are not “picked” by a black box: each of ten slots uses
+          <strong>HMAC-SHA256(key = server seed bytes, message = fixed string)</strong>, then maps the first four bytes to a
+          float in [0,1) and walks the weight table (same as the table above).
+        </li>
+        <li>
+          A <strong>roll digest</strong>
+          is published:
+          <span class="fp-mono small">SHA-256(playerIds|houseIds|subRound|clientSeed)</span>
+          so the exact board is committed together with your client seed and sub-round index.
+        </li>
+        <li>After settlement, the base64 server seed is revealed. Anyone can hash it and re-run the HMAC steps offline.</li>
+      </ul>
+    </section>
+
+    <section class="fp-details-section">
+      <h4 class="fp-details-section__h">Server-style pseudocode</h4>
+      <p class="fp-details-muted mb-2">Equivalent to Deno/Web Crypto in our Edge function and to the browser verifier.</p>
+
+      <p class="fp-details-code-label">HMAC message per counter (player slots 0–4, then house 0–4)</p>
+      <pre class="fp-details-code"><code>{{ fpDetailsSnippetHmac }}</code></pre>
+
+      <p class="fp-details-code-label">Roll digest (commitment to the board)</p>
+      <pre class="fp-details-code"><code>{{ fpDetailsSnippetRollDigest }}</code></pre>
+
+      <p class="fp-details-code-label">Pre-commitment</p>
+      <pre class="fp-details-code"><code>{{ fpDetailsSnippetCommit }}</code></pre>
+    </section>
+
+    <div class="fp-details-modal__footer">
+      <button type="button" class="btn btn-sm btn-primary" (click)="closeFpDetailsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div
+  class="fp-toast"
+  *ngIf="toast as t"
+  [class.fp-toast--error]="t.type === 'error'"
+  role="status"
+  aria-live="polite"
+>
+  {{ t.message }}
+</div>

@@ -1,0 +1,5 @@
+# Edge Function overrides (see https://supabase.com/docs/guides/functions/function-configuration)
+# Public feed: no JWT gate — the function uses service_role server-side only.
+
+[functions.playhouse-feed]
+verify_jwt = false

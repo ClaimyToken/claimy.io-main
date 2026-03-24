@@ -1,0 +1,183 @@
+<header class="register-page-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="register-page-title text-center mb-0">
+    <ngx-typed-js [strings]="['REGISTER']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
+      <span class="typing"></span>
+    </ngx-typed-js>
+  </h1>
+</header>
+
+<div class="row my-3 my-lg-4">
+  <div class="col-12 col-lg-7 mx-auto">
+    <div class="card">
+      <div class="card-body p-3 p-md-4">
+        <h2 class="register-title text-primary text-uppercase c-text-glow">Phantom registration</h2>
+        <p class="register-lead mb-3">
+          Choose a username, check that it’s free, then connect Phantom and sign a message. Your account is the link
+          between that username and your public wallet—no password.
+        </p>
+
+        <div class="register-security-note mb-3">
+          <div class="register-security-note__label">Security</div>
+          <p class="register-security-note__text mb-2">
+            We never ask for your seed phrase or private key. Phantom signs messages locally on your device; we only
+            verify the signature on our server to prove you control the wallet you connect.
+          </p>
+          <p class="register-security-note__link-line mb-0">
+            <a href="https://docs.phantom.com/solana/signing-a-message" target="_blank" rel="noopener noreferrer"
+              class="register-security-doc-link">
+              <span class="register-security-doc-link__text">Phantom Signing</span>
+              <span class="material-icons register-security-doc-link__icon" aria-hidden="true">open_in_new</span>
+            </a>
+          </p>
+        </div>
+
+        <div class="register-flow">
+          <!-- Step 1 -->
+          <div class="flow-step" [class.flow-step--done]="usernameAvailable === true"
+            [class.flow-step--active]="usernameAvailable !== true">
+            <div class="flow-step__title">1 · Check username</div>
+            <p class="flow-step__hint mb-2">Pick a name (3–24 characters, stored lowercase).</p>
+            <label class="form-label register-label">Username</label>
+            <input class="form-control form-control-sm register-input mb-2" [(ngModel)]="username" name="reg-username"
+              (ngModelChange)="onUsernameChange()" minlength="3" maxlength="24" autocomplete="username"
+              placeholder="3–24 characters, stored lowercase" />
+            <div class="register-actions">
+              <button type="button" class="btn btn-sm register-btn" (click)="checkUsernameAvailability()"
+                [class.btn-primary]="usernameAvailable !== true"
+                [class.btn-success]="usernameAvailable === true"
+                [disabled]="checkingUsername || usernameAvailable === true">
+                {{ checkingUsername ? 'Checking…' : (usernameAvailable === true ? 'Available ✓' : 'Check availability') }}
+              </button>
+            </div>
+            <label class="form-label register-label mt-3">Referral code (optional)</label>
+            <input
+              class="form-control form-control-sm register-input mb-0"
+              [(ngModel)]="referralCodeInput"
+              name="reg-referral"
+              maxlength="32"
+              autocomplete="off"
+              placeholder="Friend’s code — letters &amp; numbers only"
+            />
+            <p class="flow-step__hint mt-1 mb-0">
+              If someone invited you, enter their code. Leave blank if you don’t have one.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="flow-step"
+            [class.flow-step--locked]="usernameAvailable !== true"
+            [class.flow-step--done]="!!phantomWalletAddress"
+            [class.flow-step--active]="usernameAvailable === true && !phantomWalletAddress">
+            <div class="flow-step__title">2 · Connect Phantom</div>
+            <p class="flow-step__hint mb-2">Link the wallet that will own this account.</p>
+            <label class="form-label register-label">Wallet</label>
+            <div class="register-wallet text-break mb-2">
+              {{ phantomWalletAddress || '—' }}
+            </div>
+            <div class="register-actions register-actions--stack">
+              <button type="button" class="btn btn-sm register-btn" (click)="connectPhantom()"
+                [class.btn-outline-secondary]="!phantomWalletAddress"
+                [class.btn-success]="!!phantomWalletAddress"
+                [disabled]="usernameAvailable !== true || !!phantomWalletAddress">
+                {{ phantomWalletAddress ? 'Connected ✓' : 'Connect Phantom' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="flow-step"
+            [class.flow-step--locked]="!phantomWalletAddress"
+            [class.flow-step--done]="!!phantomSignatureBase64"
+            [class.flow-step--active]="!!phantomWalletAddress && !phantomSignatureBase64">
+            <div class="flow-step__title">3 · Sign message</div>
+            <p class="flow-step__hint mb-2">Prove you control this wallet with a one-time signature.</p>
+            <div class="register-actions register-actions--stack mb-2">
+              <button type="button" class="btn btn-sm register-btn" (click)="signPhantomMessage()"
+                [class.btn-outline-secondary]="!phantomWalletAddress"
+                [class.btn-primary]="!!phantomWalletAddress && !phantomSignatureBase64"
+                [class.btn-success]="!!phantomSignatureBase64"
+                [disabled]="!phantomWalletAddress || !!phantomSignatureBase64">
+                {{ phantomSignatureBase64 ? 'Signed ✓' : 'Sign message' }}
+              </button>
+            </div>
+            <div class="register-sig register-sig--static">
+              <p class="register-label mb-1">Signature (base64)</p>
+              <p class="register-sig-value mb-0 text-break">{{ phantomSignatureBase64 || '—' }}</p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="flow-step"
+            [class.flow-step--locked]="!phantomSignatureBase64"
+            [class.flow-step--done]="registrationComplete"
+            [class.flow-step--active]="!!phantomSignatureBase64 && !registrationComplete && !submittingRegistration">
+            <div class="flow-step__title">4 · Complete registration</div>
+            <p class="flow-step__hint mb-2">Save your username ↔ wallet link on our server.</p>
+            <div class="register-actions register-actions--stack">
+              <button
+                type="button"
+                class="btn btn-sm register-btn register-btn--with-spinner"
+                (click)="completeRegistration()"
+                [class.btn-outline-secondary]="!phantomSignatureBase64 && !registrationComplete"
+                [class.btn-primary]="!!phantomSignatureBase64 && !registrationComplete && !submittingRegistration"
+                [class.btn-success]="registrationComplete"
+                [disabled]="!phantomSignatureBase64 || submittingRegistration || registrationComplete"
+              >
+                <span *ngIf="submittingRegistration" class="register-btn__spinner" aria-hidden="true"></span>
+                <span class="register-btn__label">{{
+                  submittingRegistration ? 'Registering…' : registrationComplete ? 'Registered ✓' : 'Complete registration'
+                }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showRegistrationSuccessModal" class="register-success-modal" (click)="closeRegistrationSuccessModal()">
+  <div class="register-success-modal__card" role="dialog" aria-modal="true" aria-labelledby="registerSuccessTitle"
+    (click)="$event.stopPropagation()">
+    <button type="button" class="register-success-modal__dismiss" aria-label="Close"
+      (click)="closeRegistrationSuccessModal()">×</button>
+    <p class="register-success-modal__eyebrow mb-1">Account created</p>
+    <h3 id="registerSuccessTitle" class="register-success-modal__title mb-2">Registration successful</h3>
+    <p class="register-success-modal__text mb-3">
+      Your username is now linked to your Phantom wallet. Keep this wallet secure and use it for future sign-ins.
+    </p>
+
+    <div class="register-success-modal__meta mb-3">
+      <p class="register-success-modal__label mb-1">Username</p>
+      <p class="register-success-modal__value mb-2">{{ username.trim().toLowerCase() }}</p>
+
+      <p class="register-success-modal__label mb-1">Wallet</p>
+      <p class="register-success-modal__value text-break mb-2">{{ phantomWalletAddress }}</p>
+      <button type="button" class="btn btn-outline-secondary btn-sm register-success-modal__copy-btn mb-2"
+        (click)="copyToClipboard(phantomWalletAddress, 'wallet')">
+        {{ copiedWallet ? 'Copied ✓' : 'Copy wallet' }}
+      </button>
+
+      <p class="register-success-modal__label mb-1">Signature</p>
+      <p class="register-success-modal__value text-break mb-0">{{ phantomSignatureBase64 }}</p>
+      <button type="button" class="btn btn-outline-secondary btn-sm register-success-modal__copy-btn mt-2"
+        (click)="copyToClipboard(phantomSignatureBase64, 'signature')">
+        {{ copiedSignature ? 'Copied ✓' : 'Copy signature' }}
+      </button>
+    </div>
+
+    <div class="register-success-modal__actions">
+      <button type="button" class="btn btn-primary btn-sm register-success-modal__btn"
+        (click)="closeRegistrationSuccessModal()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="toast as t" class="register-toast" [class.register-toast--error]="t.type === 'error'"
+  [class.register-toast--info]="t.type === 'info'" [class.register-toast--success]="t.type === 'success'"
+  role="status">
+  <span class="register-toast__text">{{ t.message }}</span>
+  <button type="button" class="register-toast__close" aria-label="Dismiss" (click)="dismissToast()">×</button>
+</div>

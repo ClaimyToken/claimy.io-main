@@ -1,0 +1,184 @@
+<header class="account-settings-page-header border-primary border rounded-3 my-3 my-lg-4">
+  <h1 class="account-settings-page-title text-center mb-0">
+    <ngx-typed-js [strings]="['ACCOUNT']" [typeSpeed]="100" [startDelay]="0" [showCursor]="false">
+      <span class="typing"></span>
+    </ngx-typed-js>
+  </h1>
+</header>
+
+<div class="row my-3 my-lg-4" *ngIf="walletAuth.isLoggedIn">
+  <div class="col-12 col-lg-7 mx-auto">
+    <div class="card">
+      <div class="card-body p-3 p-md-4">
+        <h2 class="account-settings-title text-primary text-uppercase c-text-glow">Account settings</h2>
+        <p class="account-settings-lead mb-3">
+          You sign in with Phantom to prove it’s you. Claimy gives you a separate custodial address for SPL deposits:
+          1 token in that wallet = 1 Claimy Credit (read from chain). You never log in with the deposit address.
+          <button type="button" class="account-settings-inline-link btn btn-link p-0 border-0 align-baseline" (click)="openWalletModal()">
+            Open your wallet
+          </button>
+        </p>
+
+        <div class="account-settings-panel">
+          <div class="account-settings-row">
+            <span class="account-settings-label">Username</span>
+            <span class="account-settings-value">{{ walletAuth.username }}</span>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">Account created</span>
+            <span class="account-settings-value" *ngIf="walletAuth.accountCreatedAt">
+              {{ walletAuth.accountCreatedAt | date:'medium' }}
+            </span>
+            <span class="account-settings-value account-settings-value--muted" *ngIf="!walletAuth.accountCreatedAt">
+              —
+            </span>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">Phantom (sign-in)</span>
+            <div>
+              <span class="account-settings-value account-settings-value--mono text-break">{{
+                walletAuth.walletAddress
+              }}</span>
+              <p class="account-settings-note mb-0">
+                Used only to verify your identity when you connect your wallet. This is not your SPL deposit
+                address.
+              </p>
+            </div>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">SPL deposit (Claimy)</span>
+            <div class="account-settings-deposit" *ngIf="walletAuth.depositWalletAddress">
+              <span class="account-settings-value account-settings-value--mono text-break">{{
+                walletAuth.depositWalletAddress
+              }}</span>
+              <p class="account-settings-note mb-1">
+                A Solana address we generated for your account. Send the project SPL token here; Claimy holds the
+                keys and will credit Claimy Credits (1:1 — coming soon). You cannot use this address to log in.
+              </p>
+              <div class="account-settings-deposit-actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary account-settings-btn"
+                  (click)="copyDepositAddress()"
+                >
+                  {{ copiedDeposit ? 'Copied' : 'Copy' }}
+                </button>
+                <a
+                  class="btn btn-sm btn-outline-primary account-settings-btn"
+                  [href]="solscanDepositUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Solscan</a>
+              </div>
+            </div>
+            <div *ngIf="!walletAuth.depositWalletAddress">
+              <span class="account-settings-value account-settings-value--muted">—</span>
+            </div>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">Referrals</span>
+            <span class="account-settings-value">
+              {{ walletAuth.referralCount != null ? walletAuth.referralCount : '—' }}
+              <span class="account-settings-note d-block mb-0">
+                Accounts registered with your referral code. Share your code from
+                <a routerLink="/referrals">Referrals</a>.
+              </span>
+            </span>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">Your referral code</span>
+            <span class="account-settings-value account-settings-value--mono text-break">{{
+              walletAuth.referralCode || '—'
+            }}</span>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">Client seed (games)</span>
+            <div class="account-settings-seed">
+              <input
+                type="text"
+                readonly
+                class="form-control form-control-sm account-settings-seed-input"
+                maxlength="128"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Click Random, then Save"
+                [(ngModel)]="gamesSeedInput"
+                [disabled]="gamesSeedSaving"
+                aria-readonly="true"
+              />
+              <p class="account-settings-note mb-2">
+                <strong>Random</strong>
+                generates a new seed (you can’t type your own). <strong>Save</strong>
+                stores it on your account for Flowerpoker and future games. <strong>Clear</strong>
+                removes it so each bet can use a server random seed.
+              </p>
+              <div class="account-settings-seed-actions d-flex flex-wrap gap-2 align-items-center">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary account-settings-btn"
+                  (click)="randomizeGamesClientSeed()"
+                  [disabled]="gamesSeedSaving"
+                >
+                  Random
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary account-settings-btn"
+                  (click)="saveGamesClientSeed()"
+                  [disabled]="gamesSeedSaving"
+                >
+                  {{ gamesSeedSaving ? 'Saving…' : 'Save' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary account-settings-btn"
+                  (click)="clearGamesClientSeed()"
+                  [disabled]="gamesSeedSaving"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="account-settings-row">
+            <span class="account-settings-label">CLAIMY Credits</span>
+            <span class="account-settings-value">
+              <span *ngIf="creditsLoading" class="account-settings-credits-spinner" aria-hidden="true"></span>
+              <ng-container *ngIf="!creditsLoading">
+                <ng-container *ngIf="hasMintConfigured(); else creditsUnset">
+                  {{
+                    walletAuth.claimyCreditsBalance != null
+                      ? (walletAuth.claimyCreditsBalance | number : '1.0-8')
+                      : '—'
+                  }}
+                </ng-container>
+                <ng-template #creditsUnset>—</ng-template>
+              </ng-container>
+            </span>
+          </div>
+          <div class="account-settings-row account-settings-row--last">
+            <span class="account-settings-label">Current rank</span>
+            <span class="account-settings-value">
+              {{ walletAuth.rankDisplay }}
+              <span class="account-settings-badge">Soon</span>
+            </span>
+          </div>
+        </div>
+
+        <p class="account-settings-foot mb-0 mt-3">
+          <a routerLink="/home" class="account-settings-back">← Back to home</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="account-settings-toast"
+  *ngIf="toast as t"
+  [class.account-settings-toast--error]="t.type === 'error'"
+  role="status"
+  aria-live="polite"
+>
+  {{ t.message }}
+</div>
