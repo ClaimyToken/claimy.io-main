@@ -180,7 +180,25 @@
                         }}</span>
                         <span class="nav-account__meta">
                             <span class="nav-account__label">Signed in</span>
-                            <span class="nav-account__name">{{ walletAuth.username }}</span>
+                            <span class="nav-account__identity">
+                                <span class="nav-account__name">{{ walletAuth.username }}</span>
+                                <span
+                                    class="nav-account__rank"
+                                    [ngClass]="
+                                        rankSnap
+                                            ? 'rank-league--' + ranks.leagueModifier(rankSnap.currentTier.league)
+                                            : 'rank-league--bronze'
+                                    "
+                                >
+                                    [{{
+                                        rankSnap
+                                            ? (rankSnap.currentTier.tierLabel | uppercase)
+                                            : playerRanking.loading
+                                              ? '…'
+                                              : 'BRONZE III'
+                                    }}]
+                                </span>
+                            </span>
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end nav-account__menu shadow">

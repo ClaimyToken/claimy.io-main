@@ -201,3 +201,29 @@ small,
         text-shadow: 0px 0px 20px rgba(255, 46, 0, 0.75);
     }
 }
+
+/* Rank league accent (Leaderboards, nav badge, Account settings) */
+.rank-league--bronze {
+    color: #cd7f32 !important;
+    text-shadow: 0 0 12px rgba(205, 127, 50, 0.35);
+}
+
+.rank-league--iron {
+    color: #c8c0c0 !important;
+    text-shadow: 0 0 10px rgba(200, 192, 192, 0.25);
+}
+
+.rank-league--gold {
+    color: #ffd700 !important;
+    text-shadow: 0 0 14px rgba(255, 215, 0, 0.35);
+}
+
+.rank-league--emerald {
+    color: #50c878 !important;
+    text-shadow: 0 0 12px rgba(80, 200, 120, 0.3);
+}
+
+.rank-league--diamond {
+    color: #9fe7ff !important;
+    text-shadow: 0 0 14px rgba(159, 231, 255, 0.35);
+}

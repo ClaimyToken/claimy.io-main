@@ -211,3 +211,91 @@
     transform: rotate(360deg);
   }
 }
+
+.account-settings-tabs {
+  border-bottom-color: rgba(var(--bs-primary-rgb), 0.35);
+
+  .nav-link {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 650;
+    color: var(--bs-secondary-color);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 0.5rem 0.85rem;
+    background: transparent;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    &.active {
+      color: var(--bs-primary);
+      border-bottom-color: var(--bs-primary);
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.account-settings-tab-card {
+  border-color: rgba(var(--bs-primary-rgb), 0.35);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.account-settings-rank-title {
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-settings-ranking-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.65rem 1rem;
+}
+
+.account-settings-stat {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.35rem;
+  padding: 0.5rem 0.65rem;
+  background: rgba(0, 0, 0, 0.2);
+
+  &--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.account-settings-stat__label {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.2rem;
+}
+
+.account-settings-stat__value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Space Mono', ui-monospace, monospace;
+}
+
+.account-settings-ranking-loading {
+  letter-spacing: 0.02em;
+}
+
+.account-settings-max-rank {
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+  border-radius: 0.35rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(var(--bs-primary-rgb), 0.08);
+}
+
+::ng-deep .account-settings-tab-card mat-progress-bar {
+  height: 10px;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}

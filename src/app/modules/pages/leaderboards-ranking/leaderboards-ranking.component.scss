@@ -42,15 +42,35 @@
   }
 }
 
+.rank-section--table {
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.28);
+  border-radius: 0.5rem;
+  background: #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.rank-inline-link {
+  color: var(--bs-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+
+  &:hover {
+    color: #ffab6f;
+  }
+}
+
 .rank-table-wrap {
   border: 1px solid rgba(var(--bs-primary-rgb), 0.22);
   border-radius: 0.35rem;
   overflow: hidden;
+  background: #000;
 }
 
 .rank-table {
   margin: 0;
   font-size: 0.78rem;
+  --bs-table-bg: transparent;
+  --bs-table-color: rgba(255, 245, 235, 0.92);
 
   thead th {
     font-size: 0.62rem;
@@ -79,11 +99,6 @@
 
 .rank-table__tier {
   font-weight: 650;
-  color: var(--bs-primary);
-}
-
-.rank-table__league {
-  font-size: 0.7rem;
 }
 
 .rank-footnote {

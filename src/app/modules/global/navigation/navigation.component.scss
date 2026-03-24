@@ -417,6 +417,23 @@ $nav-promo-btn-height: 3.1rem;
     max-width: min(15rem, 52vw);
 }
 
+.nav-account__identity {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.5rem;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.nav-account__rank {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
 .nav-account__label {
     font-size: 0.58rem;
     letter-spacing: 0.12em;

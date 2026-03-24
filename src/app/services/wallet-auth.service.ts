@@ -38,9 +38,6 @@ export class WalletAuthService {
   // Updated from chain (1 SPL token balance = 1 credit at same decimals).
   claimyCreditsBalance: number | null = null;
 
-  /** Placeholder until ranks are implemented server-side. */
-  readonly rankDisplay = '—';
-
   /** Emits after a successful `loginWithWallet` (e.g. modal login while staying on the same route). */
   readonly loginSucceeded$ = new Subject<void>();
 

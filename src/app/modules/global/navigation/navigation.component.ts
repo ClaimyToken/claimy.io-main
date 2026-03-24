@@ -3,8 +3,10 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ClaimyCreditsService } from 'src/app/services/claimy-credits.service';
 import { ConfigService } from 'src/app/services/config.service';
-import { WalletModalService } from 'src/app/services/wallet-modal.service';
 import { LoginModalService } from 'src/app/services/login-modal.service';
+import { PlayerRankingService, PlayerRankingSnapshot } from 'src/app/services/player-ranking.service';
+import { RankLadderService } from 'src/app/services/rank-ladder.service';
+import { WalletModalService } from 'src/app/services/wallet-modal.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 
 @Component({
@@ -14,10 +16,16 @@ import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 })
 export class NavigationComponent implements OnInit, OnDestroy {
   private walletModalSub?: Subscription;
+  private rankSnapSub?: Subscription;
+
+  /** Latest ranking snapshot for nav badge (null until loaded or on error). */
+  rankSnap: PlayerRankingSnapshot | null = null;
 
   constructor(
     public configService: ConfigService,
     public walletAuth: WalletAuthService,
+    public readonly ranks: RankLadderService,
+    public readonly playerRanking: PlayerRankingService,
     private readonly router: Router,
     private readonly loginModal: LoginModalService,
     private readonly walletModal: WalletModalService,
@@ -34,6 +42,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
       void this.claimyCredits.refresh();
     }
 
+    this.rankSnapSub = this.playerRanking.snapshot$.subscribe((s: PlayerRankingSnapshot | null) => {
+      this.rankSnap = s;
+    });
+    this.playerRanking.initFromSession();
+
     this.walletModalSub = this.walletModal.openRequested$.subscribe(() => {
       const el = document.getElementById('claimyWalletModal');
       const w = window as unknown as {
@@ -47,9 +60,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.walletModalSub?.unsubscribe();
+    this.rankSnapSub?.unsubscribe();
   }
 
   logout() {
+    this.playerRanking.clear();
+    this.rankSnap = null;
     this.walletAuth.logout();
     void this.router.navigate(['/home']);
   }

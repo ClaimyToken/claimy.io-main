@@ -5,6 +5,8 @@ import { ClaimyCreditsService } from 'src/app/services/claimy-credits.service';
 import { ClaimyEdgeService } from 'src/app/services/claimy-edge.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { LoginModalService } from 'src/app/services/login-modal.service';
+import { PlayerRankingService } from 'src/app/services/player-ranking.service';
+import { RankLadderService } from 'src/app/services/rank-ladder.service';
 import { WalletModalService } from 'src/app/services/wallet-modal.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 
@@ -14,6 +16,9 @@ import { WalletAuthService } from 'src/app/services/wallet-auth.service';
   styleUrls: ['./account-settings.component.scss']
 })
 export class AccountSettingsComponent implements OnInit, OnDestroy {
+  /** Which tab is visible when logged in. */
+  settingsTab: 'account' | 'ranking' = 'account';
+
   copiedDeposit = false;
   creditsLoading = false;
   private copyDepositResetId: ReturnType<typeof setTimeout> | null = null;
@@ -28,6 +33,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   constructor(
     public walletAuth: WalletAuthService,
     public config: ConfigService,
+    public readonly playerRanking: PlayerRankingService,
+    public readonly ranks: RankLadderService,
     private readonly credits: ClaimyCreditsService,
     private readonly claimyEdge: ClaimyEdgeService,
     private readonly walletModal: WalletModalService,
@@ -56,6 +63,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       return;
     }
     void this.loadCreditsAndSeed();
+    void this.playerRanking.refresh();
   }
 
   ngOnDestroy(): void {
