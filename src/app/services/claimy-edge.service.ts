@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ConfigService } from './config.service';
 
 /** Row from `claimy_credit_ledger` (via claimy-credits `list_ledger`). */
@@ -55,7 +56,22 @@ export type PlayhouseBetRow = {
   providedIn: 'root'
 })
 export class ClaimyEdgeService {
+  /** Lazy anon client for `functions.invoke` (correct headers / URL for Supabase gateway + CORS). */
+  private supabaseAnonClient: SupabaseClient | null = null;
+
   constructor(private readonly config: ConfigService) {}
+
+  private getSupabaseAnonClient(): SupabaseClient | null {
+    const url = this.config.supabaseUrl?.replace(/\/$/, '');
+    const key = this.config.supabaseAnonKey?.trim();
+    if (!url || !key) return null;
+    if (!this.supabaseAnonClient) {
+      this.supabaseAnonClient = createClient(url, key, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+      });
+    }
+    return this.supabaseAnonClient;
+  }
 
   private functionsUrl(slug: string): string {
     return `${this.config.supabaseUrl.replace(/\/$/, '')}/functions/v1/${slug}`;
@@ -640,18 +656,28 @@ export class ClaimyEdgeService {
           'Missing Supabase anon key. Set it in environment.prod.ts (production) or .env + node scripts/sync-env.cjs (dev).'
       };
     }
+    const sb = this.getSupabaseAnonClient();
+    if (!sb) {
+      return { ok: false, error: 'Missing Supabase URL or anon key.' };
+    }
     try {
-      const res = await fetch(this.functionsUrl('playhouse-feed'), {
-        method: 'POST',
-        headers: this.edgeJsonHeaders(),
-        body: JSON.stringify({
+      const { data, error } = await sb.functions.invoke('playhouse-feed', {
+        body: {
           action: 'list_bets',
           page,
           pageSize,
           walletAddress: wallet
-        })
+        }
       });
-      const data = (await res.json().catch(() => ({}))) as {
+      if (error) {
+        const msg = error.message?.trim() || String(error);
+        const hint =
+          /401|403|jwt|unauthor/i.test(msg) || /Edge Function returned a non-2xx status code/i.test(msg)
+            ? ' In Supabase Dashboard → Edge Functions → playhouse-feed, turn JWT verification OFF (or deploy supabase/config.toml with verify_jwt = false).'
+            : '';
+        return { ok: false, error: msg + hint };
+      }
+      const payload = data as {
         ok?: boolean;
         page?: number;
         pageSize?: number;
@@ -660,26 +686,30 @@ export class ClaimyEdgeService {
         rows?: PlayhouseBetRow[];
         error?: string;
       };
-      const ok = res.ok && data.ok === true;
-      let errMsg =
-        (typeof data.error === 'string' && data.error) ||
-        (typeof (data as { message?: string }).message === 'string' && (data as { message?: string }).message) ||
-        undefined;
-      if (!ok && !errMsg) errMsg = `Request failed (${res.status})`;
+      if (!payload || typeof payload !== 'object') {
+        return { ok: false, error: 'Unexpected response from playhouse-feed.' };
+      }
+      if (payload.ok !== true) {
+        const errMsg =
+          (typeof payload.error === 'string' && payload.error) ||
+          'Could not load bets (check that SQL migration playhouse_list_settled_bets is applied).';
+        return { ok: false, error: errMsg };
+      }
       return {
-        ok,
-        page: data.page,
-        pageSize: data.pageSize,
-        total: data.total,
-        totalPages: data.totalPages,
-        rows: Array.isArray(data.rows) ? data.rows : [],
-        error: ok ? undefined : errMsg
+        ok: true,
+        page: payload.page,
+        pageSize: payload.pageSize,
+        total: payload.total,
+        totalPages: payload.totalPages,
+        rows: Array.isArray(payload.rows) ? payload.rows : []
       };
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message.trim() : '';
       return {
         ok: false,
-        error: msg || 'Network error (check Edge function slug is playhouse-feed and URL matches environment).'
+        error:
+          msg ||
+          'Network error. If this persists: deploy playhouse-feed, set JWT verify off for it, and run migration claimy_playhouse_feed.sql.'
       };
     }
   }

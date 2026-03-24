@@ -13,8 +13,10 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, prefer, x-supabase-api-version",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Max-Age": "86400",
 };
 
 function json(data: unknown, status = 200): Response {
@@ -25,7 +27,9 @@ function json(data: unknown, status = 200): Response {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { status: 200, headers: cors });
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: cors });
+  }
   if (req.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405);
 
   const url = Deno.env.get("SUPABASE_URL");
