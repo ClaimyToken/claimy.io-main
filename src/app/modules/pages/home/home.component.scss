@@ -159,16 +159,6 @@
         line-height: 1.35;
     }
 
-    /** Typed section titles: reserve space so layout doesn’t jump (longer line for Fair odds). */
-    .c-home-section-title--typed {
-        display: block;
-        min-height: 2.85rem;
-
-        &.c-home-section-title--fair {
-            min-height: 3.4rem;
-        }
-    }
-
     .c-home-card-title {
         font-size: 0.9rem;
         letter-spacing: 0.02em;
@@ -188,10 +178,32 @@
     }
 
     .c-home-game-tile__title {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.35rem 0.55rem;
         font-size: clamp(1rem, 2vw, 1.15rem);
         letter-spacing: 0.04em;
         text-transform: uppercase;
         margin: 0;
+    }
+
+    .c-home-game-tile__badge {
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.12rem 0.42rem;
+        border-radius: 0.25rem;
+        background: rgba(var(--bs-primary-rgb), 0.22);
+        color: var(--bs-primary);
+        border: 1px solid rgba(var(--bs-primary-rgb), 0.35);
+    }
+
+    .c-home-game-tile__badge--soon {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--bs-secondary-color);
+        border-color: rgba(255, 255, 255, 0.12);
     }
 
     .c-home-game-tile__link {
@@ -251,6 +263,52 @@
     .card-body .small {
         font-size: 0.8rem !important;
         line-height: 1.5;
+    }
+
+    .c-home-callout-card {
+        border: 1px solid rgba(var(--bs-primary-rgb), 0.28);
+        border-radius: 0.5rem;
+        padding: 1.25rem 1.35rem;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .c-home-callout-card--blog {
+        border-left: 3px solid rgba(var(--bs-primary-rgb), 0.55);
+    }
+
+    .c-home-callout-card--dev {
+        border-left: 3px solid rgba(110, 168, 254, 0.45);
+    }
+
+    .c-home-callout-card__title {
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        letter-spacing: 0.06em;
+        line-height: 1.35;
+    }
+
+    .c-home-callout-card__text {
+        font-size: 0.9rem;
+        line-height: 1.65;
+        color: var(--bs-body-color);
+    }
+
+    .c-home-inline-link {
+        color: var(--bs-primary);
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+
+        &:hover {
+            color: #ffab6f;
+        }
+    }
+
+    .c-home-inline-code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.88em;
+        padding: 0.06rem 0.28rem;
+        border-radius: 0.2rem;
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--bs-primary);
     }
 }
 
