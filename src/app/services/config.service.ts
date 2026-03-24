@@ -31,7 +31,7 @@ export class ConfigService {
   telegramName: string = 'claimyproject';
   telegramLink: string = `https://t.me/${this.telegramName}`;
   githubName: string = 'ClaimyToken';
-  githubLink: string = `https://github.com/${this.githubName}/Claimy-Project`;
+  githubLink: string = `https://github.com/${this.githubName}/claimy.io-main`;
   coinmarketcapLink: string = 'https://coinmarketcap.com/currencies/solana/';
   coingeckoLink: string = 'https://www.coingecko.com/en/coins/solana';
 
