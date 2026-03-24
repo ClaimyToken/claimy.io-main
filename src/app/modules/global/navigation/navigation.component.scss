@@ -235,6 +235,42 @@ $nav-promo-btn-height: 3.1rem;
     align-items: stretch;
 }
 
+.nav-socials {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.nav-socials__btn {
+    width: $nav-auth-chip-height;
+    min-width: $nav-auth-chip-height;
+    height: $nav-auth-chip-height;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.55);
+    color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), 0.08);
+    text-decoration: none;
+    transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+
+    svg {
+        display: block;
+    }
+
+    &:hover {
+        color: var(--bs-body-bg);
+        background: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px;
+    }
+}
+
 .nav-wallet-btn {
     font-size: 0.65rem;
     letter-spacing: 0.1em;
