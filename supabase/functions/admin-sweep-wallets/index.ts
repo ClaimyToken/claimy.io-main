@@ -232,6 +232,17 @@ serve(async (req) => {
           tx.sign(feePayer, depKp);
           const sig = await connection.sendRawTransaction(tx.serialize(), { skipPreflight: false, maxRetries: 3 });
           await connection.confirmTransaction(sig, "confirmed");
+          let remainingUi = 0;
+          try {
+            const afterAcct = await getAccount(connection, sourceAtaPk, undefined, tokenProgramId);
+            remainingUi = Number(afterAcct.amount) / Math.pow(10, decimals);
+          } catch {
+            remainingUi = 0;
+          }
+          await supabase
+            .from("claimy_users")
+            .update({ deposit_chain_balance_snapshot: remainingUi })
+            .eq("id", c.userId);
           swept++;
           await supabase.from("claimy_admin_sweep_items").update({
             status: "swept",
