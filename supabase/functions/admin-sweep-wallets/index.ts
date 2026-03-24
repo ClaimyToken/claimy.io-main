@@ -188,8 +188,14 @@ serve(async (req) => {
       }
     }
 
-    if (action !== "summary_only" && candidates.length > 0 && runId) {
-      await supabase.from("claimy_admin_sweep_items").insert(candidates.map((c) => ({
+    const sortedCandidates = [...candidates].sort((a, b) => {
+      if (a.rawAmount === b.rawAmount) return 0;
+      return a.rawAmount > b.rawAmount ? -1 : 1;
+    });
+    const selectedCandidates = sortedCandidates.slice(0, maxWallets);
+
+    if (action !== "summary_only" && selectedCandidates.length > 0 && runId) {
+      await supabase.from("claimy_admin_sweep_items").insert(selectedCandidates.map((c) => ({
         run_id: runId,
         user_id: c.userId,
         user_wallet_address: c.userWalletAddress,
@@ -204,10 +210,10 @@ serve(async (req) => {
 
     let swept = 0;
     let failed = 0;
-    if (action === "execute" && candidates.length > 0 && runId) {
+    if (action === "execute" && selectedCandidates.length > 0 && runId) {
       const aesKey = hexToBytes(encKeyHex);
       const feePayer = loadKeypair(feePayerSecret);
-      for (const c of candidates) {
+      for (const c of selectedCandidates) {
         try {
           const depSecret = await decryptSecretKey(c.encryptedSecret, aesKey);
           const depKp = Keypair.fromSecretKey(depSecret);
@@ -243,13 +249,13 @@ serve(async (req) => {
       }
     }
 
-    const totalRaw = candidates.reduce((n, c) => n + c.rawAmount, 0n);
-    const totalUi = candidates.reduce((n, c) => n + c.uiAmount, 0);
+    const totalRaw = selectedCandidates.reduce((n, c) => n + c.rawAmount, 0n);
+    const totalUi = selectedCandidates.reduce((n, c) => n + c.uiAmount, 0);
     if (runId) {
       await supabase.from("claimy_admin_sweep_runs").update({
         status: "completed",
         wallets_scanned: users.length,
-        wallets_with_balance: candidates.length,
+        wallets_with_balance: selectedCandidates.length,
         total_raw_amount: totalRaw.toString(),
         total_ui_amount: totalUi,
         notes: action === "execute" ? `swept=${swept}, failed=${failed}` : "dry run complete",
@@ -264,13 +270,15 @@ serve(async (req) => {
       destinationWallet,
       destinationAta,
       walletsScanned: users.length,
-      walletsWithBalance: candidates.length,
+      walletsWithBalance: selectedCandidates.length,
+      walletsWithBalanceAll: sortedCandidates.length,
+      topHoldersLimit: maxWallets,
       totalRawAmount: totalRaw.toString(),
       totalUiAmount: totalUi,
       scanAll,
       swept,
       failed,
-      items: candidates.map((c) => ({
+      items: selectedCandidates.map((c) => ({
         depositWalletAddress: c.depositWalletAddress,
         sourceAta: c.sourceAta,
         rawAmount: c.rawAmount.toString(),

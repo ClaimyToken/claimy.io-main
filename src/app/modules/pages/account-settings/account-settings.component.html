@@ -328,7 +328,7 @@
             {{ adminSummaryBusy ? 'Scanning totals…' : 'Show total CLAIMY in all deposit wallets' }}
           </button>
           <p class="account-settings-note mb-0 mt-2">
-            This scans deposit wallets and returns the project-wide CLAIMY total (no transfers, no sweep logs).
+            Uses Top holders limit to pick highest CLAIMY deposit wallets and returns their combined total (no transfers, no sweep logs).
           </p>
         </div>
 
@@ -359,7 +359,7 @@
             </div>
           </div>
           <div class="account-settings-row">
-            <span class="account-settings-label">Max wallets</span>
+            <span class="account-settings-label">Top holders limit</span>
             <input
               type="number"
               class="form-control form-control-sm account-settings-admin-input"
@@ -380,7 +380,7 @@
                 [disabled]="adminBusy"
               />
               <label class="form-check-label account-settings-note mt-0" for="adminScanAll">
-                Scan all users (ignores Max wallets)
+                Scan all users first (then apply Top holders limit)
               </label>
             </div>
           </div>

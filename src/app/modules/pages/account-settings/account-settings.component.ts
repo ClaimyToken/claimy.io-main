@@ -218,7 +218,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       const lines = [
         `Run: ${res.runId ?? 'n/a'}`,
         `Scanned: ${res.walletsScanned ?? 0}${res.scanAll ? ' (all)' : ''}`,
-        `Wallets with balance: ${res.walletsWithBalance ?? 0}`,
+        `Wallets with balance (all found): ${res.walletsWithBalanceAll ?? res.walletsWithBalance ?? 0}`,
+        `Top holders selected: ${res.walletsWithBalance ?? 0} (limit ${res.topHoldersLimit ?? this.adminMaxWallets})`,
         `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
       ];
       this.adminLastItems = res.items ?? [];
@@ -270,7 +271,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       const out = [
         'Summary only (no logs, no transfers)',
         `Scanned: ${res.walletsScanned ?? 0}${res.scanAll ? ' (all)' : ''}`,
-        `Wallets with balance: ${res.walletsWithBalance ?? 0}`,
+        `Wallets with balance (all found): ${res.walletsWithBalanceAll ?? res.walletsWithBalance ?? 0}`,
+        `Top holders selected: ${res.walletsWithBalance ?? 0} (limit ${res.topHoldersLimit ?? this.adminMaxWallets})`,
         `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
       ].join('\n');
       this.adminResultText = out;

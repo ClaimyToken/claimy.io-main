@@ -548,6 +548,8 @@ export class ClaimyEdgeService {
     runId?: string;
     walletsScanned?: number;
     walletsWithBalance?: number;
+    walletsWithBalanceAll?: number;
+    topHoldersLimit?: number;
     totalUiAmount?: number;
     scanAll?: boolean;
     swept?: number;
@@ -576,6 +578,8 @@ export class ClaimyEdgeService {
         runId: typeof data['runId'] === 'string' ? data['runId'] : undefined,
         walletsScanned: this.readNum(data['walletsScanned']),
         walletsWithBalance: this.readNum(data['walletsWithBalance']),
+        walletsWithBalanceAll: this.readNum(data['walletsWithBalanceAll']),
+        topHoldersLimit: this.readNum(data['topHoldersLimit']),
         totalUiAmount: this.readNum(data['totalUiAmount']),
         scanAll: data['scanAll'] === true,
         swept: this.readNum(data['swept']),
