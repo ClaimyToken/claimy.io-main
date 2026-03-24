@@ -527,6 +527,7 @@ serve(async (req) => {
             playableBalance: st.balanceAfter,
             playerHand: `Blackjack (${ps.total})`,
             houseHand: `Blackjack (${hs.total})`,
+            game: publicGameState(meta, null),
             fairSnapshot: st.fairSnapshot,
           });
         }
@@ -556,13 +557,14 @@ serve(async (req) => {
           playableBalance: st.balanceAfter,
           playerHand: `${ps.total}`,
           houseHand: `Blackjack (${hs.total})`,
+          game: publicGameState(meta, null),
           fairSnapshot: st.fairSnapshot,
         });
       }
       if (pBJ) {
         const ps = scoreHand(playerCards);
         const hs = scoreHand(dealerCards);
-        const payout = round6(2.5 * meta.mainStake);
+        const payout = round6(1.9 * meta.mainStake);
         const st = await settleSession(supabase, walletAddress, fullGameRow, meta, {
           winner: "Player",
           playerHandLabel: `Blackjack (${ps.total})`,
@@ -587,6 +589,7 @@ serve(async (req) => {
           playableBalance: st.balanceAfter,
           playerHand: `Blackjack (${ps.total})`,
           houseHand: `${hs.total}`,
+          game: publicGameState(meta, null),
           fairSnapshot: st.fairSnapshot,
         });
       }
@@ -605,7 +608,7 @@ serve(async (req) => {
     if (isBlackjack(playerCards)) {
       const ps = scoreHand(playerCards);
       const hs = scoreHand(dealerCards);
-      const payout = round6(2.5 * meta.mainStake);
+      const payout = round6(1.9 * meta.mainStake);
       const st = await settleSession(supabase, walletAddress, fullGameRow, meta, {
         winner: "Player",
         playerHandLabel: `Blackjack (${ps.total})`,
@@ -630,6 +633,7 @@ serve(async (req) => {
         playableBalance: st.balanceAfter,
         playerHand: `Blackjack (${ps.total})`,
         houseHand: `${hs.total}`,
+        game: publicGameState(meta, null),
         fairSnapshot: st.fairSnapshot,
       });
     }
@@ -877,7 +881,7 @@ serve(async (req) => {
       if (pBJ) {
         const ps = scoreHand(meta.playerCards);
         const hs = scoreHand(meta.dealerCards);
-        const payout = round6(2.5 * meta.mainStake);
+        const payout = round6(1.9 * meta.mainStake);
         const st = await finish(
           {
             winner: "Player",
@@ -986,7 +990,7 @@ serve(async (req) => {
 
       const handBet = meta.mainStake + meta.doubleStake;
       let payout = 0;
-      if (winner === "Player") payout = round6(2 * handBet);
+      if (winner === "Player") payout = round6(1.9 * handBet);
       else if (winner === "Tie") payout = round6(handBet);
       else payout = 0;
 
@@ -1075,7 +1079,7 @@ serve(async (req) => {
 
       const handBet = meta.mainStake + meta.doubleStake;
       let payout = 0;
-      if (winner === "Player") payout = round6(2 * handBet);
+      if (winner === "Player") payout = round6(1.9 * handBet);
       else if (winner === "Tie") payout = round6(handBet);
       else payout = 0;
 

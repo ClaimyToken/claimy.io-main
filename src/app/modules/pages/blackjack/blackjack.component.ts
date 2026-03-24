@@ -385,14 +385,20 @@ export class BlackjackComponent implements OnInit, OnDestroy {
 
       if (res.settled) {
         this.activeGameId = null;
-        this.game = null;
         this.displayPlayerCards = [];
         this.displayDealerCards = [];
         this.handFinished = true;
-        this.lastHandLabels = {
-          player: res.playerHand ?? '—',
-          house: res.houseHand ?? '—'
-        };
+        this.game = res.game ?? null;
+        this.lastHandLabels =
+          this.game == null
+            ? {
+                player: res.playerHand ?? '—',
+                house: res.houseHand ?? '—'
+              }
+            : null;
+        if (this.game) {
+          await this.runDealAnimation(null, this.game);
+        }
         this.winnerName = res.winner ?? null;
         this.resultTone =
           res.winner === 'Player' ? 'win' : res.winner === 'Tie' ? 'tie' : 'loss';
