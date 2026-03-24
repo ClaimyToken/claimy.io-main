@@ -26,7 +26,7 @@ const rootLayoutRoutes: Routes = [
   {
     path: '',
     component: LandingComponent,
-    title: "CLAIMY | A New Frontier"
+    title: "CLAIMY | A Decentralized Playhouse"
   }
 ];
 
@@ -35,7 +35,7 @@ const otherLayoutRoutes: Routes = [
     path: 'home',
     canActivate: [SiteStatusGuard],
     component: HomeComponent,
-    title: "CLAIMY | A New Frontier"
+    title: "CLAIMY | A Decentralized Playhouse"
   },
   {
     path: 'referrals',

@@ -1,3 +1,18 @@
 .c-landing-page {
     padding-top: 0.5rem;
 }
+
+/* One-line GitHub label; ellipsis if the repo path is long */
+.landing-github-card-link {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.landing-github-link {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+}
