@@ -6,3 +6,10 @@
 # Use a supported Node for Angular 16 (Netlify defaults vary)
 [build.environment]
   NODE_VERSION = "18"
+
+# Angular SPA: direct visits / refreshes to /home, /playhouse, etc. must serve index.html
+# (Netlify serves real files first; this only applies when no matching file exists.)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
