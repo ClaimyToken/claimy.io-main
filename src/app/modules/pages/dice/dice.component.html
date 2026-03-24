@@ -53,12 +53,11 @@
           </div>
 
           <div class="dice-mode-row mb-3">
-            <span class="dice-mode-label">Direction</span>
-            <div class="dice-mode-btns">
+            <div class="dice-mode-btns" role="group" aria-label="Roll direction">
               <button
                 type="button"
-                class="btn btn-lg dice-action-btn dice-action-btn--ghost"
-                [class.active]="mode === 'under'"
+                class="btn btn-lg dice-action-btn dice-action-btn--mode"
+                [class.dice-action-btn--mode-active]="mode === 'under'"
                 (click)="setMode('under')"
                 [disabled]="rolling"
               >
@@ -66,8 +65,8 @@
               </button>
               <button
                 type="button"
-                class="btn btn-lg dice-action-btn dice-action-btn--ghost"
-                [class.active]="mode === 'over'"
+                class="btn btn-lg dice-action-btn dice-action-btn--mode"
+                [class.dice-action-btn--mode-active]="mode === 'over'"
                 (click)="setMode('over')"
                 [disabled]="rolling"
               >
@@ -77,13 +76,16 @@
           </div>
 
           <div class="dice-target-row mb-3">
-            <label for="diceTarget" class="dice-target-label">Target (integer)</label>
+            <label for="diceTarget" class="dice-target-label">Target (integer, max {{ targetMax }})</label>
             <input
               id="diceTarget"
               class="fp-betbar__input dice-target-input"
               type="number"
               inputmode="numeric"
               [(ngModel)]="targetInput"
+              [attr.min]="targetMin"
+              [attr.max]="targetMax"
+              (blur)="onTargetBlur()"
               [disabled]="rolling"
             />
             <p class="dice-target-hint mb-0">
@@ -103,17 +105,15 @@
             </div>
           </div>
 
-          <div class="fp-status" aria-live="polite">{{ message }}</div>
-
-          <div
-            class="dice-resultline mt-2 mb-2"
-            [class.text-success]="resultTone === 'win'"
-            [class.text-danger]="resultTone === 'loss'"
-          >
-            <strong>Result:</strong> {{ resultSummaryLine() }}
-          </div>
+          <div class="fp-status dice-fp-status" aria-live="polite">{{ message }}</div>
 
           <div class="dice-board-wrap mt-3">
+            <div class="dice-actions-grid dice-actions-grid--primary">
+              <button type="button" class="btn btn-lg dice-action-btn" (click)="roll()" [disabled]="rolling">
+                {{ rolling ? 'Rolling…' : 'Roll dice' }}
+              </button>
+            </div>
+
             <div class="dice-roll-stage">
               <h3 class="fp-row-title dice-roll-title text-center">Roll</h3>
               <div class="dice-roll-face" [class.dice-roll-face--busy]="rolling">
@@ -127,14 +127,16 @@
               </p>
             </div>
 
-            <div class="dice-actions-grid mt-4">
-              <button type="button" class="btn btn-lg dice-action-btn" (click)="roll()" [disabled]="rolling">
-                {{ rolling ? 'Rolling…' : 'Roll dice' }}
-              </button>
+            <div
+              class="dice-resultline dice-resultline--fixed"
+              [class.text-success]="resultTone === 'win'"
+              [class.text-danger]="resultTone === 'loss'"
+            >
+              <strong>Result:</strong> {{ resultSummaryLine() }}
             </div>
 
             <p class="dice-board-placeholder text-center text-secondary mb-0">
-              The board area keeps a fixed size between rolls — only the numbers update.
+              Layout stays fixed — only values and highlights change after you roll.
             </p>
           </div>
         </div>

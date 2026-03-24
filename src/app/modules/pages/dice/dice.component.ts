@@ -23,8 +23,8 @@ function round6(n: number): number {
 export class DiceComponent implements OnDestroy {
   betAmountInput = '';
   mode: 'under' | 'over' = 'under';
-  /** Integer string — bounds depend on mode (validated on roll). */
-  targetInput = '5000';
+  /** Integer string — bounds depend on mode (validated on roll). Max 980 under / 979 over (1000-outcome space). */
+  targetInput = '500';
 
   rolling = false;
   /** Shown after animation; `null` means no settled roll in this view yet. */
@@ -83,6 +83,28 @@ export class DiceComponent implements OnDestroy {
     const t = parseInt(String(this.targetInput).trim(), 10);
     if (!Number.isFinite(t) || !Number.isInteger(t)) return null;
     return t;
+  }
+
+  /** HTML `min` / `max` for the target field (game rules, not roll ceiling). */
+  get targetMin(): number {
+    return this.mode === 'under' ? MIN_WIN_OUTCOMES : 19;
+  }
+
+  get targetMax(): number {
+    return this.mode === 'under' ? MAX_WIN_OUTCOMES : 979;
+  }
+
+  /** If the user types outside bounds, snap on blur. */
+  onTargetBlur(): void {
+    const t = this.parsedTarget;
+    if (t == null) {
+      this.targetInput = this.mode === 'under' ? '500' : '499';
+      return;
+    }
+    const lo = this.targetMin;
+    const hi = this.targetMax;
+    const c = Math.min(hi, Math.max(lo, t));
+    this.targetInput = String(c);
   }
 
   setMode(m: 'under' | 'over'): void {
