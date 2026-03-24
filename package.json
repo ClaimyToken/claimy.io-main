@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "env:sync": "node scripts/sync-env.cjs",
+    "postinstall": "node scripts/sync-env.cjs",
     "check-deposit": "node scripts/check-deposit-balance.cjs",
     "vault:pdas": "node scripts/derive-claimy-vault-pdas.cjs",
     "start": "node scripts/sync-env.cjs && node node_modules/@angular/cli/bin/ng.js serve",

@@ -10,8 +10,14 @@
   publish = "dist/claimy"
 
 # Use a supported Node for Angular 16 (Netlify defaults vary)
+#
+# CLAIMY_SOLANA_RPC_URL is injected into the client bundle at build time (Angular). Netlify’s secrets scanner
+# would otherwise fail the build when that env var is marked “Secret”. Omitting the key tells the scanner this
+# is expected — it is still not a server-only secret (anyone can read it from main.*.js).
+# See: https://ntl.fyi/configure-secrets-scanning
 [build.environment]
   NODE_VERSION = "18"
+  SECRETS_SCAN_OMIT_KEYS = "CLAIMY_SOLANA_RPC_URL"
 
 # Angular SPA: direct visits / refreshes to /home, /playhouse, etc. must serve index.html
 # (Netlify serves real files first; this only applies when no matching file exists.)
