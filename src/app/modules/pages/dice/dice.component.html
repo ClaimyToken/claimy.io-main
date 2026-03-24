@@ -115,12 +115,12 @@
             </div>
 
             <div class="dice-roll-stage">
-              <h3 class="fp-row-title dice-roll-title text-center">Roll</h3>
               <div class="dice-roll-face" [class.dice-roll-face--busy]="rolling">
                 <span class="dice-roll-num" *ngIf="!rolling && displayRoll !== null">{{ displayRoll }}</span>
                 <span class="dice-roll-placeholder" *ngIf="!rolling && displayRoll === null">—</span>
                 <span class="dice-roll-loading" *ngIf="rolling" aria-hidden="true"></span>
               </div>
+              <h3 class="fp-row-title dice-roll-title text-center">Roll</h3>
               <p class="dice-roll-caption text-center mb-0 text-secondary">
                 <ng-container *ngIf="rolling">Drawing…</ng-container>
                 <ng-container *ngIf="!rolling">&nbsp;</ng-container>

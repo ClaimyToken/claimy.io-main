@@ -193,21 +193,16 @@
 }
 
 .dice-mode-row {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.dice-mode-label {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--bs-secondary-color);
+  width: 100%;
 }
 
 .dice-mode-btns {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.65rem;
+  width: 100%;
 }
 
 .dice-target-row {
@@ -279,7 +274,8 @@
 }
 
 .dice-roll-title {
-  margin-bottom: 0.65rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.35rem !important;
 }
 
 .dice-roll-face {
@@ -325,20 +321,25 @@
 
 .dice-roll-caption {
   min-height: 1.5rem;
-  margin-top: 0.65rem !important;
+  margin-top: 0.35rem !important;
   font-size: 0.84rem;
 }
 
 .dice-actions-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.65rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   min-height: 3.75rem;
 }
 
+.dice-actions-grid--primary {
+  margin-bottom: 1rem;
+  flex: 0 0 auto;
+}
+
 .dice-action-btn {
-  width: 100%;
   min-height: 3rem;
+  padding: 0.5rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
   border-color: #ff8b2b !important;
@@ -350,6 +351,12 @@
     color 0.15s ease,
     border-color 0.15s ease,
     box-shadow 0.15s ease;
+}
+
+.dice-actions-grid--primary .dice-action-btn {
+  width: auto !important;
+  max-width: none;
+  min-width: 0;
 }
 
 .dice-action-btn:hover:not(:disabled),
@@ -372,9 +379,15 @@
 }
 
 /* Mode toggle — same chrome as primary roll; active state only brightens */
-.dice-action-btn--mode {
-  flex: 1 1 50%;
+.dice-mode-btns .dice-action-btn {
+  flex: 1 1 0;
+  width: auto !important;
+  max-width: none;
   min-width: 0;
+  white-space: nowrap;
+}
+
+.dice-action-btn--mode {
   min-height: 3rem;
 }
 
