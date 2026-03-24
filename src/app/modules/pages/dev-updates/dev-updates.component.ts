@@ -32,6 +32,18 @@ export class DevUpdatesComponent {
    */
   readonly entries: DevUpdateEntry[] = [
     {
+      dateLabel: '24 March 2026',
+      isoDate: '2026-03-24',
+      subtitle: 'Playhouse feed recovery + auth UX pass',
+      bullets: [
+        'Fixed Playhouse feed fetch path and deployment workflow: the core issue was Edge slug/deploy mismatch (`OPTIONS .../playhouse-feed` returned 404 until function was deployed under the exact slug).',
+        'Feed now calls Edge via standard `fetch` with explicit headers and clearer browser-facing error hints for network/ad-blocker/project mismatch cases.',
+        'Updated Playhouse feed SQL + UI behavior: public view remains settled-only; logged-in “My bets only” can include in-progress sessions so unfinished rounds are visible while testing.',
+        'Registration flow simplified from four boxes to three by merging connect/sign, plus one-click “Connect & sign” action.',
+        'Login UX upgraded: reusable login form + global login modal from navigation/guards so users can sign in without losing their current page context.'
+      ]
+    },
+    {
       dateLabel: '25 March 2026',
       isoDate: '2026-03-25',
       subtitle: 'Development blog — layout & changelog',
