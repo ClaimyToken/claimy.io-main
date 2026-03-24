@@ -38,6 +38,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   adminBusy = false;
   adminResultText = '';
   adminSummaryBusy = false;
+  adminDebugEnabled = true;
+  adminDebugText = '';
   adminSummaryLastAt: Date | null = null;
   adminSummaryCacheTtlMs = 60_000;
   adminLastItems: AdminSweepItem[] = [];
@@ -209,7 +211,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         mode: this.adminMode,
         maxWallets: this.adminMaxWallets,
         destinationWallet: this.adminDestinationWallet.trim() || undefined,
-        scanAll: this.adminScanAll
+        scanAll: this.adminScanAll,
+        debug: this.adminDebugEnabled
       });
       if (!res.ok) {
         this.adminResultText = `Failed: ${res.error ?? 'unknown error'}`;
@@ -223,6 +226,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         `Total CLAIMY in deposit wallets: ${res.totalUiAmount ?? 0}`
       ];
       this.adminLastItems = res.items ?? [];
+      this.adminDebugText = (res.debug ?? [])
+        .map((d) => `${d.t} ${d.msg}${d.data ? ` ${JSON.stringify(d.data)}` : ''}`)
+        .join('\n');
       if (this.adminMode === 'execute') {
         lines.push(`Swept: ${res.swept ?? 0}`);
         lines.push(`Failed: ${res.failed ?? 0}`);
@@ -262,7 +268,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         mode: 'summary_only',
         maxWallets: this.adminMaxWallets,
         destinationWallet: this.adminDestinationWallet.trim() || undefined,
-        scanAll: this.adminScanAll
+        scanAll: this.adminScanAll,
+        debug: this.adminDebugEnabled
       });
       if (!res.ok) {
         this.adminResultText = `Failed: ${res.error ?? 'unknown error'}`;
@@ -277,6 +284,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       ].join('\n');
       this.adminResultText = out;
       this.adminLastItems = res.items ?? [];
+      this.adminDebugText = (res.debug ?? [])
+        .map((d) => `${d.t} ${d.msg}${d.data ? ` ${JSON.stringify(d.data)}` : ''}`)
+        .join('\n');
       this.adminSummaryLastAt = new Date();
       this.adminSummaryCache = {
         key: cacheKey,

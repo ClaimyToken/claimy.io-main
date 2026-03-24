@@ -72,6 +72,12 @@ type Candidate = {
   encryptedSecret: string;
 };
 
+type DebugLine = {
+  t: string;
+  msg: string;
+  data?: Record<string, unknown>;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { status: 200, headers: cors });
   if (req.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405);
@@ -84,6 +90,12 @@ serve(async (req) => {
   const body = await req.json().catch(() => ({}));
   const action = String(body.action ?? "").trim();
   const walletAddress = String(body.walletAddress ?? "").trim();
+  const debug = body.debug === true;
+  const debugLines: DebugLine[] = [];
+  const logDebug = (msg: string, data?: Record<string, unknown>) => {
+    if (!debug) return;
+    debugLines.push({ t: new Date().toISOString(), msg, data });
+  };
   if (!walletAddress) return json({ ok: false, error: "walletAddress required." }, 400);
 
   const isAdmin = parseAdminWallets().some((w) => w === walletAddress);
@@ -102,6 +114,14 @@ serve(async (req) => {
   const maxWalletsRaw = parseInt(String(body.maxWallets ?? "150"), 10);
   const maxWallets = Number.isFinite(maxWalletsRaw) ? Math.min(500, Math.max(1, maxWalletsRaw)) : 150;
   const scanAll = body.scanAll === true;
+  logDebug("request_received", {
+    action,
+    walletAddress,
+    destinationWallet,
+    maxWallets,
+    scanAll,
+    hasDestinationOverride: String(body.destinationWallet ?? "").trim().length > 0,
+  });
 
   if (!mintStr || !rpcUrl) {
     return json({ ok: false, error: "Missing CLAIMY_SPL_MINT or SOLANA_RPC_URL." }, 500);
@@ -122,6 +142,7 @@ serve(async (req) => {
   const mintMeta = await getMint(connection, mintPk, undefined, tokenProgramId);
   const decimals = mintMeta.decimals;
   const destinationAta = getAssociatedTokenAddressSync(mintPk, destinationPk, false, tokenProgramId).toBase58();
+  logDebug("destination_resolved", { destinationWallet, destinationAta });
 
   let runId: string | null = null;
   if (action !== "summary_only") {
@@ -133,6 +154,7 @@ serve(async (req) => {
     }).select("id").single();
     if (runErr || !runRow?.id) return json({ ok: false, error: runErr?.message ?? "Failed to create run." }, 500);
     runId = runRow.id as string;
+    logDebug("run_opened", { runId, mode: action });
   }
 
   try {
@@ -154,6 +176,7 @@ serve(async (req) => {
       if (rows.length < pageSize) break;
       from += pageSize;
     }
+    logDebug("users_scanned", { count: users.length });
 
     const candidates: Candidate[] = [];
     for (const row of users) {
@@ -193,6 +216,16 @@ serve(async (req) => {
       return a.rawAmount > b.rawAmount ? -1 : 1;
     });
     const selectedCandidates = sortedCandidates.slice(0, maxWallets);
+    logDebug("holders_selected", {
+      allWithBalance: sortedCandidates.length,
+      selected: selectedCandidates.length,
+      topHoldersLimit: maxWallets,
+      preview: selectedCandidates.slice(0, 15).map((c) => ({
+        depositWalletAddress: c.depositWalletAddress,
+        sourceAta: c.sourceAta,
+        uiAmount: c.uiAmount,
+      })),
+    });
 
     if (action !== "summary_only" && selectedCandidates.length > 0 && runId) {
       await supabase.from("claimy_admin_sweep_items").insert(selectedCandidates.map((c) => ({
@@ -215,6 +248,12 @@ serve(async (req) => {
       const feePayer = loadKeypair(feePayerSecret);
       for (const c of selectedCandidates) {
         try {
+          logDebug("transfer_start", {
+            depositWalletAddress: c.depositWalletAddress,
+            sourceAta: c.sourceAta,
+            destinationAta: c.destinationAta,
+            uiAmount: c.uiAmount,
+          });
           const depSecret = await decryptSecretKey(c.encryptedSecret, aesKey);
           const depKp = Keypair.fromSecretKey(depSecret);
           const sourceAtaPk = new PublicKey(c.sourceAta);
@@ -244,6 +283,11 @@ serve(async (req) => {
             .update({ deposit_chain_balance_snapshot: remainingUi })
             .eq("id", c.userId);
           swept++;
+          logDebug("transfer_ok", {
+            depositWalletAddress: c.depositWalletAddress,
+            signature: sig,
+            remainingUiAfterSweep: remainingUi,
+          });
           await supabase.from("claimy_admin_sweep_items").update({
             status: "swept",
             tx_signature: sig,
@@ -252,6 +296,10 @@ serve(async (req) => {
         } catch (e) {
           failed++;
           const msg = e instanceof Error ? e.message : String(e);
+          logDebug("transfer_failed", {
+            depositWalletAddress: c.depositWalletAddress,
+            error: msg,
+          });
           await supabase.from("claimy_admin_sweep_items").update({
             status: "failed",
             error_text: msg.slice(0, 1000),
@@ -262,6 +310,17 @@ serve(async (req) => {
 
     const totalRaw = selectedCandidates.reduce((n, c) => n + c.rawAmount, 0n);
     const totalUi = selectedCandidates.reduce((n, c) => n + c.uiAmount, 0);
+    logDebug("run_summary", {
+      mode: action,
+      scanned: users.length,
+      allWithBalance: sortedCandidates.length,
+      selected: selectedCandidates.length,
+      totalUi,
+      destinationWallet,
+      destinationAta,
+      swept,
+      failed,
+    });
     if (runId) {
       await supabase.from("claimy_admin_sweep_runs").update({
         status: "completed",
@@ -295,9 +354,11 @@ serve(async (req) => {
         rawAmount: c.rawAmount.toString(),
         uiAmount: c.uiAmount,
       })),
+      debug: debug ? debugLines : undefined,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
+    logDebug("run_failed", { error: msg });
     if (runId) {
       await supabase.from("claimy_admin_sweep_runs").update({
         status: "failed",
@@ -305,6 +366,6 @@ serve(async (req) => {
         completed_at: new Date().toISOString(),
       }).eq("id", runId);
     }
-    return json({ ok: false, error: msg, runId }, 500);
+    return json({ ok: false, error: msg, runId, debug: debug ? debugLines : undefined }, 500);
   }
 });

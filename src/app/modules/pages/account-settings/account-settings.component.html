@@ -385,6 +385,21 @@
             </div>
           </div>
           <div class="account-settings-row">
+            <span class="account-settings-label">Debug</span>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="adminDebugEnabled"
+                [(ngModel)]="adminDebugEnabled"
+                [disabled]="adminBusy || adminSummaryBusy"
+              />
+              <label class="form-check-label account-settings-note mt-0" for="adminDebugEnabled">
+                Include backend debug trace in response
+              </label>
+            </div>
+          </div>
+          <div class="account-settings-row">
             <span class="account-settings-label">Destination (optional)</span>
             <input
               type="text"
@@ -421,6 +436,7 @@
         </div>
 
         <pre class="account-settings-admin-result mt-3 mb-0" *ngIf="adminResultText">{{ adminResultText }}</pre>
+        <pre class="account-settings-admin-result mt-2 mb-0" *ngIf="adminDebugText">{{ adminDebugText }}</pre>
         <div class="mt-2" *ngIf="adminLastItems.length > 0">
           <button type="button" class="btn btn-sm btn-outline-warning account-settings-btn" (click)="openAdminDetails()">
             View {{ adminLastItems.length }} wallets in total

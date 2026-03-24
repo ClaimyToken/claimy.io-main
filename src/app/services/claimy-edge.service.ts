@@ -64,6 +64,12 @@ export type AdminSweepItem = {
   uiAmount: number;
 };
 
+export type AdminSweepDebugLine = {
+  t: string;
+  msg: string;
+  data?: Record<string, unknown>;
+};
+
 /** Row from `playhouse-feed` / `playhouse_list_settled_bets` (settled; optional in_progress when filtered by wallet). */
 export type PlayhouseBetRow = {
   id: string;
@@ -543,6 +549,7 @@ export class ClaimyEdgeService {
     maxWallets?: number;
     destinationWallet?: string;
     scanAll?: boolean;
+    debug?: boolean;
   }): Promise<{
     ok: boolean;
     runId?: string;
@@ -555,6 +562,7 @@ export class ClaimyEdgeService {
     swept?: number;
     failed?: number;
     items?: AdminSweepItem[];
+    debug?: AdminSweepDebugLine[];
     error?: string;
   }> {
     const w = body.walletAddress?.trim();
@@ -568,7 +576,8 @@ export class ClaimyEdgeService {
           walletAddress: w,
           maxWallets: body.maxWallets ?? 150,
           destinationWallet: body.destinationWallet?.trim() || undefined,
-          scanAll: body.scanAll === true
+          scanAll: body.scanAll === true,
+          debug: body.debug === true
         })
       });
       const data = this.parseEdgeJson(await res.text());
@@ -585,6 +594,7 @@ export class ClaimyEdgeService {
         swept: this.readNum(data['swept']),
         failed: this.readNum(data['failed']),
         items: Array.isArray(data['items']) ? (data['items'] as AdminSweepItem[]) : undefined,
+        debug: Array.isArray(data['debug']) ? (data['debug'] as AdminSweepDebugLine[]) : undefined,
         error: ok ? undefined : ((typeof data['error'] === 'string' && data['error']) || `Request failed (${res.status})`)
       };
     } catch {
