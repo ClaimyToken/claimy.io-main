@@ -95,6 +95,13 @@ Admin sweep requires extra Edge secrets:
 - `CLAIMY_SWEEP_FEE_PAYER_PRIVATE_KEY` (required for execute mode; pays tx fees)
 - `DEPOSIT_WALLET_ENCRYPTION_KEY` (already used by registration; reused for decrypting custodial wallets during sweep)
 
+Admin sweep behavior notes:
+
+- Destination precedence is: request `destinationWallet` override -> `CLAIMY_SWEEP_DESTINATION_WALLET` -> caller admin wallet.
+- `CLAIMY_SWEEP_FEE_PAYER_PRIVATE_KEY` wallet must be funded with SOL for tx fees.
+- `summary_only` performs scan/ranking only (no transfers, no run logs); `dry_run` logs selection without transfers; `execute` transfers + logs.
+- Sweep now updates `claimy_users.deposit_chain_balance_snapshot` after successful transfer so future `sync_from_chain` credit reconciliation stays correct.
+
 If browser Network shows `OPTIONS /functions/v1/playhouse-feed` as `404`, the function is missing on that project.
 Deploy with the exact slug:
 

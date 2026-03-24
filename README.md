@@ -17,6 +17,8 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 - **Flowerpoker (live):** bet lifecycle, rerolls, resume flow, and browser-side provably fair verification.
 - **Blackjack (live):** bet/hit/stand/double/insurance, animated dealing, static table UI, and verify-round checks.
 - **Playhouse feed:** paginated settled bets + ranking stats RPC; now supports Flowerpoker and Blackjack sessions.
+- **Admin sweep tools (live):** whitelist-gated Account Settings tab for `summary_only`, `dry_run`, and `execute` custodial sweeps, including top-holder selection, debug trace output, and wallet-level modal details.
+- **Live rank-up notifications:** multi-rank jump toasts now trigger after settled hands and include updated tier + RTP/payout multiplier.
 - **Landing token metrics:** live PumpPortal-derived **Current Marketcap** and rolling **24h Volume** cards.
 
 ## On-chain vault (Claimy SPL)

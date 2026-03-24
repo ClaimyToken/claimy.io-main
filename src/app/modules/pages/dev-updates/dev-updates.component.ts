@@ -34,6 +34,19 @@ export class DevUpdatesComponent {
     {
       dateLabel: '24 March 2026',
       isoDate: '2026-03-24',
+      subtitle: 'Admin sweep controls + credits-safe reconciliation + live rank-up toasts',
+      bullets: [
+        'Shipped a whitelist-gated admin sweep tool in Account Settings backed by Edge `admin-sweep-wallets` with `summary_only`, `dry_run`, and `execute` actions.',
+        'Sweep UI now supports top-holder selection (`Top holders limit`), scan-all mode, result caching for summary scans, and a modal listing every wallet/amount included in totals.',
+        'Added backend debug trace mode for sweeps (destination resolution, selection preview, per-transfer logs, signatures) to troubleshoot routing and execution behavior quickly.',
+        'Documented and enforced sweep destination precedence: request override -> `CLAIMY_SWEEP_DESTINATION_WALLET` -> caller wallet; execute path uses `CLAIMY_SWEEP_FEE_PAYER_PRIVATE_KEY` for tx fees.',
+        'Fixed post-sweep credit drift by updating `deposit_chain_balance_snapshot` after successful transfer so later `sync_from_chain` reflects true new deposits only.',
+        'Ranking UX now refreshes immediately after settled games and shows rank-up toasts (including multi-tier jumps) with updated RTP/payout multiplier in the nav.'
+      ]
+    },
+    {
+      dateLabel: '24 March 2026',
+      isoDate: '2026-03-24',
       subtitle: 'Blackjack launch + fairness polish + live token metrics',
       bullets: [
         'Blackjack is now live end-to-end: Edge function (`blackjack-game`), stake lock/settle via credits ledger, and full round/session persistence in `claimy_game_sessions`.',

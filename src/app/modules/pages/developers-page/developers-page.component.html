@@ -156,7 +156,7 @@ npx ng serve
     Slugs include <code>check-username</code>, <code>register-phantom</code>, <code>wallet-login</code>,
     <code>account-linked-wallet</code>, <code>claimy-credits</code>, <code>claimy-profile</code>,
     <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, <code>blackjack-game</code>,
-    <code>playhouse-feed</code>,
+    <code>playhouse-feed</code>, <code>admin-sweep-wallets</code>,
     and others listed in <code>supabase/functions/README.md</code> and <code>DEVELOPERWORK/README.md</code>.
   </p>
 
@@ -259,12 +259,31 @@ npx ng serve
     That can be a hot wallet (“simple vault”) or a PDA program path, depending on your deployment and
     <code>DEVELOPERWORK/CLAIMY_VAULT.md</code>. Fund the vault / relayer with SOL for fees and SPL tokens as needed.
   </p>
+  <h3>Admin sweep operations</h3>
+  <p>
+    Account Settings now includes a whitelist-gated admin panel powered by <strong>admin-sweep-wallets</strong> for
+    custodial deposit-wallet consolidation. It supports <code>summary_only</code> (scan only), <code>dry_run</code>
+    (selection + logs, no transfers), and <code>execute</code> (transfers + logs), plus top-holder limiting and debug trace output.
+  </p>
+  <p>
+    Required secrets: <code>CLAIMY_ADMIN_WALLETS</code>, <code>CLAIMY_SWEEP_FEE_PAYER_PRIVATE_KEY</code>,
+    <code>DEPOSIT_WALLET_ENCRYPTION_KEY</code>, and optional default destination
+    <code>CLAIMY_SWEEP_DESTINATION_WALLET</code>. Destination precedence is request override -> default destination secret -> caller wallet.
+  </p>
+  <p>
+    The fee payer wallet must hold SOL for transaction costs. Sweep execution also updates
+    <code>deposit_chain_balance_snapshot</code> so credits reconciliation remains correct after funds are moved out.
+  </p>
   <h3>Games and provably fair checks</h3>
   <p>
     Claimy game pages use Edge game handlers that lock stake, persist session metadata in
     <code>claimy_game_sessions</code>, and settle through <code>claimy_apply_credit_delta</code>.
     <strong>Flowerpoker</strong> and <strong>Blackjack</strong> are both wired this way. The UI also includes browser-side
     verification utilities so users can compare committed seed/hash values against revealed settlement data.
+  </p>
+  <p>
+    Ranking now refreshes right after game settlement, and live nav toasts announce rank-ups (including multi-tier jumps)
+    with the updated RTP/payout multiplier.
   </p>
 
   <h2 id="own-token">Using your own SPL token</h2>
