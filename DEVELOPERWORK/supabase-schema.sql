@@ -50,6 +50,9 @@ alter table public.claimy_users
 alter table public.claimy_users
   add column if not exists deposit_wallet_private_key_encrypted text;
 
+alter table public.claimy_users
+  add column if not exists last_spl_withdraw_at timestamptz;
+
 create unique index if not exists claimy_users_deposit_wallet_public_key_key
   on public.claimy_users (deposit_wallet_public_key)
   where deposit_wallet_public_key is not null;

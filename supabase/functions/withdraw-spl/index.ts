@@ -13,6 +13,8 @@
  *   rate-limited, or mint is on a different cluster than `SOLANA_RPC_URL`). Must match the mint’s on-chain decimals
  *   or raw transfer amounts will be wrong. Before sending on-chain, the function checks **claimy_get_playable_balance**
  *   so withdrawals cannot exceed Claimy Credits (the UI alone is not authoritative).
+ * Optional: **CLAIMY_WITHDRAW_COOLDOWN_SEC** — minimum seconds between successful on-chain withdrawals per wallet
+ *   (default `10`; set `0` to disable). Requires column `claimy_users.last_spl_withdraw_at` (see migrations).
  */
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -136,6 +138,28 @@ async function recordWithdrawInLedger(
   return { ok: true };
 }
 
+function withdrawCooldownMsFromEnv(): number {
+  const raw = (Deno.env.get("CLAIMY_WITHDRAW_COOLDOWN_SEC") ?? "10").trim();
+  const sec = parseInt(raw, 10);
+  if (!Number.isFinite(sec) || sec < 0) return 10_000;
+  return sec * 1000;
+}
+
+/** Called after on-chain withdraw confirms (before ledger debit). */
+async function touchWithdrawCooldown(
+  supabase: ReturnType<typeof createClient>,
+  walletAddress: string,
+): Promise<void> {
+  const iso = new Date().toISOString();
+  const { error } = await supabase
+    .from("claimy_users")
+    .update({ last_spl_withdraw_at: iso })
+    .eq("wallet_address", walletAddress);
+  if (error) {
+    console.error("withdraw-spl: last_spl_withdraw_at update failed:", error.message);
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { status: 200, headers: cors });
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405, headers: cors });
@@ -234,7 +258,7 @@ serve(async (req) => {
 
   const { data: row, error: rowErr } = await supabase
     .from("claimy_users")
-    .select("username, wallet_address, deposit_wallet_public_key")
+    .select("username, wallet_address, deposit_wallet_public_key, last_spl_withdraw_at")
     .eq("wallet_address", walletAddress)
     .maybeSingle();
 
@@ -261,6 +285,29 @@ serve(async (req) => {
       }),
       { status: 200, headers: { ...cors, "content-type": "application/json" } },
     );
+  }
+
+  const cooldownMs = withdrawCooldownMsFromEnv();
+  if (cooldownMs > 0) {
+    const rawLast = (row as { last_spl_withdraw_at?: string | null }).last_spl_withdraw_at;
+    if (rawLast) {
+      const lastMs = Date.parse(rawLast);
+      if (Number.isFinite(lastMs)) {
+        const elapsed = Date.now() - lastMs;
+        if (elapsed >= 0 && elapsed < cooldownMs) {
+          const waitSec = Math.max(1, Math.ceil((cooldownMs - elapsed) / 1000));
+          return new Response(
+            JSON.stringify({
+              ok: false,
+              signatureValid: false,
+              error: `Please wait ${waitSec}s before another withdrawal.`,
+              retryAfterSeconds: waitSec,
+            }),
+            { status: 200, headers: { ...cors, "content-type": "application/json" } },
+          );
+        }
+      }
+    }
   }
 
   const requestedUi = parseFloat(parsed.amount.trim());
@@ -595,6 +642,8 @@ serve(async (req) => {
       );
     }
 
+    await touchWithdrawCooldown(supabase, walletAddress);
+
     const ledgerResult = await recordWithdrawInLedger(supabase, walletAddress, parsed.amount, signature);
     const simplePayload: Record<string, unknown> = { ok: true, signature, withdrawMode: "simple" };
     if (!ledgerResult.ok) {
@@ -703,6 +752,8 @@ serve(async (req) => {
       { status: 200, headers: { ...cors, "content-type": "application/json" } },
     );
   }
+
+  await touchWithdrawCooldown(supabase, walletAddress);
 
   const pdaLedger = await recordWithdrawInLedger(supabase, walletAddress, parsed.amount, signature);
   const pdaPayload: Record<string, unknown> = { ok: true, signature, withdrawMode: "pda" };

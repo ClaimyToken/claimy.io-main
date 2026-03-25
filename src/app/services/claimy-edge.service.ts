@@ -877,6 +877,8 @@ export class ClaimyEdgeService {
     signature?: string;
     /** Set when on-chain withdraw succeeded but DB ledger RPC failed (reconcile manually). */
     ledgerError?: string;
+    /** Present when withdraw-spl rejects due to per-wallet cooldown. */
+    retryAfterSeconds?: number;
   }> {
     const res = await fetch(this.functionsUrl('withdraw-spl'), {
       method: 'POST',
@@ -890,13 +892,18 @@ export class ClaimyEdgeService {
       signatureValid?: boolean;
       signature?: string;
       ledgerError?: string;
+      retryAfterSeconds?: number;
     };
     return {
       ok: data.ok === true,
       error: data.error ?? data.message,
       signatureValid: data.signatureValid === true,
       signature: typeof data.signature === 'string' ? data.signature : undefined,
-      ledgerError: typeof data.ledgerError === 'string' ? data.ledgerError : undefined
+      ledgerError: typeof data.ledgerError === 'string' ? data.ledgerError : undefined,
+      retryAfterSeconds:
+        typeof data.retryAfterSeconds === 'number' && Number.isFinite(data.retryAfterSeconds)
+          ? data.retryAfterSeconds
+          : undefined
     };
   }
 
