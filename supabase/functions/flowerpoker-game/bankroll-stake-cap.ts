@@ -1,9 +1,11 @@
 /**
  * Dynamic max stake vs on-chain SPL bankroll (payout / vault wallet ATA).
  *
- * Secrets: SOLANA_RPC_URL, CLAIMY_SPL_MINT, optional CLAIMY_SPL_DECIMALS,
- *          CLAIMY_BANKROLL_WALLET (base58 owner pubkey whose ATA holds house bankroll).
+ * Secrets: SOLANA_RPC_URL, CLAIMY_SPL_MINT,
+ *          CLAIMY_BANKROLL_WALLET (owner pubkey) **or** CLAIMY_BANKROLL_TOKEN_ACCOUNT (exact SPL token account).
  * Optional: CLAIMY_MAX_STAKE_BANKROLL_RATIO (overrides DB default if set).
+ *
+ * Uses the mint’s on-chain token program (legacy SPL vs Token-2022) for ATA derivation — same as withdraw-spl.
  *
  * DB: claimy_bankroll_settings.max_stake_bankroll_ratio (default 0.005 = 0.5%).
  *
@@ -11,7 +13,11 @@
  */
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { Connection, PublicKey } from "npm:@solana/web3.js@1.95.4";
-import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "npm:@solana/spl-token@0.4.9";
+import {
+  getAssociatedTokenAddressSync,
+  TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from "npm:@solana/spl-token@0.4.9";
 
 export function round6(n: number): number {
   return Math.round(n * 1_000_000) / 1_000_000;
@@ -39,23 +45,56 @@ async function loadRatio(supabase: SupabaseClient): Promise<number> {
   return 0.005;
 }
 
+/** True if any bankroll secret is set (enforcement can run). */
 function bankrollWalletConfigured(): boolean {
-  return !!Deno.env.get("CLAIMY_BANKROLL_WALLET")?.trim();
+  return !!(
+    Deno.env.get("CLAIMY_BANKROLL_WALLET")?.trim() ||
+    Deno.env.get("CLAIMY_BANKROLL_TOKEN_ACCOUNT")?.trim()
+  );
+}
+
+export function isBankrollCapConfigured(): boolean {
+  return bankrollWalletConfigured();
 }
 
 async function readBankrollBalanceUi(): Promise<{ ok: true; balanceUi: number } | { ok: false; error: string }> {
   const rpc = Deno.env.get("SOLANA_RPC_URL")?.trim();
   const mintStr = Deno.env.get("CLAIMY_SPL_MINT")?.trim();
   const ownerStr = Deno.env.get("CLAIMY_BANKROLL_WALLET")?.trim();
-  if (!rpc || !mintStr || !ownerStr) {
-    return { ok: false, error: "Missing SOLANA_RPC_URL, CLAIMY_SPL_MINT, or CLAIMY_BANKROLL_WALLET." };
+  const directTokenStr = Deno.env.get("CLAIMY_BANKROLL_TOKEN_ACCOUNT")?.trim();
+
+  if (!rpc || !mintStr) {
+    return { ok: false, error: "Missing SOLANA_RPC_URL or CLAIMY_SPL_MINT." };
   }
+  if (!directTokenStr && !ownerStr) {
+    return { ok: false, error: "Set CLAIMY_BANKROLL_WALLET or CLAIMY_BANKROLL_TOKEN_ACCOUNT." };
+  }
+
   try {
     const connection = new Connection(rpc, "confirmed");
     const mint = new PublicKey(mintStr);
-    const owner = new PublicKey(ownerStr);
-    const ata = getAssociatedTokenAddressSync(mint, owner, false, TOKEN_PROGRAM_ID);
-    const bal = await connection.getTokenAccountBalance(ata);
+
+    let tokenAccountPk: PublicKey;
+
+    if (directTokenStr) {
+      tokenAccountPk = new PublicKey(directTokenStr);
+    } else {
+      const mintAccountInfo = await connection.getAccountInfo(mint);
+      if (!mintAccountInfo) {
+        return {
+          ok: false,
+          error:
+            "Mint account not found on this RPC (check CLAIMY_SPL_MINT matches SOLANA_RPC_URL cluster).",
+        };
+      }
+      const tokenProgramId = mintAccountInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+        ? TOKEN_2022_PROGRAM_ID
+        : TOKEN_PROGRAM_ID;
+      const owner = new PublicKey(ownerStr!);
+      tokenAccountPk = getAssociatedTokenAddressSync(mint, owner, false, tokenProgramId);
+    }
+
+    const bal = await connection.getTokenAccountBalance(tokenAccountPk);
     const ui = bal.value.uiAmount;
     if (typeof ui === "number" && Number.isFinite(ui)) {
       return { ok: true, balanceUi: Math.max(0, ui) };
@@ -67,7 +106,11 @@ async function readBankrollBalanceUi(): Promise<{ ok: true; balanceUi: number } 
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     if (/could not find account|not found|invalid account|could not find/i.test(msg)) {
-      return { ok: true, balanceUi: 0 };
+      return {
+        ok: false,
+        error:
+          "Bankroll token account not found or empty. For Token-2022 mints, ensure CLAIMY_BANKROLL_WALLET matches the funded wallet, or set CLAIMY_BANKROLL_TOKEN_ACCOUNT to the exact token account address.",
+      };
     }
     return { ok: false, error: msg };
   }
@@ -150,7 +193,7 @@ export async function assertStakeWithinBankrollCap(
     return {
       ok: false,
       error:
-        "House bankroll is empty (or ATA missing); staking is disabled until the bankroll wallet is funded.",
+        "House bankroll is empty (or token account missing); staking is disabled until the bankroll is readable on-chain.",
       maxStake: 0,
       bankrollBalanceUi: info.bankrollBalanceUi,
       ratio: info.ratio,

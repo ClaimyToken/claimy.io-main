@@ -4,7 +4,7 @@
  */
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { getBankrollStakeCapInfo } from "./bankroll-stake-cap.ts";
+import { getBankrollStakeCapInfo, isBankrollCapConfigured } from "./bankroll-stake-cap.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -34,7 +34,7 @@ serve(async (req) => {
     return json({
       ok: false,
       error: cap.error,
-      configured: !!Deno.env.get("CLAIMY_BANKROLL_WALLET")?.trim(),
+      configured: isBankrollCapConfigured(),
     });
   }
   if (!cap.enforced) {
