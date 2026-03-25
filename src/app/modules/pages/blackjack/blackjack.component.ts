@@ -386,6 +386,22 @@ export class BlackjackComponent implements OnInit, OnDestroy {
       this.flashToast('Enter a positive bet amount.', 4000, 'error');
       return;
     }
+    const stake = Number(amt);
+    if (!Number.isFinite(stake) || stake <= 0) {
+      this.flashToast('Enter a positive bet amount.', 4000, 'error');
+      return;
+    }
+    const bal = this.walletAuth.claimyCreditsBalance;
+    if (typeof bal === 'number' && Number.isFinite(bal) && stake > bal) {
+      this.flashToast('Insufficient Claimy credits for that bet.', 5000, 'error');
+      return;
+    }
+    const br = this.bankrollDisplay;
+    if (br?.ok && typeof br.maxStake === 'number' && Number.isFinite(br.maxStake) && stake > br.maxStake + 1e-9) {
+      const cap = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.floor(br.maxStake));
+      this.flashToast(`Bet exceeds max stake (${cap} CLAIMY).`, 6000, 'error');
+      return;
+    }
     this.placingBet = true;
     this.clearResult();
     this.verificationReport = null;

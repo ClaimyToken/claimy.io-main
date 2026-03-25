@@ -425,29 +425,36 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
 
   async placeBetAndStart(): Promise<void> {
     if (this.placingBet || this.busy || this.settlingBet || this.resumingSession) return;
+    const idleHint = 'Enter a bet amount and start round.';
     if (this.gameSessionActive) {
-      this.message = 'Finish the current game before starting a new bet.';
+      this.flashToast('Finish the current game before starting a new bet.', 4500, 'error');
       return;
     }
     const wallet = this.resolveWallet();
     if (!wallet) {
-      this.message = 'Please login (or connect Phantom) before placing a bet.';
+      this.flashToast('Please sign in (or connect Phantom) before placing a bet.', 4500, 'error');
       return;
     }
     const betRaw = String(this.betAmountInput ?? '').trim();
     const betNormalized = betRaw.replace(',', '.');
     if (!/^\d+(\.\d+)?$/.test(betNormalized)) {
-      this.message = 'Enter a valid bet amount (example: 10 or 10.5).';
+      this.flashToast('Enter a valid bet amount (example: 10 or 10.5).', 4500, 'error');
       return;
     }
     const betAmount = Number(betNormalized);
     if (!Number.isFinite(betAmount) || betAmount <= 0) {
-      this.message = 'Bet must be greater than zero.';
+      this.flashToast('Bet must be greater than zero.', 4500, 'error');
       return;
     }
     const currentBalance = this.walletAuth.claimyCreditsBalance;
     if (typeof currentBalance === 'number' && Number.isFinite(currentBalance) && betAmount > currentBalance) {
-      this.message = 'Insufficient Claimy credits for that bet.';
+      this.flashToast('Insufficient Claimy credits for that bet.', 5000, 'error');
+      return;
+    }
+    const br = this.bankrollDisplay;
+    if (br?.ok && typeof br.maxStake === 'number' && Number.isFinite(br.maxStake) && betAmount > br.maxStake + 1e-9) {
+      const cap = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.floor(br.maxStake));
+      this.flashToast(`Bet exceeds max stake (${cap} CLAIMY).`, 6000, 'error');
       return;
     }
 
@@ -463,23 +470,25 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
       });
       if (!res.ok || !res.gameId || typeof res.stakeAmount !== 'number') {
         const err = (res.error ?? 'Could not create bet.').toLowerCase();
+        let userMsg: string;
         if (err.includes('insufficient')) {
           const dbBalance = await this.claimyEdge.fetchPlayableBalance(wallet);
           if (typeof dbBalance === 'number' && Number.isFinite(dbBalance)) {
             this.walletAuth.claimyCreditsBalance = dbBalance;
-            this.message = `Insufficient playable balance in DB (available: ${dbBalance}). Refresh/sync credits, then try again.`;
+            userMsg = `Insufficient playable balance in DB (available: ${dbBalance}). Refresh/sync credits, then try again.`;
           } else {
-            this.message = 'Insufficient playable balance in DB. Refresh/sync credits, then try again.';
+            userMsg = 'Insufficient playable balance in DB. Refresh/sync credits, then try again.';
           }
         } else if (err.includes('account not found') || err.includes('user_not_found')) {
-          this.message = 'Your wallet account was not found in credits DB. Re-login, then try again.';
+          userMsg = 'Your wallet account was not found in credits DB. Re-login, then try again.';
         } else if (err.includes('401') || err.includes('jwt')) {
-          this.message =
+          userMsg =
             'Bet API rejected the request (auth). Add CLAIMY_SUPABASE_ANON_KEY to .env, run node scripts/sync-env.cjs, rebuild.';
         } else {
-          this.message = res.error ?? 'Could not create bet.';
+          userMsg = res.error ?? 'Could not create bet.';
         }
-        this.flashToast(this.message, 5000, 'error');
+        this.flashToast(userMsg, 5000, 'error');
+        this.message = idleHint;
         return;
       }
 
@@ -489,8 +498,8 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
         this.walletAuth.claimyCreditsBalance = res.playableBalance;
       }
       if (!res.round) {
-        this.message = 'Server did not return a round — try again.';
-        this.flashToast(this.message, 5000, 'error');
+        this.flashToast('Server did not return a round — try again.', 5000, 'error');
+        this.message = idleHint;
         return;
       }
       this.flashToast(`Flowerpoker started with ${res.stakeAmount} $CLAIMY.`);
@@ -498,8 +507,8 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
       void this.persistRoundState();
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not place bet.';
-      this.message = msg;
       this.flashToast(msg, 5000, 'error');
+      this.message = idleHint;
     } finally {
       this.placingBet = false;
     }
@@ -593,7 +602,7 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
     });
     this.settlingBet = false;
     if (!res.ok) {
-      this.message = `${this.message} Settlement pending: ${res.error ?? 'unknown error'}.`;
+      this.flashToast(res.error ?? 'Settlement failed.', 5000, 'error');
       return;
     }
     const w = res.winner;
