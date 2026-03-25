@@ -7,6 +7,7 @@
  */
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertStakeWithinBankrollCap } from "./bankroll-stake-cap.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -367,6 +368,20 @@ serve(async (req) => {
       .eq("wallet_address", walletAddress)
       .maybeSingle();
     if (userErr || !userRow?.id) return json({ ok: false, error: "Account not found." }, 200);
+
+    const cap0 = await assertStakeWithinBankrollCap(supabase, stake);
+    if (!cap0.ok) {
+      return json(
+        {
+          ok: false,
+          error: cap0.error,
+          maxStake: cap0.maxStake,
+          bankrollBalanceUi: cap0.bankrollBalanceUi,
+          ratio: cap0.ratio,
+        },
+        200,
+      );
+    }
 
     const { data: afterDebitRaw, error: debitErr } = await supabase.rpc("claimy_apply_credit_delta", {
       p_wallet: walletAddress,
@@ -797,6 +812,19 @@ serve(async (req) => {
       }
       const insAmt = round6(0.5 * meta.baseStake);
       if (move === "insurance_yes") {
+        const insCap = await assertStakeWithinBankrollCap(supabase, insAmt);
+        if (!insCap.ok) {
+          return json(
+            {
+              ok: false,
+              error: insCap.error,
+              maxStake: insCap.maxStake,
+              bankrollBalanceUi: insCap.bankrollBalanceUi,
+              ratio: insCap.ratio,
+            },
+            200,
+          );
+        }
         const { data: afterIns, error: insErr } = await supabase.rpc("claimy_apply_credit_delta", {
           p_wallet: walletAddress,
           p_delta: -insAmt,
@@ -929,6 +957,19 @@ serve(async (req) => {
         return json({ ok: false, error: "Double down only on your first two cards." }, 200);
       }
       const add = meta.mainStake;
+      const dCap = await assertStakeWithinBankrollCap(supabase, add);
+      if (!dCap.ok) {
+        return json(
+          {
+            ok: false,
+            error: dCap.error,
+            maxStake: dCap.maxStake,
+            bankrollBalanceUi: dCap.bankrollBalanceUi,
+            ratio: dCap.ratio,
+          },
+          200,
+        );
+      }
       const { error: dErr } = await supabase.rpc("claimy_apply_credit_delta", {
         p_wallet: walletAddress,
         p_delta: -add,

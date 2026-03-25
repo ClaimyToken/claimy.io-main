@@ -1,5 +1,5 @@
-import { Component, OnDestroy } from '@angular/core';
-import { ClaimyEdgeService } from 'src/app/services/claimy-edge.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BankrollStakeCapInfo, ClaimyEdgeService } from 'src/app/services/claimy-edge.service';
 import { PlayerRankingService } from 'src/app/services/player-ranking.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 import type { VerificationResult } from '../flowerpoker/flowerpoker-provably-fair';
@@ -20,7 +20,7 @@ function round6(n: number): number {
   templateUrl: './dice.component.html',
   styleUrls: ['./dice.component.scss']
 })
-export class DiceComponent implements OnDestroy {
+export class DiceComponent implements OnInit, OnDestroy {
   betAmountInput = '';
   mode: 'under' | 'over' = 'under';
   /** Integer string — bounds depend on mode (validated on roll). Max 980 under / 979 over (1000-outcome space). */
@@ -43,14 +43,32 @@ export class DiceComponent implements OnDestroy {
   verifyingRound = false;
   verificationReport: VerificationResult | null = null;
 
+  /** From Edge `bankroll-info` when house bankroll cap is configured. */
+  bankrollCap: BankrollStakeCapInfo | null = null;
+
   constructor(
     private readonly walletAuth: WalletAuthService,
     private readonly claimyEdge: ClaimyEdgeService,
     private readonly playerRanking: PlayerRankingService
   ) {}
 
+  ngOnInit(): void {
+    void this.loadBankrollCap();
+  }
+
   ngOnDestroy(): void {
     if (this.toastClearId) clearTimeout(this.toastClearId);
+  }
+
+  private async loadBankrollCap(): Promise<void> {
+    this.bankrollCap = await this.claimyEdge.fetchBankrollStakeCap();
+  }
+
+  /** Narrowed for template (strict null checks). */
+  get bankrollDisplay(): BankrollStakeCapInfo | null {
+    const b = this.bankrollCap;
+    if (!b?.ok || !b.enforced || b.maxStake == null) return null;
+    return b;
   }
 
   get winCountPreview(): number | null {

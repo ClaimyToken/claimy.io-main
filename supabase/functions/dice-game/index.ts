@@ -7,6 +7,7 @@
  */
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertStakeWithinBankrollCap } from "./bankroll-stake-cap.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -176,6 +177,20 @@ serve(async (req) => {
   }
 
   const mult = payoutMultiplier(winCount);
+
+  const cap = await assertStakeWithinBankrollCap(supabase, stake);
+  if (!cap.ok) {
+    return json(
+      {
+        ok: false,
+        error: cap.error,
+        maxStake: cap.maxStake,
+        bankrollBalanceUi: cap.bankrollBalanceUi,
+        ratio: cap.ratio,
+      },
+      200,
+    );
+  }
 
   const { data: userRow, error: userErr } = await supabase
     .from("claimy_users")

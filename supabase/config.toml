@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.dice-game]
 verify_jwt = false
+
+[functions.bankroll-info]
+verify_jwt = false

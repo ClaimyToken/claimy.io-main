@@ -1,5 +1,9 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { ClaimyEdgeService, BlackjackPublicGame } from 'src/app/services/claimy-edge.service';
+import {
+  BankrollStakeCapInfo,
+  BlackjackPublicGame,
+  ClaimyEdgeService
+} from 'src/app/services/claimy-edge.service';
 import { PlayerRankingService } from 'src/app/services/player-ranking.service';
 import { WalletAuthService } from 'src/app/services/wallet-auth.service';
 import type { VerificationResult } from '../flowerpoker/flowerpoker-provably-fair';
@@ -76,6 +80,8 @@ function scoreVisibleHand(cards: string[]): string {
   styleUrls: ['./blackjack.component.scss']
 })
 export class BlackjackComponent implements OnInit, OnDestroy {
+  bankrollCap: BankrollStakeCapInfo | null = null;
+
   betAmountInput = '';
   placingBet = false;
   busy = false;
@@ -140,7 +146,18 @@ export class BlackjackComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    void this.loadBankrollCap();
     void this.tryResumeSessionWithRetries();
+  }
+
+  private async loadBankrollCap(): Promise<void> {
+    this.bankrollCap = await this.claimyEdge.fetchBankrollStakeCap();
+  }
+
+  get bankrollDisplay(): BankrollStakeCapInfo | null {
+    const b = this.bankrollCap;
+    if (!b?.ok || !b.enforced || b.maxStake == null) return null;
+    return b;
   }
 
   ngOnDestroy(): void {

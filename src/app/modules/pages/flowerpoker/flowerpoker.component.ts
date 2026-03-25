@@ -1,5 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import {
+  BankrollStakeCapInfo,
   ClaimyEdgeService,
   FlowerpokerPersistedRound,
   FlowerpokerRoundProof,
@@ -70,6 +71,8 @@ const FLOWERS: FlowerMeta[] = [
   styleUrls: ['./flowerpoker.component.scss']
 })
 export class FlowerpokerComponent implements OnInit, OnDestroy {
+  bankrollCap: BankrollStakeCapInfo | null = null;
+
   readonly seedImage = 'https://oldschool.runescape.wiki/images/Mithril_seeds.png';
   readonly slots = [0, 1, 2, 3, 4];
   readonly flowers = FLOWERS;
@@ -189,7 +192,18 @@ export class FlowerpokerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.resetBoardOnly();
     this.message = 'Enter a bet amount and start round.';
+    void this.loadBankrollCap();
     void this.tryResumeSessionWithRetries();
+  }
+
+  private async loadBankrollCap(): Promise<void> {
+    this.bankrollCap = await this.claimyEdge.fetchBankrollStakeCap();
+  }
+
+  get bankrollDisplay(): BankrollStakeCapInfo | null {
+    const b = this.bankrollCap;
+    if (!b?.ok || !b.enforced || b.maxStake == null) return null;
+    return b;
   }
 
   /** Wallet + Phantom may not be ready on first tick after refresh; session wallet from login is persisted separately. */

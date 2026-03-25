@@ -49,6 +49,19 @@
                 [disabled]="rolling"
               />
               <span class="fp-betbar__meta">One shot per roll — stake returns × multiplier on a hit.</span>
+              <ng-container *ngIf="bankrollDisplay as br">
+                <p class="small text-secondary mt-2 mb-0">
+                  Max stake:
+                  <strong class="text-primary">{{ br.maxStake | number : '1.0-6' }}</strong> CLAIMY
+                  <span class="text-muted"
+                    >({{ br.ratioPercent | number : '1.2-2' }}% of
+                    {{ br.bankrollBalanceUi | number : '1.0-2' }} SPL bankroll)</span
+                  >
+                </p>
+              </ng-container>
+              <p class="small text-warning mt-2 mb-0" *ngIf="bankrollCap && !bankrollCap.ok && bankrollCap.error">
+                {{ bankrollCap.error }}
+              </p>
             </div>
           </div>
 

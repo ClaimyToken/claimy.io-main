@@ -57,6 +57,17 @@ export type BlackjackPublicGame = {
   fairSnapshot: Record<string, unknown> | null;
 };
 
+/** bankroll-info Edge: dynamic max stake vs on-chain house SPL balance. */
+export type BankrollStakeCapInfo = {
+  ok: boolean;
+  enforced: boolean;
+  maxStake: number | null;
+  bankrollBalanceUi: number | null;
+  ratio: number | null;
+  ratioPercent: number | null;
+  error?: string;
+};
+
 export type AdminSweepItem = {
   depositWalletAddress: string;
   sourceAta: string;
@@ -753,6 +764,59 @@ export class ClaimyEdgeService {
       return null;
     } catch {
       return null;
+    }
+  }
+
+  /**
+   * Max stake vs on-chain bankroll wallet (Edge `bankroll-info`). When `enforced` is false, caps are off (no env wallet).
+   */
+  async fetchBankrollStakeCap(): Promise<BankrollStakeCapInfo> {
+    try {
+      const res = await fetch(this.functionsUrl('bankroll-info'), {
+        method: 'GET',
+        headers: this.edgeJsonHeaders()
+      });
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (data['ok'] === false) {
+        return {
+          ok: false,
+          enforced: !!data['configured'],
+          maxStake: null,
+          bankrollBalanceUi: null,
+          ratio: null,
+          ratioPercent: null,
+          error:
+            (typeof data['error'] === 'string' && data['error']) || 'Bankroll info unavailable.'
+        };
+      }
+      if (data['enforced'] === false) {
+        return {
+          ok: true,
+          enforced: false,
+          maxStake: null,
+          bankrollBalanceUi: null,
+          ratio: null,
+          ratioPercent: null
+        };
+      }
+      return {
+        ok: true,
+        enforced: true,
+        maxStake: this.readNum(data['maxStake']) ?? null,
+        bankrollBalanceUi: this.readNum(data['bankrollBalanceUi']) ?? null,
+        ratio: this.readNum(data['ratio']) ?? null,
+        ratioPercent: this.readNum(data['ratioPercent']) ?? null
+      };
+    } catch {
+      return {
+        ok: false,
+        enforced: false,
+        maxStake: null,
+        bankrollBalanceUi: null,
+        ratio: null,
+        ratioPercent: null,
+        error: 'Network error loading bankroll info.'
+      };
     }
   }
 

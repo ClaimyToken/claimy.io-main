@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertStakeWithinBankrollCap } from "./bankroll-stake-cap.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -270,6 +271,20 @@ serve(async (req) => {
       .eq("wallet_address", walletAddress)
       .maybeSingle();
     if (userErr || !userRow?.id) return json({ ok: false, error: "Account not found." }, 200);
+
+    const cap = await assertStakeWithinBankrollCap(supabase, stake);
+    if (!cap.ok) {
+      return json(
+        {
+          ok: false,
+          error: cap.error,
+          maxStake: cap.maxStake,
+          bankrollBalanceUi: cap.bankrollBalanceUi,
+          ratio: cap.ratio,
+        },
+        200,
+      );
+    }
 
     const { data: afterDebitRaw, error: debitErr } = await supabase.rpc("claimy_apply_credit_delta", {
       p_wallet: walletAddress,
