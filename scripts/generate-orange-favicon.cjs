@@ -1,6 +1,7 @@
 /**
- * One-off generator: orange square favicon.ico + favicon-32.png for browsers that
- * ignore SVG or request /favicon.ico. Run: node scripts/generate-orange-favicon.cjs
+ * Legacy one-off: wrote src/favicon.ico + favicon-32.png. The app now uses
+ * src/assets/favicon/favicon.jpg only (see index.html). Keep this script only if you
+ * still want generated ICO/PNG for something else. Run: node scripts/generate-orange-favicon.cjs
  */
 const fs = require('fs');
 const zlib = require('zlib');
