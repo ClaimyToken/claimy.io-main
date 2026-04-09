@@ -44,6 +44,9 @@ supabase/.temp/
 # VS Code / Cursor multi-root workspace files (often dropped in subfolders by mistake)
 *.code-workspace
 
+# Netlify CLI (local `netlify link` / dev state — not the committed netlify.toml)
+.netlify/
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/

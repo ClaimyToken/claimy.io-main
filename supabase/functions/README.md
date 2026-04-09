@@ -21,3 +21,17 @@ These folders mirror what you paste into **Supabase Dashboard → Edge Functions
 | `playhouse-feed` | `playhouse-feed` | Actions: **`list_bets`** (paginated feed; public = settled only; wallet filter adds in-progress for “My bets”) and **`player_ranking_stats`** (single JSON of SUM/COUNT for settled sessions — Flowerpoker + Blackjack + Dice). Run `docs/migrations/claimy_playhouse_feed.sql`, **`claimy_playhouse_player_ranking_stats.sql`**, **`claimy_playhouse_include_blackjack.sql`**, and **`claimy_playhouse_include_dice.sql`**. **`supabase/config.toml` sets `verify_jwt = false`**. Redeploy after RPC or handler changes. If `OPTIONS` returns 404, the slug is not deployed on that project. |
 
 Other functions (`check-username`, etc.) remain documented in **`docs/SUPABASE_SETUP.md`** where not listed above.
+
+## Local development (Deno runtime)
+
+Edge Functions run on **Deno** on Supabase’s servers. This repo does **not** ship a separate “Deno test suite” — you exercise functions by:
+
+1. **Supabase CLI** — from the repo root (with CLI logged in and project linked):  
+   `npx supabase functions serve <slug>` — loads the matching folder under `supabase/functions/<slug>/` and runs it locally with Deno.  
+   See [Supabase: Local development](https://supabase.com/docs/guides/functions/local-development) and [CLI reference](https://supabase.com/docs/reference/cli/supabase-functions-serve).
+
+2. **Deploy** — `npx supabase functions deploy <slug>` after changing `index.ts`.
+
+Secrets (RPC URLs, keys) are **not** in git; set them in the Dashboard or via `supabase secrets set` for local/serve as documented by Supabase.
+
+There is **no** dedicated “.deno testing” README elsewhere on GitHub for this project — use the links above plus **`docs/SUPABASE_SETUP.md`** for copy-paste sources and SQL prerequisites.
