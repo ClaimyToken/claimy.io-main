@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.bankroll-info]
 verify_jwt = false
+
+[functions.pumpfun-token-proxy]
+verify_jwt = false
