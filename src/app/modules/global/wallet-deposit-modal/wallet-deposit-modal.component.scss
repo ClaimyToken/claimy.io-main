@@ -105,6 +105,70 @@
     border-bottom: none;
     padding-bottom: 0;
   }
+
+  &--mint-reference {
+    padding: 0.65rem 0.65rem 0.75rem;
+    margin-top: 0.15rem;
+    border-radius: 0.35rem;
+    border: 1px dashed rgba(var(--bs-secondary-rgb), 0.45);
+    border-bottom: none;
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+.deposit-route-warning {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(var(--bs-warning-rgb), 0.5);
+  background: rgba(255, 193, 7, 0.09);
+
+  &__title {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: rgba(255, 220, 140, 0.95);
+    margin-bottom: 0.4rem;
+  }
+
+  &__text {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.88);
+  }
+}
+
+.deposit-destination-card {
+  padding: 0.85rem 0.9rem 1rem;
+  border-radius: 0.45rem;
+  border: 2px solid rgba(55, 201, 120, 0.55);
+  background: rgba(55, 201, 120, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(55, 201, 120, 0.12);
+
+  &__hint {
+    color: rgba(255, 255, 255, 0.82) !important;
+  }
+
+  &__addr .deposit-value--mono {
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+}
+
+.deposit-label--hero {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.11em !important;
+  color: #8ef5bd !important;
+  margin-bottom: 0.45rem !important;
+}
+
+.deposit-label--sub {
+  font-size: 0.6rem !important;
+  letter-spacing: 0.08em !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
 }
 
 .deposit-label {

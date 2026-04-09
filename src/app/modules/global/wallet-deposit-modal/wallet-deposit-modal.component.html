@@ -25,10 +25,10 @@
       </div>
       <div class="modal-body" *ngIf="walletAuth.isLoggedIn">
         <p class="deposit-lead deposit-lead--center mb-3">
-          <strong>Claimy Credits</strong> are your in-app balance. Send <strong>only Claimy SPL</strong> (mint below) to
-          your <strong>deposit address</strong> — that path is custodial. <strong>Withdrawals</strong> send Claimy SPL
-          <strong>to</strong> your registered Phantom wallet after you sign; tokens are released from the
-          <strong>protocol vault</strong> on-chain (not from your deposit wallet directly).
+          <strong>Claimy Credits</strong> are your in-app balance. To deposit, open <strong>Deposit Claimy</strong> and
+          send Claimy SPL <strong>to your personal deposit address</strong> (not to the token mint). Only that custodial
+          path credits your balance. <strong>Withdrawals</strong> send Claimy SPL to your registered Phantom wallet
+          after you sign; tokens come from the <strong>protocol vault</strong> on-chain.
         </p>
 
         <div class="deposit-panel wallet-modal-credits-panel mb-3" *ngIf="walletAuth.depositWalletAddress">
@@ -101,10 +101,43 @@
               aria-labelledby="wallet-deposit-accordion-btn"
               *ngIf="depositSectionOpen"
             >
-              <div class="deposit-row deposit-row--flush-top">
-                <span class="deposit-label wallet-modal-section-heading">Claimy SPL token (mint)</span>
+              <div class="deposit-route-warning mb-3" role="note">
+                <span class="deposit-route-warning__title">Read this before you send</span>
+                <p class="deposit-route-warning__text mb-0">
+                  In Phantom (or any wallet), the <strong>recipient</strong> must be <strong>your deposit address</strong>
+                  below. The mint is only the token’s contract ID — <strong>never paste the mint as the recipient.</strong>
+                  Sending to the mint does not credit Claimy Credits.
+                </p>
+              </div>
+
+              <div class="deposit-destination-card mb-3">
+                <span class="deposit-label wallet-modal-section-heading deposit-label--hero">Send Claimy SPL to this address</span>
+                <p class="wallet-modal-mint-copy wallet-modal-mint-copy--center mb-2 deposit-destination-card__hint">
+                  Your <strong>unique custodial deposit address</strong>. Paste it into the <strong>“To” / recipient</strong>
+                  field, choose Claimy SPL using the mint further down, then confirm. Credits update after the chain
+                  confirms.
+                </p>
+                <div class="wallet-modal-address-inline deposit-destination-card__addr">
+                  <span class="deposit-value deposit-value--mono text-break">{{ walletAuth.depositWalletAddress }}</span>
+                  <button
+                    type="button"
+                    class="wallet-modal-copy-ico wallet-modal-copy-ico--deposit"
+                    (click)="copyDepositAddress()"
+                    [attr.aria-label]="copiedDeposit ? 'Copied' : 'Copy deposit address'"
+                    [title]="copiedDeposit ? 'Copied' : 'Copy deposit address'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="deposit-row deposit-row--mint-reference deposit-row--last">
+                <span class="deposit-label wallet-modal-section-heading deposit-label--sub">Token mint — reference only (not a deposit address)</span>
                 <p class="wallet-modal-mint-copy wallet-modal-mint-copy--center mb-2">
-                  Use this <strong>mint</strong> when sending Claimy SPL from Phantom or any wallet. SOL-only or other SPL
+                  Use this value only to <strong>select the Claimy SPL token</strong> in your wallet. SOL or other SPL
                   tokens do not count toward credits.
                 </p>
                 <div class="wallet-modal-mint-center">
@@ -117,7 +150,7 @@
                       class="wallet-modal-copy-ico"
                       (click)="copyMintAddress()"
                       [attr.aria-label]="copiedMint ? 'Copied' : 'Copy mint address'"
-                      [title]="copiedMint ? 'Copied' : 'Copy'"
+                      [title]="copiedMint ? 'Copied' : 'Copy mint (for choosing token)'"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
@@ -126,28 +159,6 @@
                     </button>
                   </ng-container>
                   <span class="deposit-value text-secondary" *ngIf="!hasMintConfigured">Not configured in app config</span>
-                </div>
-              </div>
-              <div class="deposit-row deposit-row--last">
-                <span class="deposit-label wallet-modal-section-heading">Your deposit address</span>
-                <p class="wallet-modal-mint-copy wallet-modal-mint-copy--center mb-2">
-                  Your <strong>custodial deposit address</strong> (unique to this account). Send Claimy SPL from the mint
-                  above; your credits update after the chain confirms.
-                </p>
-                <div class="wallet-modal-address-inline">
-                  <span class="deposit-value deposit-value--mono text-break">{{ walletAuth.depositWalletAddress }}</span>
-                  <button
-                    type="button"
-                    class="wallet-modal-copy-ico wallet-modal-copy-ico--deposit"
-                    (click)="copyDepositAddress()"
-                    [attr.aria-label]="copiedDeposit ? 'Copied' : 'Copy deposit address'"
-                    [title]="copiedDeposit ? 'Copied' : 'Copy'"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>
