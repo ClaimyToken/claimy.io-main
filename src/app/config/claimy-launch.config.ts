@@ -14,7 +14,7 @@ export const CLAIMY_LAUNCH = {
    * SPL token mint (base58), e.g. pump.fun token.
    * Keep in sync with `CLAIMY_SPL_MINT` if you use Netlify env inject.
    */
-  claimySplMintAddress: 'CVNAP5GpSBVQfqtqfu4jVRMVYmTKBqS5a5mDMPFUpump',
+  claimySplMintAddress: '3Do1h23YWUcTp28y2d5DXVvePd5X3GeScuEiJgH2pump',
 
   /** Solana treasury / ops wallet. Leave empty to show “TBA” on the landing page. */
   treasuryWalletAddress: '5kimaiQnhEsFGnRN54FjpAPswFL152BjcgwStWhrFMkE',
@@ -28,5 +28,5 @@ export const CLAIMY_LAUNCH = {
   coingeckoUrl: 'https://www.coingecko.com/en/coins/solana',
 
   /** Legacy EVM placeholder (footer / old links). */
-  legacyEthTokenAddress: '0x570A5D26f7765Ecb712C0924E4De545B89fD43dF'
+  legacyEthTokenAddress: ''
 } as const;
