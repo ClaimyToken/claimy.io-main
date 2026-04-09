@@ -125,8 +125,14 @@
             <span class="account-settings-value">
               {{ walletAuth.referralCount != null ? walletAuth.referralCount : '—' }}
               <span class="account-settings-note d-block mb-0">
-                Accounts registered with your referral code. Share your code from
-                <a routerLink="/referrals">Referrals</a>.
+                Accounts registered with your referral code.
+                <ng-container *ngIf="config.referralsPageEnabled">
+                  Share your code from
+                  <a routerLink="/referrals">Referrals</a>.
+                </ng-container>
+                <ng-container *ngIf="!config.referralsPageEnabled">
+                  The referrals page is hidden for now; your code still works at registration.
+                </ng-container>
               </span>
             </span>
           </div>

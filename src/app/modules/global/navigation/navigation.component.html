@@ -35,7 +35,7 @@
                                     Home
                                 </a>
                             </li>
-                            <li>
+                            <li *ngIf="configService.referralsPageEnabled">
                                 <a
                                     routerLink="/referrals"
                                     routerLinkActive="active"

@@ -43,6 +43,12 @@ export class ConfigService {
    */
   claimySplMintAddress = environment.claimySplMintAddress;
 
+  /**
+   * When false, the Referrals page is hidden from navigation and `/referrals` redirects to home.
+   * Registration can still accept referral codes; backend is unchanged.
+   */
+  referralsPageEnabled = false;
+
   constructor() { }
 
   /** Trimmed SPL mint, or empty if not configured. */
