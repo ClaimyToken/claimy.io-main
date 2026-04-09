@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ConfigService } from 'src/app/services/config.service';
-import { PumpportalTokenStatsService } from 'src/app/services/pumpportal-token-stats.service';
+import { PumpfunTokenStatsService } from 'src/app/services/pumpfun-token-stats.service';
 
 @Component({
   selector: 'app-landing',
@@ -12,7 +12,7 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   constructor(
     public configService: ConfigService,
-    private readonly pumpStats: PumpportalTokenStatsService
+    private readonly pumpStats: PumpfunTokenStatsService
   ) { }
 
   currentYear: number = new Date().getFullYear();
@@ -37,6 +37,7 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.pumpStats.stop();
     if (this.statsSub) {
       this.statsSub.unsubscribe();
       this.statsSub = null;
