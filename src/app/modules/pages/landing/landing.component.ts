@@ -29,7 +29,7 @@ export class LandingComponent implements OnInit, OnDestroy {
         typeof s.volume24hSol === 'number' && Number.isFinite(s.volume24hSol)
           ? `${s.volume24hSol.toFixed(2)} SOL`
           : '—';
-      this.tokenMarketCapLiveLabel = this.formatMarketCapLabel(s.marketCapUsd, s.marketCapSol);
+      this.tokenMarketCapLiveLabel = this.formatMarketCapLabel(s.marketCapUsd);
     });
   }
 
@@ -46,17 +46,10 @@ export class LandingComponent implements OnInit, OnDestroy {
     return this.configService.githubLink.replace(/^https?:\/\/github\.com\//i, '');
   }
 
-  /**
-   * Prefer USD (pump.fun `usd_market_cap` ~ “$2.46K”), then show SOL bond-curve mcap.
-   */
-  private formatMarketCapLabel(usd: number | null, sol: number | null): string {
+  /** `usd_market_cap` from pump.fun only — no SOL mcap in the UI. */
+  private formatMarketCapLabel(usd: number | null): string {
     const usdOk = typeof usd === 'number' && Number.isFinite(usd) && usd > 0;
-    const solOk = typeof sol === 'number' && Number.isFinite(sol) && sol > 0;
-    if (!usdOk && !solOk) return '—';
-    const usdPart = usdOk ? this.formatUsdCompact(usd) : '';
-    const solPart = solOk ? `${sol.toFixed(2)} SOL` : '';
-    if (usdPart && solPart) return `${usdPart} · ${solPart}`;
-    return usdPart || solPart;
+    return usdOk ? this.formatUsdCompact(usd) : '—';
   }
 
   private formatUsdCompact(n: number): string {
