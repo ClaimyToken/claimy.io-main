@@ -43,4 +43,4 @@ The printed **human / UI amount** should match **Claimy Credits** in the UI afte
 
 ## SQL (optional)
 
-`DEVELOPERWORK/supabase-verify.sql` confirms users have `deposit_wallet_public_key` set. It does **not** read chain balances — use the CLI or the app for that.
+`docs/supabase-verify.sql` confirms users have `deposit_wallet_public_key` set. It does **not** read chain balances — use the CLI or the app for that.

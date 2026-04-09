@@ -125,7 +125,7 @@ export class DevUpdatesComponent {
         'Logged-in users: “My bets only” filter. Pager when there are more rows than one page.',
         'Provably Fair modal: fairness fields from stored metadata; “Verify in browser” via `verifyFlowerpokerRound` when reveal + `finalRound` exist.',
         '`supabase/config.toml`: `[functions.playhouse-feed] verify_jwt = false` so the public feed does not require a user JWT (still uses service role server-side only).',
-        '`playhouse-feed` CORS includes allowed methods; README documents deploy + migration `DEVELOPERWORK/migrations/claimy_playhouse_feed.sql`.',
+        '`playhouse-feed` CORS includes allowed methods; README documents deploy + migration `docs/migrations/claimy_playhouse_feed.sql`.',
         'Note: only **settled** rounds appear — games must finish the settle step in Flowerpoker; in-progress sessions are excluded.',
         'Playhouse game lineup cards: orange glow titles (`text-primary`, `c-text-glow`), centered in each card; marketing blurbs removed; hover on “Play … now” gently glows the card border (`:has()` on the CTA).'
       ]

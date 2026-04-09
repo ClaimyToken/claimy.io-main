@@ -3,7 +3,7 @@
 Anchor program path: **`programs/claimy-vault/`**  
 Workspace: **`Anchor.toml`** (repo root)
 
-Full architecture narrative: **`DEVELOPERWORK/CLAIMY_VAULT.md`**.
+Full architecture narrative: **`docs/CLAIMY_VAULT.md`**.
 
 ---
 

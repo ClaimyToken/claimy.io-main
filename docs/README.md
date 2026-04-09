@@ -166,9 +166,9 @@ Ensure **`ConfigService.supabaseUrl`** matches the Supabase project (or `CLAIMY_
 ## Quick repo map
 
 ```
-DEVELOPERWORK/SUPABASE_SETUP.md   Full Deno for functions 1–4, 6 + deep SQL notes
-DEVELOPERWORK/CLAIMY_VAULT.md     Vault architecture narrative
-DEVELOPERWORK/supabase-verify.sql Read-only SQL checks (users + withdraw nonces)
+docs/SUPABASE_SETUP.md   Full Deno for functions 1–4, 6 + deep SQL notes
+docs/CLAIMY_VAULT.md     Vault architecture narrative
+docs/supabase-verify.sql Read-only SQL checks (users + withdraw nonces)
 supabase/functions/               withdraw-spl implementation
 programs/claimy-vault/            Anchor Rust program
 scripts/derive-claimy-vault-pdas.cjs

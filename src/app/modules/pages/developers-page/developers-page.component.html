@@ -15,7 +15,7 @@
     <div class="card-body">
       <p class="mb-3">
         This page is a practical overview. The repository also ships detailed markdown under
-        <code>DEVELOPERWORK/</code> and <code>supabase/functions/README.md</code> — use those as the source of truth for
+        <code>docs/</code> and <code>supabase/functions/README.md</code> — use those as the source of truth for
         SQL, Edge Function code, and vault architecture.
       </p>
       <p class="small text-secondary mb-2 text-uppercase fw-semibold letter-spacing-tight">On this page</p>
@@ -76,7 +76,7 @@
         </tr>
         <tr>
           <td>Supabase Postgres</td>
-          <td>Users, nonces, referral data, playable credit ledger — applied via SQL migrations in <code>DEVELOPERWORK/migrations/</code>.</td>
+          <td>Users, nonces, referral data, playable credit ledger — applied via SQL migrations in <code>docs/migrations/</code>.</td>
         </tr>
         <tr>
       <td>Edge Functions</td>
@@ -128,23 +128,23 @@ npx ng serve
 # open http://localhost:4200/</code></pre>
   <div class="dev-doc__note">
     Production builds use <code>environment.prod.ts</code> — not <code>.env</code>. Set public URLs and mint there in
-    CI/CD or your host’s config. See <code>DEVELOPERWORK/FRONTEND_AND_ENV.md</code>.
+    CI/CD or your host’s config. See <code>docs/FRONTEND_AND_ENV.md</code>.
   </div>
 
   <h2 id="supabase">Supabase: database then functions</h2>
   <h3>Schema and migrations</h3>
   <p>
     In Supabase <strong>SQL Editor</strong>, run the schema and migrations from the repo in a sensible order. The
-    handoff checklist starts with <code>DEVELOPERWORK/supabase-schema.sql</code>, then add tables from
-    <code>DEVELOPERWORK/migrations/</code> (for example playable credits, referrals, deposit snapshots) as your feature
+    handoff checklist starts with <code>docs/supabase-schema.sql</code>, then add tables from
+    <code>docs/migrations/</code> (for example playable credits, referrals, deposit snapshots) as your feature
     set requires. Always review <code>DROP</code> / destructive blocks before running against anything important.
   </p>
   <h3>Edge Function secrets</h3>
   <p>
     In <strong>Project Settings → Edge Functions → Secrets</strong>, configure everything your functions need: Supabase
     URL, service role, Solana RPC, SPL mint, encryption key for deposit wallets, relayer keys for withdrawals, etc. The
-    full list and semantics are documented in <code>DEVELOPERWORK/EDGE_FUNCTIONS.md</code> and
-    <code>DEVELOPERWORK/SUPABASE_SETUP.md</code>.
+    full list and semantics are documented in <code>docs/EDGE_FUNCTIONS.md</code> and
+    <code>docs/SUPABASE_SETUP.md</code>.
   </p>
   <h3>Deploy functions</h3>
   <p>
@@ -158,7 +158,7 @@ npx ng serve
     <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, <code>blackjack-game</code>,
     <code>dice-game</code>,
     <code>playhouse-feed</code>, <code>admin-sweep-wallets</code>,
-    and others listed in <code>supabase/functions/README.md</code> and <code>DEVELOPERWORK/README.md</code>.
+    and others listed in <code>supabase/functions/README.md</code> and <code>docs/README.md</code>.
   </p>
 
   <section id="playhouse-feed-troubleshooting" class="mt-4" aria-labelledby="playhouse-feed-heading">
@@ -170,7 +170,7 @@ npx ng serve
       >
       and optional <code>walletAddress</code> for the
       filtered view. The function calls RPC <code>playhouse_list_settled_bets</code> with the service role — run
-      <code>DEVELOPERWORK/migrations/claimy_playhouse_feed.sql</code> and
+      <code>docs/migrations/claimy_playhouse_feed.sql</code> and
       <code>claimy_playhouse_player_ranking_stats.sql</code> +
       <code>claimy_playhouse_include_blackjack.sql</code> (RPC <code>playhouse_player_ranking_stats</code> for action
       <code>player_ranking_stats</code>) before deploying. In <code>supabase/config.toml</code>, set
@@ -258,7 +258,7 @@ npx ng serve
   <p>
     Withdrawals are initiated from the app but executed by <strong>withdraw-spl</strong> using server-side signing keys.
     That can be a hot wallet (“simple vault”) or a PDA program path, depending on your deployment and
-    <code>DEVELOPERWORK/CLAIMY_VAULT.md</code>. Fund the vault / relayer with SOL for fees and SPL tokens as needed.
+    <code>docs/CLAIMY_VAULT.md</code>. Fund the vault / relayer with SOL for fees and SPL tokens as needed.
   </p>
   <h3>Admin sweep operations</h3>
   <p>
@@ -316,7 +316,7 @@ npx ng serve
         </tr>
         <tr>
           <td><code>npm run check-deposit</code></td>
-          <td>Helper script to inspect deposit balances (see <code>DEVELOPERWORK/TESTING_DEPOSITS.md</code>).</td>
+          <td>Helper script to inspect deposit balances (see <code>docs/TESTING_DEPOSITS.md</code>).</td>
         </tr>
         <tr>
           <td><code>npm run vault:pdas -- &lt;PROGRAM_ID&gt; &lt;MINT&gt;</code></td>
@@ -332,26 +332,26 @@ npx ng serve
   </p>
   <ul>
     <li>
-      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/README.md'" target="_blank" rel="noopener noreferrer"
-        >DEVELOPERWORK/README.md</a
+      <a [href]="config.githubLink + '/blob/main/docs/README.md'" target="_blank" rel="noopener noreferrer"
+        >docs/README.md</a
       >
       — ordered checklist (DB → secrets → functions → optional Anchor → frontend).
     </li>
     <li>
-      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/SUPABASE_SETUP.md'" target="_blank" rel="noopener noreferrer"
-        >DEVELOPERWORK/SUPABASE_SETUP.md</a
+      <a [href]="config.githubLink + '/blob/main/docs/SUPABASE_SETUP.md'" target="_blank" rel="noopener noreferrer"
+        >docs/SUPABASE_SETUP.md</a
       >
       — Edge Function sources and SQL notes.
     </li>
     <li>
-      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/CLAIMY_VAULT.md'" target="_blank" rel="noopener noreferrer"
-        >DEVELOPERWORK/CLAIMY_VAULT.md</a
+      <a [href]="config.githubLink + '/blob/main/docs/CLAIMY_VAULT.md'" target="_blank" rel="noopener noreferrer"
+        >docs/CLAIMY_VAULT.md</a
       >
       — vault architecture, credits, custodial deposits, PDA path.
     </li>
     <li>
-      <a [href]="config.githubLink + '/blob/main/DEVELOPERWORK/FRONTEND_AND_ENV.md'" target="_blank" rel="noopener noreferrer"
-        >DEVELOPERWORK/FRONTEND_AND_ENV.md</a
+      <a [href]="config.githubLink + '/blob/main/docs/FRONTEND_AND_ENV.md'" target="_blank" rel="noopener noreferrer"
+        >docs/FRONTEND_AND_ENV.md</a
       >
       — what the SPA exposes vs what stays server-only.
     </li>

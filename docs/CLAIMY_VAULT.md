@@ -2,7 +2,7 @@
 
 This document ties together the **Angular app**, **Supabase Edge Functions**, **per-user custodial deposit wallets**, and the **on-chain `claimy-vault` program** (PDA vault).
 
-**Faster path without Anchor:** `withdraw-spl` also supports a **simple hot-wallet vault** (`CLAIMY_SIMPLE_VAULT_PRIVATE_KEY`) — standard SPL transfer from your funded wallet. See **`DEVELOPERWORK/SIMPLE_VAULT_WITHDRAW.md`**. The Anchor program and PDA code paths stay in the repo for when you switch.
+**Faster path without Anchor:** `withdraw-spl` also supports a **simple hot-wallet vault** (`CLAIMY_SIMPLE_VAULT_PRIVATE_KEY`) — standard SPL transfer from your funded wallet. See **`docs/SIMPLE_VAULT_WITHDRAW.md`**. The Anchor program and PDA code paths stay in the repo for when you switch.
 
 ## Roles
 

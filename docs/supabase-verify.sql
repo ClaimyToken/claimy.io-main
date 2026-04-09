@@ -1,7 +1,7 @@
 -- =============================================================================
 -- Claimy — read-only Supabase verification (Dashboard → SQL → Run)
 -- Does not call Edge Functions or Solana. For withdraw nonces, rows appear only
--- after a withdraw attempt reaches the nonce step (see DEVELOPERWORK/SUPABASE_SETUP.md §7).
+-- after a withdraw attempt reaches the nonce step (see docs/SUPABASE_SETUP.md §7).
 -- =============================================================================
 
 -- --- Schema: claimy_users ---

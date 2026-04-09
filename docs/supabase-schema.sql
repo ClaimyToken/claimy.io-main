@@ -68,6 +68,6 @@ create unique index if not exists claimy_users_deposit_wallet_public_key_key
 
 -- -----------------------------------------------------------------------------
 -- Playable credits (DB ledger) — additive migration for existing projects:
---   DEVELOPERWORK/migrations/claimy_playable_credits.sql
--- Doc: DEVELOPERWORK/PLAYABLE_CREDITS.md
+--   docs/migrations/claimy_playable_credits.sql
+-- Doc: docs/PLAYABLE_CREDITS.md
 -- -----------------------------------------------------------------------------

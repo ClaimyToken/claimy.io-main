@@ -9,11 +9,11 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 ## Developer handoff
 
 - **In the app:** Menu → **For developers** (route `/developers`) — long-form guide to running the stack locally, Supabase, Edge Functions, and using your own SPL mint.
-- **`DEVELOPERWORK/README.md`** — ordered checklist for whoever deploys Supabase SQL, Edge Functions, Anchor vault, and env. Includes SQL copies and links to all related docs.
-- **`DEVELOPERWORK/SUPABASE_SETUP.md`** — full Edge Function sources and Supabase SQL (large reference).
-- **`DEVELOPERWORK/CLAIMY_VAULT.md`** — vault architecture (credits, custodial deposits, PDA vault, `withdraw-spl`).
-- **`DEVELOPERWORK/TESTING_DEPOSITS.md`** — test Claimy SPL deposits / credits (wallet + `npm run check-deposit`).
-- **`DEVELOPERWORK/PLAYABLE_CREDITS.md`** — database playable balance + `claimy-credits` Edge Function.
+- **`docs/README.md`** — ordered checklist for whoever deploys Supabase SQL, Edge Functions, Anchor vault, and env. Includes SQL copies and links to all related docs.
+- **`docs/SUPABASE_SETUP.md`** — full Edge Function sources and Supabase SQL (large reference).
+- **`docs/CLAIMY_VAULT.md`** — vault architecture (credits, custodial deposits, PDA vault, `withdraw-spl`).
+- **`docs/TESTING_DEPOSITS.md`** — test Claimy SPL deposits / credits (wallet + `npm run check-deposit`).
+- **`docs/PLAYABLE_CREDITS.md`** — database playable balance + `claimy-credits` Edge Function.
 - **`supabase/functions/README.md`** — slugs for repo Edge functions (including `blackjack-game`, `dice-game`, and `playhouse-feed`) and which SQL migrations to run.
 
 ## Current shipped highlights

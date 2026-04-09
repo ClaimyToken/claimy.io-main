@@ -38,10 +38,10 @@ All functions: **JWT verification OFF** (public Phantom flow; auth is signature 
 
 | Slug | File / doc |
 |------|------------|
-| `check-username` | **`DEVELOPERWORK/SUPABASE_SETUP.md`** — section **§3** |
-| `register-phantom` | **`DEVELOPERWORK/SUPABASE_SETUP.md`** — **§4** |
-| `wallet-login` | **`DEVELOPERWORK/SUPABASE_SETUP.md`** — **§5** |
-| `account-linked-wallet` | **`DEVELOPERWORK/SUPABASE_SETUP.md`** — **§6** |
+| `check-username` | **`docs/SUPABASE_SETUP.md`** — section **§3** |
+| `register-phantom` | **`docs/SUPABASE_SETUP.md`** — **§4** |
+| `wallet-login` | **`docs/SUPABASE_SETUP.md`** — **§5** |
+| `account-linked-wallet` | **`docs/SUPABASE_SETUP.md`** — **§6** |
 | `withdraw-spl` | **`../supabase/functions/withdraw-spl/index.ts`** (copy entire file into Edge editor) |
 | `claimy-credits` | **`../supabase/functions/claimy-credits/index.ts`** |
 

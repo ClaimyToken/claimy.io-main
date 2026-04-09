@@ -579,7 +579,7 @@ It verifies the same Phantom **signMessage** payload as before, then submits a S
 1. **Simple vault (hot wallet)** — recommended to ship quickly: set **`CLAIMY_SIMPLE_VAULT_PRIVATE_KEY`**. The server sends a normal SPL **transfer** from that wallet’s token account for `CLAIMY_SPL_MINT` to the user’s ATA. That wallet must hold **SOL** (fees) and **Claimy SPL** (liquidity). If this secret is set, it **overrides** the PDA path.
 2. **PDA program** — set **`CLAIMY_VAULT_PROGRAM_ID`** + **`CLAIMY_RELAYER_PRIVATE_KEY`** and deploy **`claimy-vault`** (see `programs/claimy-vault` and `CLAIMY_VAULT.md`). Calls **`withdraw_to_user`**.
 
-You must configure **either** (1) **or** (2), plus RPC + mint. See also **`DEVELOPERWORK/SIMPLE_VAULT_WITHDRAW.md`**.
+You must configure **either** (1) **or** (2), plus RPC + mint. See also **`docs/SIMPLE_VAULT_WITHDRAW.md`**.
 
 ### Edge Function secrets (add in Dashboard)
 

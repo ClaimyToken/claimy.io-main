@@ -110,7 +110,7 @@ serve(async (req) => {
         {
           ok: false,
           error: msg,
-          hint: "Run DEVELOPERWORK/migrations/claimy_playable_credits.sql if RPC is missing.",
+          hint: "Run docs/migrations/claimy_playable_credits.sql if RPC is missing.",
         },
         200,
       );
@@ -272,7 +272,7 @@ serve(async (req) => {
           {
             ok: false,
             error:
-              `Could not set deposit snapshot (add column deposit_chain_balance_snapshot — see DEVELOPERWORK/migrations/claimy_deposit_chain_snapshot.sql): ${upErr.message}`,
+              `Could not set deposit snapshot (add column deposit_chain_balance_snapshot — see docs/migrations/claimy_deposit_chain_snapshot.sql): ${upErr.message}`,
           },
           200,
         );

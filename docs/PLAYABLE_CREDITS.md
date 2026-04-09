@@ -13,7 +13,7 @@
 
 ## Deploy
 
-1. Run **`DEVELOPERWORK/migrations/claimy_playable_credits.sql`** in Supabase SQL Editor.
+1. Run **`docs/migrations/claimy_playable_credits.sql`** in Supabase SQL Editor.
 2. Deploy Edge function **`claimy-credits`** from **`supabase/functions/claimy-credits/index.ts`** (same flow as `withdraw-spl`).
 3. Set secret **`CLAIMY_CREDITS_MUTATION_SECRET`** (long random string) if you will call **`apply_delta`** or **`record_deposit`** from a backend/indexer.
 
