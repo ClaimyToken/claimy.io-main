@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Claimy — API demo</title>
+    <link rel="stylesheet" href="./demo.css" />
+  </head>
+  <body>
+    <div class="demo-wrap">
+      <h1 class="demo-title">Claimy API demo</h1>
+      <p class="demo-sub">
+        Static playground for Supabase Edge calls (same headers as the Angular app). Run via a local server — see
+        <code>README.md</code> in this folder.
+      </p>
+
+      <section class="demo-panel" aria-labelledby="cfg-heading">
+        <h2 id="cfg-heading">Configuration</h2>
+        <div class="demo-field">
+          <label for="supabaseUrl">Supabase project URL</label>
+          <input
+            id="supabaseUrl"
+            type="url"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="https://xxxx.supabase.co"
+          />
+        </div>
+        <div class="demo-field">
+          <label for="anonKey">Anon public key (Dashboard → API)</label>
+          <input id="anonKey" type="password" autocomplete="off" spellcheck="false" placeholder="eyJ…" />
+        </div>
+        <div class="demo-field">
+          <label for="wallet">Wallet address (base58)</label>
+          <div class="demo-inline">
+            <input id="wallet" type="text" autocomplete="off" spellcheck="false" placeholder="Your Phantom public key" />
+            <button type="button" class="demo-btn demo-btn--ghost" id="btnPhantom">Connect Phantom</button>
+          </div>
+        </div>
+        <p class="demo-note">Values are stored in <strong>localStorage</strong> in this browser only.</p>
+      </section>
+
+      <section class="demo-panel" aria-labelledby="actions-heading">
+        <h2 id="actions-heading">Edge functions</h2>
+        <p class="demo-note" style="margin-top: 0">
+          Uses <code>apikey</code> + <code>Authorization: Bearer &lt;anon&gt;</code> on every request.
+        </p>
+        <div class="demo-actions">
+          <button type="button" class="demo-btn" id="btnBalance">claimy-credits: get balance</button>
+          <button type="button" class="demo-btn" id="btnLedger">claimy-credits: list ledger</button>
+        </div>
+        <div class="demo-inline" style="margin-top: 0.65rem">
+          <div class="demo-field">
+            <label for="ledgerDir">Ledger direction</label>
+            <select id="ledgerDir">
+              <option value="all">all</option>
+              <option value="incoming">incoming</option>
+              <option value="outgoing">outgoing</option>
+            </select>
+          </div>
+          <div class="demo-field">
+            <label for="ledgerLimit">Limit</label>
+            <input id="ledgerLimit" type="number" min="1" max="200" value="20" />
+          </div>
+        </div>
+        <div class="demo-actions" style="margin-top: 0.75rem">
+          <button type="button" class="demo-btn demo-btn--ghost" id="btnSync">claimy-credits: sync from chain</button>
+          <button type="button" class="demo-btn demo-btn--ghost" id="btnBankroll">GET bankroll-info</button>
+        </div>
+        <p class="demo-note demo-note--warn">
+          <strong>sync from chain</strong> updates your playable balance from the custodial deposit ATA (same as Refresh
+          in the app). Requires Edge secrets <code>SOLANA_RPC_URL</code> + <code>CLAIMY_SPL_MINT</code>.
+        </p>
+      </section>
+
+      <section class="demo-panel" aria-labelledby="out-heading">
+        <h2 id="out-heading">Response</h2>
+        <pre id="out" class="demo-out">Configure URL + anon key, set wallet, then run an action.</pre>
+      </section>
+
+      <p class="demo-footer">
+        Full UI: main Angular app in repo root. Docs:
+        <a href="https://github.com/ClaimyToken/claimy.io-main/tree/main/docs" rel="noopener noreferrer">docs/</a>
+      </p>
+    </div>
+    <script src="./demo.js" defer></script>
+  </body>
+</html>

@@ -15,6 +15,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 - **`docs/TESTING_DEPOSITS.md`** — test Claimy SPL deposits / credits (wallet + `npm run check-deposit`).
 - **`docs/PLAYABLE_CREDITS.md`** — database playable balance + `claimy-credits` Edge Function.
 - **`supabase/functions/README.md`** — slugs for repo Edge functions (including `blackjack-game`, `dice-game`, and `playhouse-feed`) and which SQL migrations to run.
+- **`demo/`** — minimal static HTML/JS to call `claimy-credits` and `bankroll-info` with the same headers as the app (see `demo/README.md`).
 
 ## Current shipped highlights
 
