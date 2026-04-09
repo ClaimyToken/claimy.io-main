@@ -108,7 +108,7 @@
 </div>
 
 <div class="row g-3 my-4 my-lg-5">
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-6" *ngIf="config.devBlogPageEnabled">
         <article class="c-home-callout-card c-home-callout-card--blog h-100">
             <h2 class="c-home-callout-card__title text-primary text-uppercase fw-semibold c-text-glow mb-2">Development blog</h2>
             <p class="c-home-callout-card__text mb-3">
@@ -118,7 +118,7 @@
             <a routerLink="/updates" class="btn btn-sm btn-outline-primary">Read the blog</a>
         </article>
     </div>
-    <div class="col-12 col-lg-6">
+    <div class="col-12" [class.col-lg-6]="config.devBlogPageEnabled">
         <article class="c-home-callout-card c-home-callout-card--dev h-100">
             <h2 class="c-home-callout-card__title text-primary text-uppercase fw-semibold c-text-glow mb-2">Try it yourself</h2>
             <p class="c-home-callout-card__text mb-3">
@@ -167,8 +167,13 @@
                     <p class="c-home-block-text mb-0">
                         More table games share the same Edge + Postgres pattern as Flowerpoker; blackjack and dice are live
                         with full flows while hi-low is staged on the same wallet session and credits plumbing.
-                        Follow the
-                        <a routerLink="/updates" class="c-home-inline-link">dev blog</a> for concrete milestones.
+                        <ng-container *ngIf="config.devBlogPageEnabled">
+                            Follow the
+                            <a routerLink="/updates" class="c-home-inline-link">dev blog</a> for concrete milestones.
+                        </ng-container>
+                        <ng-container *ngIf="!config.devBlogPageEnabled">
+                            See the <a routerLink="/developers" class="c-home-inline-link">For developers</a> page for stack and deploy notes.
+                        </ng-container>
                     </p>
                 </section>
             </div>

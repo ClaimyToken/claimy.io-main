@@ -52,6 +52,11 @@ export class ConfigService {
    */
   referralsPageEnabled = false;
 
+  /**
+   * When false, Development Blog (`/updates`) is hidden from navigation/footer/home and the route redirects to home.
+   */
+  devBlogPageEnabled = false;
+
   constructor() { }
 
   /** Trimmed SPL mint, or empty if not configured. */

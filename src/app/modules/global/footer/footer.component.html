@@ -6,7 +6,7 @@
                 <p class="text-primary fw-bold">Navigation</p>
                 <a routerLink="/" class="mb-1">Home</a>
                 <a routerLink="/leaderboards" class="mb-1">Leaderboards &amp; ranking</a>
-                <a routerLink="/updates" class="mb-1">Development Blog</a>
+                <a *ngIf="configService.devBlogPageEnabled" routerLink="/updates" class="mb-1">Development Blog</a>
                 <a href="{{ configService.githubLink }}" target="_blank" rel="noopener noreferrer" class="mb-1">Documentation</a>
             </div>
         </div>

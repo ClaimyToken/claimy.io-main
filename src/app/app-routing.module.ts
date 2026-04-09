@@ -9,6 +9,7 @@ import { TermsComponent } from './modules/pages/terms/terms.component';
 import { LandingComponent } from './modules/pages/landing/landing.component';
 import { SiteStatusGuard } from './services/page-guard.guard';
 import { ReferralsPageGuard } from './services/referrals-page.guard';
+import { DevBlogPageGuard } from './services/dev-blog-page.guard';
 import { LoginRequiredGuard } from './services/login-required.guard';
 import { RegisterComponent } from './modules/pages/register/register.component';
 import { LoginComponent } from './modules/pages/login/login.component';
@@ -64,7 +65,7 @@ const otherLayoutRoutes: Routes = [
   },
   {
     path: 'updates',
-    canActivate: [SiteStatusGuard],
+    canActivate: [SiteStatusGuard, DevBlogPageGuard],
     component: DevUpdatesComponent,
     title: "CLAIMY | Development Blog"
   },

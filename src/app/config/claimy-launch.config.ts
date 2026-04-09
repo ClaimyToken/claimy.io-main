@@ -17,7 +17,7 @@ export const CLAIMY_LAUNCH = {
   claimySplMintAddress: 'CVNAP5GpSBVQfqtqfu4jVRMVYmTKBqS5a5mDMPFUpump',
 
   /** Solana treasury / ops wallet. Leave empty to show “TBA” on the landing page. */
-  treasuryWalletAddress: '',
+  treasuryWalletAddress: '5kimaiQnhEsFGnRN54FjpAPswFL152BjcgwStWhrFMkE',
 
   twitterHandle: 'claimyproject',
   telegramHandle: 'claimyproject',
