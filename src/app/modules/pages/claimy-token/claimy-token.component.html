@@ -13,7 +13,7 @@
         <strong>$CLAIMY</strong> is the Solana SPL token that powers the Claimy Playhouse — credits, referrals, and
         future game rewards all tie back to this mint. In-game win multipliers improve as you climb the
         <a routerLink="/leaderboards" class="text-primary">rank ladder</a> (lifetime bet volume). Below is how we’re
-        launching it and where to verify it on-chain.
+        allocating supply and where to verify it on-chain.
       </p>
     </div>
   </div>
@@ -22,16 +22,23 @@
     <div class="col-12 col-xl-11">
       <div class="card token-card token-card--launch">
         <div class="card-body p-3 p-lg-5">
-          <h2 class="c-token-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Launch</h2>
+          <h2 class="c-token-section-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Launch &amp; allocation</h2>
           <p class="c-token-body mb-3">
-            We’re launching on <strong>pump.fun</strong> — the usual Solana launchpad flow for a fair, transparent pool
-            and community-first discovery.
+            We purchased approximately <strong>40 SOL</strong> worth of <strong>$CLAIMY</strong> — about
+            <strong>60% of total supply</strong> (<strong>{{ creatorAllocationTokens | number }}</strong> tokens) —
+            into the <strong>creator wallet</strong>. From that <strong>600&nbsp;million</strong> allocation:
+            <strong>{{ streamflowLockedTokens | number }}</strong> tokens are locked on
+            <a href="https://streamflow.finance/" target="_blank" rel="noopener noreferrer" class="text-primary"
+              >Streamflow</a
+            >
+            for <strong>2 months</strong>, and <strong>{{ casinoBankrollTokens | number }}</strong> tokens
+            (<strong>5% of total supply</strong>) are reserved for <strong>Playhouse betting mechanics</strong> — the
+            on-chain house bankroll that backs payouts and risk limits.
           </p>
           <p class="c-token-body mb-4">
-            At launch we take a <strong>{{ devBuyPercent }}% developer allocation</strong> (bought into the vault for
-            Playhouse payouts and operations). With a <strong>{{ totalSupply | number }}</strong> total supply, that
-            leaves <strong>~{{ publicSupplyAfterDev | number }}</strong> for the broader public float after our initial
-            buy.
+            The remaining <strong>~{{ remainderTokens | number }}</strong> tokens sit in the broader
+            <strong>public market</strong> (e.g. pump.fun float and circulating supply) outside those allocations. Total
+            supply remains <strong>{{ totalSupply | number }}</strong>.
           </p>
 
           <h3 class="c-token-subsection-title text-primary mb-3 text-uppercase fw-semibold c-text-glow">Tokenomics</h3>
@@ -39,19 +46,21 @@
             class="tokenomics row align-items-center g-4"
             role="group"
             [attr.aria-label]="
-              'Tokenomics: ' +
-              devBuyPercent +
-              '% developer vault, ' +
-              publicFloatPercent +
-              '% public float at launch'
+              'Tokenomics: 55% Streamflow lock, 5% Playhouse bankroll, 40% broader market'
             "
           >
             <div class="col-12 col-md-auto d-flex justify-content-center justify-content-md-start">
               <div class="tokenomics-pie" aria-hidden="true">
-                <div class="tokenomics-pie__ring" [style.--dev-fraction]="devBuyPercent / 100"></div>
+                <div
+                  class="tokenomics-pie__ring"
+                  [style.--locked-fraction]="lockedFraction"
+                  [style.--casino-fraction]="casinoFraction"
+                ></div>
                 <div class="tokenomics-pie__center">
                   <div class="tokenomics-pie__center-disc">
-                    <span class="tokenomics-pie__supply" [attr.title]="(totalSupply | number:'1.0-0') + ' tokens'">1B</span>
+                    <span class="tokenomics-pie__supply" [attr.title]="(totalSupply | number : '1.0-0') + ' tokens'"
+                      >1B</span
+                    >
                     <span class="tokenomics-pie__supply-label">total supply</span>
                   </div>
                 </div>
@@ -60,24 +69,32 @@
             <div class="col">
               <ul class="tokenomics-legend list-unstyled mb-0">
                 <li class="tokenomics-legend__item">
-                  <span class="tokenomics-legend__swatch tokenomics-legend__swatch--dev" aria-hidden="true"></span>
+                  <span class="tokenomics-legend__swatch tokenomics-legend__swatch--locked" aria-hidden="true"></span>
                   <div>
-                    <strong class="tokenomics-legend__title"
-                      >{{ devBuyPercent }}% · developer vault</strong
-                    >
+                    <strong class="tokenomics-legend__title">55% · Streamflow lock (2 months)</strong>
                     <p class="tokenomics-legend__desc mb-0">
-                      ~{{ devAllocationTokens | number }} tokens at launch for Playhouse payouts and operations.
+                      <strong>{{ streamflowLockedTokens | number }}</strong> tokens time-locked; part of the
+                      <strong>600M</strong> creator allocation.
                     </p>
                   </div>
                 </li>
                 <li class="tokenomics-legend__item">
-                  <span class="tokenomics-legend__swatch tokenomics-legend__swatch--public" aria-hidden="true"></span>
+                  <span class="tokenomics-legend__swatch tokenomics-legend__swatch--casino" aria-hidden="true"></span>
                   <div>
-                    <strong class="tokenomics-legend__title"
-                      >{{ publicFloatPercent }}% · public float</strong
-                    >
+                    <strong class="tokenomics-legend__title">5% · Playhouse bankroll</strong>
                     <p class="tokenomics-legend__desc mb-0">
-                      ~{{ publicSupplyAfterDev | number }} tokens available to the broader market after our initial buy.
+                      <strong>{{ casinoBankrollTokens | number }}</strong> tokens for casino mechanics — house SPL
+                      balance, max-stake rails, and payouts as volume grows.
+                    </p>
+                  </div>
+                </li>
+                <li class="tokenomics-legend__item">
+                  <span class="tokenomics-legend__swatch tokenomics-legend__swatch--market" aria-hidden="true"></span>
+                  <div>
+                    <strong class="tokenomics-legend__title">40% · Broader market</strong>
+                    <p class="tokenomics-legend__desc mb-0">
+                      <strong>~{{ remainderTokens | number }}</strong> tokens in the wider float (e.g. launchpad pool
+                      and circulating supply) outside the lock and bankroll slices above.
                     </p>
                   </div>
                 </li>

@@ -8,17 +8,26 @@ import { ConfigService } from 'src/app/services/config.service';
 })
 export class ClaimyTokenComponent {
   readonly totalSupply = 1_000_000_000;
-  readonly publicSupplyAfterDev = 950_000_000;
-  readonly devBuyPercent = 5;
 
-  /** Remaining float after dev allocation (shown in pie + legend). */
-  get publicFloatPercent(): number {
-    return 100 - this.devBuyPercent;
-  }
+  /**
+   * Creator-side purchase (~40 SOL, ~60% of total supply) held on the creator wallet before split:
+   * Streamflow lock + Playhouse bankroll.
+   */
+  readonly creatorAllocationTokens = 600_000_000;
 
-  get devAllocationTokens(): number {
-    return Math.round((this.totalSupply * this.devBuyPercent) / 100);
-  }
+  /** Locked on Streamflow for 2 months (55% of total supply). */
+  readonly streamflowLockedTokens = 550_000_000;
+
+  /** Dedicated to Playhouse betting mechanics / house bankroll (5% of total supply). */
+  readonly casinoBankrollTokens = 50_000_000;
+
+  /** Broader circulating supply outside locked + bankroll (e.g. pump.fun float). */
+  readonly remainderTokens = 400_000_000;
+
+  /** Pie ring: fractions of 1B that sum to 1. */
+  readonly lockedFraction = 0.55;
+  readonly casinoFraction = 0.05;
+  readonly remainderFraction = 0.4;
 
   toast: { type: 'success'; message: string } | null = null;
   private toastClearId: ReturnType<typeof setTimeout> | null = null;

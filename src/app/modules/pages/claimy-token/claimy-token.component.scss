@@ -60,7 +60,9 @@
 }
 
 .tokenomics-pie__ring {
-  --dev-fraction: 0.05;
+  /* 55% Streamflow | 5% casino | 40% market — set from template */
+  --locked-fraction: 0.55;
+  --casino-fraction: 0.05;
 
   position: absolute;
   inset: 0;
@@ -68,8 +70,10 @@
   border-radius: 50%;
   background: conic-gradient(
     from -90deg,
-    rgba(var(--bs-primary-rgb), 0.92) 0deg calc(360deg * var(--dev-fraction)),
-    rgba(255, 255, 255, 0.14) calc(360deg * var(--dev-fraction)) 360deg
+    rgba(186, 154, 255, 0.92) 0deg calc(360deg * var(--locked-fraction)),
+    rgba(var(--bs-primary-rgb), 0.92) calc(360deg * var(--locked-fraction))
+      calc(360deg * (var(--locked-fraction) + var(--casino-fraction))),
+    rgba(255, 255, 255, 0.14) calc(360deg * (var(--locked-fraction) + var(--casino-fraction))) 360deg
   );
   /* Clip to annulus: nothing drawn in the middle, so slices never read as full pies */
   -webkit-mask-image: radial-gradient(
@@ -151,12 +155,17 @@
   border-radius: 50%;
 }
 
-.tokenomics-legend__swatch--dev {
+.tokenomics-legend__swatch--locked {
+  background: rgba(186, 154, 255, 0.92);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.tokenomics-legend__swatch--casino {
   background: rgba(var(--bs-primary-rgb), 0.92);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
-.tokenomics-legend__swatch--public {
+.tokenomics-legend__swatch--market {
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
