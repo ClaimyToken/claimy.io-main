@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { CLAIMY_LAUNCH } from 'src/app/config/claimy-launch.config';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -10,8 +11,10 @@ export class ConfigService {
     return 'online'; // Online or Offline to disable pages + landing page button
   }
 
-  siteName: string = 'CLAIMY';
-  siteLink: string = 'claimy-project.io';
+  /** Branding — from `claimy-launch.config.ts`. */
+  siteName = CLAIMY_LAUNCH.siteName;
+  /** Site host without scheme (footer/legal). */
+  siteLink = CLAIMY_LAUNCH.siteDisplayHost;
 
   /** Supabase project URL (no trailing slash). Edge Functions: `{supabaseUrl}/functions/v1/...` */
   supabaseUrl = environment.supabaseUrl.replace(/\/$/, '');
@@ -23,17 +26,17 @@ export class ConfigService {
    */
   supabaseAnonKey = environment.supabaseAnonKey?.trim() ?? '';
 
-  TokenContractAddress: string = '0x570A5D26f7765Ecb712C0924E4De545B89fD43dF';
-  RewardsContractAddress: string = '0x570A5D26f7765Ecb712C0924E4De545B89fD43dF';
+  TokenContractAddress = CLAIMY_LAUNCH.legacyEthTokenAddress;
+  RewardsContractAddress = CLAIMY_LAUNCH.legacyEthTokenAddress;
 
-  twitterName: string = 'claimyproject';
-  twitterLink: string = `https://x.com/${this.twitterName}`;
-  telegramName: string = 'claimyproject';
-  telegramLink: string = `https://t.me/${this.telegramName}`;
-  githubName: string = 'ClaimyToken';
-  githubLink: string = `https://github.com/${this.githubName}/claimy.io-main`;
-  coinmarketcapLink: string = 'https://coinmarketcap.com/currencies/solana/';
-  coingeckoLink: string = 'https://www.coingecko.com/en/coins/solana';
+  twitterName = CLAIMY_LAUNCH.twitterHandle;
+  twitterLink = `https://x.com/${CLAIMY_LAUNCH.twitterHandle}`;
+  telegramName = CLAIMY_LAUNCH.telegramHandle;
+  telegramLink = `https://t.me/${CLAIMY_LAUNCH.telegramHandle}`;
+  githubName = CLAIMY_LAUNCH.githubOrg;
+  githubLink = `https://github.com/${CLAIMY_LAUNCH.githubOrg}/${CLAIMY_LAUNCH.githubRepo}`;
+  coinmarketcapLink = CLAIMY_LAUNCH.coinmarketcapUrl;
+  coingeckoLink = CLAIMY_LAUNCH.coingeckoUrl;
 
   /** Solana JSON-RPC (e.g. public mainnet or Shyft — see .env / environment). */
   solanaRpcUrl = environment.solanaRpcUrl;
@@ -72,5 +75,16 @@ export class ConfigService {
   get claimyPumpFunCoinUrl(): string {
     const m = this.claimyTokenMint;
     return m ? `https://pump.fun/coin/${m}` : '';
+  }
+
+  /** Treasury wallet from launch config (trimmed). Empty = not announced yet. */
+  get treasuryWalletAddress(): string {
+    return (CLAIMY_LAUNCH.treasuryWalletAddress ?? '').trim();
+  }
+
+  /** Solscan account link when treasury is set. */
+  get claimyTreasurySolscanUrl(): string {
+    const w = this.treasuryWalletAddress;
+    return w ? `https://solscan.io/account/${w}` : '';
   }
 }

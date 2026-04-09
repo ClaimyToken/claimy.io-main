@@ -1,3 +1,4 @@
+import { CLAIMY_LAUNCH } from '../app/config/claimy-launch.config';
 import { envOverrides } from './env.overrides';
 
 /**
@@ -10,5 +11,6 @@ export const environment = {
   /** Public anon key (Dashboard → Settings → API). Required for some Edge Function calls from the browser. */
   supabaseAnonKey: envOverrides.supabaseAnonKey?.trim() || '',
   solanaRpcUrl: envOverrides.solanaRpcUrl?.trim() || 'https://api.mainnet-beta.solana.com',
-  claimySplMintAddress: envOverrides.claimySplMintAddress?.trim() || ''
+  claimySplMintAddress:
+    envOverrides.claimySplMintAddress?.trim() || CLAIMY_LAUNCH.claimySplMintAddress
 };

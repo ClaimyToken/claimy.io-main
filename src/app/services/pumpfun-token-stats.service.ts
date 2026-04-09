@@ -7,6 +7,8 @@ import { ConfigService } from './config.service';
 /** Live token stats: pump.fun coin payload (via Edge proxy) + optional DexScreener 24h volume. */
 export type PumpfunTokenStats = {
   marketCapSol: number | null;
+  /** From pump.fun `usd_market_cap` (matches ~$2.46K style displays). */
+  marketCapUsd: number | null;
   volume24hSol: number | null;
   lastUpdatedAt: number | null;
 };
@@ -31,6 +33,7 @@ export class PumpfunTokenStatsService {
 
   readonly stats$ = new BehaviorSubject<PumpfunTokenStats>({
     marketCapSol: null,
+    marketCapUsd: null,
     volume24hSol: null,
     lastUpdatedAt: null
   });
@@ -59,6 +62,7 @@ export class PumpfunTokenStatsService {
     this.pollSub = null;
     this.stats$.next({
       marketCapSol: null,
+      marketCapUsd: null,
       volume24hSol: null,
       lastUpdatedAt: null
     });
@@ -95,6 +99,7 @@ export class PumpfunTokenStatsService {
       catchError(() => {
         this.stats$.next({
           marketCapSol: null,
+          marketCapUsd: null,
           volume24hSol: null,
           lastUpdatedAt: Date.now()
         });
@@ -128,6 +133,7 @@ export class PumpfunTokenStatsService {
 
     this.stats$.next({
       marketCapSol: mcapSol,
+      marketCapUsd: usdMcap,
       volume24hSol,
       lastUpdatedAt: Date.now()
     });

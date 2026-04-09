@@ -62,7 +62,16 @@
                             <p class="text-primary mb-1 text-center fw-bold c-text-glow text-uppercase">CLAIMY TOKEN
                                 CONTRACT</p>
                             <div class="d-flex flex-row align-items-center justify-content-center gap-2">
-                                <p class="mb-0 text-center text-uppercase">TBA</p>
+                                <ng-container *ngIf="configService.claimyTokenMint; else noContract">
+                                    <a [href]="configService.claimySolscanTokenUrl" target="_blank"
+                                        rel="noreferrer noopener" class="mb-0 text-center text-break"
+                                        [title]="configService.claimyTokenMint">
+                                        {{ configService.claimyTokenMint | shortenAddress }}
+                                    </a>
+                                </ng-container>
+                                <ng-template #noContract>
+                                    <p class="mb-0 text-center text-uppercase">TBA</p>
+                                </ng-template>
                             </div>
                         </div>
                     </div>
@@ -96,7 +105,7 @@
                             <p class="text-primary mb-1 text-center fw-bold c-text-glow text-uppercase">24h Volume
                             </p>
                             <div class="d-flex flex-row align-items-center justify-content-center gap-2">
-                                <p class="mb-0 text-center text-uppercase">{{ token24hVolumeLiveLabel }}
+                                <p class="mb-0 text-center">{{ token24hVolumeLiveLabel }}
                                 </p>
                             </div>
                         </div>
@@ -108,7 +117,16 @@
                             <p class="text-primary mb-1 text-center fw-bold c-text-glow text-uppercase">CLAIMY TREASURY
                                 WALLET</p>
                             <div class="d-flex flex-row align-items-center justify-content-center gap-2">
-                                <p class="mb-0 text-center text-uppercase">TBA</p>
+                                <ng-container *ngIf="configService.treasuryWalletAddress; else noTreasury">
+                                    <a [href]="configService.claimyTreasurySolscanUrl" target="_blank"
+                                        rel="noreferrer noopener" class="mb-0 text-center text-break"
+                                        [title]="configService.treasuryWalletAddress">
+                                        {{ configService.treasuryWalletAddress | shortenAddress }}
+                                    </a>
+                                </ng-container>
+                                <ng-template #noTreasury>
+                                    <p class="mb-0 text-center text-uppercase">TBA</p>
+                                </ng-template>
                             </div>
                         </div>
                     </div>
@@ -144,7 +162,7 @@
                                 Marketcap
                             </p>
                             <div class="d-flex flex-row align-items-center justify-content-center gap-2">
-                                <p class="mb-0 text-center text-uppercase">{{ tokenMarketCapLiveLabel }}
+                                <p class="mb-0 text-center">{{ tokenMarketCapLiveLabel }}
                                 </p>
                             </div>
                         </div>
