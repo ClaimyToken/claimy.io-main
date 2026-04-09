@@ -80,8 +80,12 @@
           <td>Users, nonces, referral data, playable credit ledger — applied via SQL migrations in <code>docs/migrations/</code>.</td>
         </tr>
         <tr>
-      <td>Edge Functions</td>
-      <td>Register/login, credits sync, game sessions (Flowerpoker + Blackjack + Dice), Playhouse feed/ranking stats, withdrawals, referrals.</td>
+      <td>Edge Functions (Deno)</td>
+      <td>
+        Supabase-hosted <strong>Deno</strong> handlers: register/login, credits sync, game sessions (Flowerpoker + Blackjack + Dice),
+        Playhouse feed/ranking stats, withdrawals, referrals, <code>bankroll-info</code> (stake caps), and
+        <code>pumpfun-token-proxy</code> (server-side forwarder to pump.fun’s API for pre-app landing stats — browsers cannot call pump.fun directly due to <code>Origin</code> checks).
+      </td>
         </tr>
         <tr>
           <td>Solana RPC</td>
@@ -157,9 +161,10 @@ npx ng serve
     Slugs include <code>check-username</code>, <code>register-phantom</code>, <code>wallet-login</code>,
     <code>account-linked-wallet</code>, <code>claimy-credits</code>, <code>claimy-profile</code>,
     <code>withdraw-spl</code>, <code>claimy-referrals</code>, <code>flowerpoker-game</code>, <code>blackjack-game</code>,
-    <code>dice-game</code>,
-    <code>playhouse-feed</code>, <code>admin-sweep-wallets</code>,
-    and others listed in <code>supabase/functions/README.md</code> and <code>docs/README.md</code>.
+    <code>dice-game</code>, <code>playhouse-feed</code>, <code>bankroll-info</code>, <code>pumpfun-token-proxy</code>,
+    <code>admin-sweep-wallets</code>, and others listed in <code>supabase/functions/README.md</code> and
+    <code>docs/README.md</code>. For <code>pumpfun-token-proxy</code>, mirror <code>supabase/config.toml</code>
+    (<code>verify_jwt = false</code>) on the project so the landing page can call it with anon headers only.
   </p>
 
   <section id="playhouse-feed-troubleshooting" class="mt-4" aria-labelledby="playhouse-feed-heading">
@@ -295,6 +300,11 @@ npx ng serve
     cluster you use, note decimals, fund user ATAs and vault ATAs as required, and ensure the same mint appears in
     Edge secrets and the Angular env. Mismatch between cluster, mint, or RPC is the most common source of “nothing
     syncs” or “withdraw fails” in local experiments.
+  </p>
+  <p>
+    Public launch strings (default mint when env does not override, treasury Solana address for the landing page, socials,
+    branding) live in <code>src/app/config/claimy-launch.config.ts</code> — keep that in sync with CI env inject and Edge
+    secrets when you change the live token.
   </p>
 
   <h2 id="scripts">Helpful npm scripts</h2>
