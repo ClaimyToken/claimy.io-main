@@ -218,7 +218,7 @@ serve(async (req) => {
 
     const { data: row, error: rowErr } = await supabase
       .from("claimy_users")
-      .select("id, deposit_wallet_public_key, deposit_chain_balance_snapshot")
+      .select("deposit_wallet_public_key")
       .eq("wallet_address", walletAddress)
       .maybeSingle();
 
@@ -227,7 +227,6 @@ serve(async (req) => {
     }
 
     const depositPk = row.deposit_wallet_public_key.trim();
-    const userId = row.id as string;
 
     let onchain: number;
     try {
@@ -237,124 +236,64 @@ serve(async (req) => {
       return json({ ok: false, error: `RPC balance failed: ${m}` }, 200);
     }
 
-    const { data: pb, error: pbErr } = await supabase.rpc("claimy_get_playable_balance", {
+    /** Single locked transaction in Postgres — prevents double-credit when two syncs run at once (nav + modal). */
+    const { data: rpcRaw, error: rpcErr } = await supabase.rpc("claimy_sync_from_chain_apply", {
       p_wallet: walletAddress,
+      p_onchain: onchain,
     });
-    if (pbErr) {
-      const msg = pbErr.message ?? String(pbErr);
-      if (msg.includes("USER_NOT_FOUND")) {
-        return json({ ok: false, error: "Account not found." }, 200);
-      }
-      return json({ ok: false, error: msg }, 200);
-    }
 
-    const playable = typeof pb === "number" ? pb : parseFloat(String(pb));
-    const p0 = Number.isFinite(playable) ? playable : 0;
-    const eps = 1e-8;
-
-    const snapshotRaw = row.deposit_chain_balance_snapshot;
-    const snapshotNum =
-      snapshotRaw === null || snapshotRaw === undefined
-        ? null
-        : typeof snapshotRaw === "number"
-          ? snapshotRaw
-          : parseFloat(String(snapshotRaw));
-    const snapshotHas = snapshotNum !== null && Number.isFinite(snapshotNum);
-
-    let snap0: number;
-
-    if (!snapshotHas) {
-      const { error: upErr } = await supabase
-        .from("claimy_users")
-        .update({ deposit_chain_balance_snapshot: 0 })
-        .eq("id", userId);
-      if (upErr) {
+    if (rpcErr) {
+      const msg = rpcErr.message ?? String(rpcErr);
+      if (
+        msg.includes("claimy_sync_from_chain_apply") ||
+        (msg.includes("function") && msg.includes("does not exist"))
+      ) {
         return json(
           {
             ok: false,
             error:
-              `Could not set deposit snapshot (add column deposit_chain_balance_snapshot — see docs/migrations/claimy_deposit_chain_snapshot.sql): ${upErr.message}`,
+              "Run docs/migrations/claimy_sync_from_chain_atomic.sql in Supabase SQL Editor, then retry.",
           },
           200,
         );
       }
-      if (p0 > eps) {
-        /** Playable already seeded (e.g. admin); only anchor snapshot to chain — do not add on-chain again. */
-        const { error: anchorErr } = await supabase
-          .from("claimy_users")
-          .update({ deposit_chain_balance_snapshot: onchain })
-          .eq("id", userId);
-        if (anchorErr) {
-          return json({ ok: false, error: anchorErr.message ?? String(anchorErr) }, 200);
-        }
-        return json({
-          ok: true,
-          playableBalance: p0,
-          synced: false,
-          onchainBalance: onchain,
-          baselineSnapshot: true,
-          source: "database",
-        });
-      }
-      /** First sync with playable ~0: snapshot forced to 0 so delta below credits full on-chain balance. */
-      snap0 = 0;
-    } else {
-      snap0 = snapshotNum as number;
+      return json({ ok: false, error: msg }, 200);
     }
 
-    const delta = onchain - snap0;
-
-    if (Math.abs(delta) < eps) {
-      return json({
-        ok: true,
-        playableBalance: p0,
-        synced: false,
-        onchainBalance: onchain,
-        source: "database",
-      });
+    const out = rpcRaw as Record<string, unknown> | null;
+    if (!out || typeof out !== "object") {
+      return json({ ok: false, error: "Invalid sync response." }, 200);
     }
-
-    const { data: after, error: adErr } = await supabase.rpc("claimy_apply_credit_delta", {
-      p_wallet: walletAddress,
-      p_delta: delta,
-      p_entry_type: "chain_sync",
-      p_ref: delta > 0 ? "deposit_increase" : "deposit_decrease",
-    });
-
-    if (adErr) {
-      const msg = adErr.message ?? String(adErr);
-      if (msg.includes("INSUFFICIENT_BALANCE")) {
+    if (out["ok"] === false) {
+      const err = typeof out["error"] === "string" ? out["error"] : "Sync failed.";
+      if (err.includes("INSUFFICIENT_BALANCE_RECONCILE")) {
         return json(
           {
             ok: false,
             error:
               "Could not reconcile (on-chain deposit dropped but credits would go negative). Investigate custodial wallet.",
-            onchainBalance: onchain,
-            playableBalanceBefore: p0,
-            snapshotBefore: snap0,
+            onchainBalance: out["onchainBalance"],
+            playableBalanceBefore: out["playableBalanceBefore"],
+            snapshotBefore: out["snapshotBefore"],
           },
           200,
         );
       }
-      return json({ ok: false, error: msg }, 200);
+      if (err === "USER_NOT_FOUND") {
+        return json({ ok: false, error: "Account not found." }, 200);
+      }
+      return json({ ok: false, error: err }, 200);
     }
 
-    const { error: snapErr } = await supabase
-      .from("claimy_users")
-      .update({ deposit_chain_balance_snapshot: onchain })
-      .eq("id", userId);
-    if (snapErr) {
-      return json({ ok: false, error: snapErr.message ?? String(snapErr) }, 200);
-    }
-
-    const raw = after as unknown;
-    const n = typeof raw === "number" ? raw : parseFloat(String(raw));
+    const pb = out["playableBalance"];
+    const n = typeof pb === "number" ? pb : parseFloat(String(pb));
     return json({
       ok: true,
-      playableBalance: Number.isFinite(n) ? n : p0,
-      synced: true,
-      deltaApplied: delta,
-      onchainBalance: onchain,
+      playableBalance: Number.isFinite(n) ? n : 0,
+      synced: out["synced"] === true,
+      deltaApplied: typeof out["deltaApplied"] === "number" ? out["deltaApplied"] : undefined,
+      onchainBalance: typeof out["onchainBalance"] === "number" ? out["onchainBalance"] : onchain,
+      baselineSnapshot: out["baselineSnapshot"] === true,
       source: "database",
     });
   }

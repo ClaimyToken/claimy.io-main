@@ -14,8 +14,10 @@
 ## Deploy
 
 1. Run **`docs/migrations/claimy_playable_credits.sql`** in Supabase SQL Editor.
-2. Deploy Edge function **`claimy-credits`** from **`supabase/functions/claimy-credits/index.ts`** (same flow as `withdraw-spl`).
-3. Set secret **`CLAIMY_CREDITS_MUTATION_SECRET`** (long random string) if you will call **`apply_delta`** or **`record_deposit`** from a backend/indexer.
+2. Run **`docs/migrations/claimy_deposit_chain_snapshot.sql`** if you use chain sync (column `deposit_chain_balance_snapshot`).
+3. Run **`docs/migrations/claimy_sync_from_chain_atomic.sql`** — **required** for current `sync_from_chain`: one Postgres transaction with `FOR UPDATE` so two simultaneous refreshes (e.g. nav + wallet modal) cannot double-credit the same deposit.
+4. Deploy Edge function **`claimy-credits`** from **`supabase/functions/claimy-credits/index.ts`** (same flow as `withdraw-spl`).
+5. Set secret **`CLAIMY_CREDITS_MUTATION_SECRET`** (long random string) if you will call **`apply_delta`** or **`record_deposit`** from a backend/indexer.
 
 ## Edge API: `POST /functions/v1/claimy-credits`
 
