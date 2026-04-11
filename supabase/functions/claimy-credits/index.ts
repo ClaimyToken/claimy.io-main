@@ -6,7 +6,7 @@
  *   { "action": "get", "walletAddress": "<phantom pubkey>" }
  *   { "action": "apply_delta", "walletAddress", "delta": "<decimal string>", "entryType": "game_win", "ref": "optional" }
  *   { "action": "record_deposit", "walletAddress", "txSignature", "mint", "amount": "<decimal string>" }
- *   { "action": "sync_from_chain", "walletAddress": "<phantom pubkey>" } — credits **new** SPL on custodial deposit vs `deposit_chain_balance_snapshot` (not vs playable_balance; avoids undoing withdraws)
+ *   { "action": "sync_from_chain", "walletAddress": "<phantom pubkey>" } — credits **new** SPL on custodial deposit vs `deposit_chain_balance_snapshot` (not vs playable_balance; avoids undoing withdraws). If snapshot was never set and playable is ~0, treats baseline as 0 so tokens already on the deposit wallet credit on first sync.
  *   { "action": "list_ledger", "walletAddress", "direction": "all"|"incoming"|"outgoing", "limit": 50 } — credit ledger rows (deposits, withdraws, syncs, games)
  *
  * Mutations require: Authorization: Bearer <CLAIMY_CREDITS_MUTATION_SECRET>
@@ -261,11 +261,12 @@ serve(async (req) => {
           : parseFloat(String(snapshotRaw));
     const snapshotHas = snapshotNum !== null && Number.isFinite(snapshotNum);
 
-    /** First run: remember deposit SPL without touching playable_balance (withdraw-safe). */
+    let snap0: number;
+
     if (!snapshotHas) {
       const { error: upErr } = await supabase
         .from("claimy_users")
-        .update({ deposit_chain_balance_snapshot: onchain })
+        .update({ deposit_chain_balance_snapshot: 0 })
         .eq("id", userId);
       if (upErr) {
         return json(
@@ -277,17 +278,30 @@ serve(async (req) => {
           200,
         );
       }
-      return json({
-        ok: true,
-        playableBalance: p0,
-        synced: false,
-        onchainBalance: onchain,
-        baselineSnapshot: true,
-        source: "database",
-      });
+      if (p0 > eps) {
+        /** Playable already seeded (e.g. admin); only anchor snapshot to chain — do not add on-chain again. */
+        const { error: anchorErr } = await supabase
+          .from("claimy_users")
+          .update({ deposit_chain_balance_snapshot: onchain })
+          .eq("id", userId);
+        if (anchorErr) {
+          return json({ ok: false, error: anchorErr.message ?? String(anchorErr) }, 200);
+        }
+        return json({
+          ok: true,
+          playableBalance: p0,
+          synced: false,
+          onchainBalance: onchain,
+          baselineSnapshot: true,
+          source: "database",
+        });
+      }
+      /** First sync with playable ~0: snapshot forced to 0 so delta below credits full on-chain balance. */
+      snap0 = 0;
+    } else {
+      snap0 = snapshotNum as number;
     }
 
-    const snap0 = snapshotNum as number;
     const delta = onchain - snap0;
 
     if (Math.abs(delta) < eps) {

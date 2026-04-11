@@ -27,7 +27,9 @@ Reconciles **`playable_balance`** in Postgres with the **on-chain SPL balance** 
 { "action": "sync_from_chain", "walletAddress": "<Phantom pubkey>" }
 ```
 
-**Secrets** on the Edge runtime (same as `withdraw-spl`): **`SOLANA_RPC_URL`**, **`CLAIMY_SPL_MINT`**.
+**Secrets** on the Edge runtime (same as `withdraw-spl`): **`SOLANA_RPC_URL`**, **`CLAIMY_SPL_MINT`** (must exactly match the SPL mint users deposit).
+
+**First sync:** If `deposit_chain_balance_snapshot` was never set and **`playable_balance` is ~0**, the handler treats the baseline as **0** and credits the **full** on-chain deposit (so sending tokens before the first Refresh still works). If playable was already seeded (e.g. admin), it only anchors the snapshot to chain without adding that balance again.
 
 Response includes `synced: true` when a delta was applied, `synced: false` when already in sync.
 
